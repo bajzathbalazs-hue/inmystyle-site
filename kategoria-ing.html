@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ing kollekció — In My Style</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div data-include="header.html"></div>
+
+  <section class="category-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">Kollekciók</a> / Ing</div>
+      <div class="eyebrow" style="margin-top:18px;">Kategória</div>
+      <h1 class="section-title" style="font-size:38px;">Ing <em style="font-family:var(--font-script); font-style:italic;">kollekció</em></h1>
+      <p class="section-lead">Irodai és alkalmi ingek — válassz az egyedi méretre készíthető In My Style darabok és a fix méretű belga import kínálat között.</p>
+      <div class="filter-pills">
+        <button class="pill active" data-filter="all">Mind</button>
+        <button class="pill" data-filter="egyedi">In My Style · Egyedi</button>
+        <button class="pill" data-filter="import">Belga import · Készleten</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid-3" style="grid-template-columns:repeat(3,1fr);">
+
+        <div class="product-card" data-category="egyedi">
+          <div class="product-media">Ing 1</div>
+          <div class="product-body">
+            <div class="product-badges"><span class="tag">In My Style · Egyedi</span></div>
+            <h3>Klasszikus fehér ing</h3>
+            <div class="product-specs">
+              <span>Anyag</span><span>Pamut popelin</span>
+              <span>Szín</span><span>Választható</span>
+              <span>Méret</span><span>Egyedi méretre szabva</span>
+            </div>
+            <div class="product-price">24 900 Ft</div>
+            <a href="termek.html" class="btn btn-outline btn-block">Részletek</a>
+          </div>
+        </div>
+
+        <div class="product-card" data-category="import">
+          <div class="product-media">Ing 2</div>
+          <div class="product-body">
+            <div class="product-badges">
+              <span class="tag">Belga import</span>
+              <span class="tag tag-dark">Készleten: 5 db</span>
+            </div>
+            <h3>Belga import csíkos ing</h3>
+            <div class="product-specs">
+              <span>Anyag</span><span>Pamut-keverék</span>
+              <span>Szín</span><span>Kék-fehér csíkos</span>
+              <span>Méret</span><span>38-as</span>
+            </div>
+            <div class="product-price">15 900 Ft</div>
+            <a href="termek.html" class="btn btn-outline btn-block">Részletek</a>
+          </div>
+        </div>
+
+        <div class="product-card" data-category="egyedi">
+          <div class="product-media">Ing 3</div>
+          <div class="product-body">
+            <div class="product-badges"><span class="tag">In My Style · Egyedi</span></div>
+            <h3>Sportos-elegáns ing, rugalmas anyagból</h3>
+            <div class="product-specs">
+              <span>Anyag</span><span>Rugalmas pamut-keverék</span>
+              <span>Szín</span><span>Választható</span>
+              <span>Méret</span><span>Egyedi méretre szabva</span>
+            </div>
+            <div class="product-price">27 900 Ft</div>
+            <a href="termek.html" class="btn btn-outline btn-block">Részletek</a>
+          </div>
+        </div>
+
+        <div class="product-card" data-category="import">
+          <div class="product-media">Ing 4</div>
+          <div class="product-body">
+            <div class="product-badges">
+              <span class="tag">Belga import</span>
+              <span class="tag tag-dark">Utolsó darab</span>
+            </div>
+            <h3>Belga import mintás ing</h3>
+            <div class="product-specs">
+              <span>Anyag</span><span>Viszkóz</span>
+              <span>Szín</span><span>Mintás</span>
+              <span>Méret</span><span>38 / 100 cm</span>
+            </div>
+            <div class="product-price">17 500 Ft</div>
+            <a href="termek.html" class="btn btn-outline btn-block">Részletek</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div data-include="faq-contact.html"></div>
+  <div data-include="footer.html"></div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
