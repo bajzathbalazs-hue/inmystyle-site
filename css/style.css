@@ -206,6 +206,7 @@ a { color: inherit; text-decoration: none; }
   padding: 5px 10px; border-radius: 999px;
 }
 .tag-dark { background: var(--color-ink); color: #fff; }
+.tag-danger { background: #f5eaea; color: #a13b3b; }
 
 /* ===== Quote block ===== */
 .quote-block { text-align: center; padding: 56px 0; max-width: 780px; margin: 0 auto; }
