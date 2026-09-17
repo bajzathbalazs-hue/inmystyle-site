@@ -1,18 +1,18 @@
 /* ===== In My Style — design tokens ===== */
 :root {
   --color-bg: #ffffff;
-  --color-soft: #dfe8ee;       /* soft blue-gray section background */
-  --color-soft-2: #eef3f6;     /* lighter blue tint */
-  --color-ink: #1c2b36;        /* near-black navy for headings/buttons */
-  --color-ink-soft: #4a5b68;   /* muted body text */
-  --color-accent: #3c6e91;     /* primary blue accent */
-  --color-accent-dark: #2a4f68;
-  --color-line: #c7d5dc;       /* hairline borders */
+  --color-soft: #dde6e7;       /* exact Framer section background */
+  --color-soft-2: #eaf0f1;     /* lighter tint of the same background */
+  --color-ink: #1f1f1f;        /* exact Framer text / button fill */
+  --color-ink-soft: #55605f;   /* muted body text, derived from ink */
+  --color-accent: #4d81b3;     /* exact Framer accent blue (eyebrows/labels) */
+  --color-accent-dark: #3a6690;
+  --color-line: #cfd8d9;       /* hairline borders, derived from soft bg */
   --color-card: #ffffff;
   --color-badge-bg: #e4edf2;
 
-  --font-script: "Cormorant Garamond", "Playfair Display", serif;
-  --font-body: "Poppins", "Inter", -apple-system, sans-serif;
+  --font-script: "Allura", cursive;
+  --font-body: "Montserrat", -apple-system, sans-serif;
 
   --radius-md: 10px;
   --radius-lg: 18px;
@@ -62,8 +62,8 @@ a { color: inherit; text-decoration: none; }
 
 .site-header .logo {
   font-family: var(--font-script);
-  font-style: italic;
-  font-size: 28px;
+  font-style: normal;
+  font-size: 34px;
   letter-spacing: .01em;
 }
 
@@ -144,15 +144,16 @@ a { color: inherit; text-decoration: none; }
 .hero h1 {
   font-size: 44px;
   line-height: 1.15;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 28px;
   color: var(--color-ink);
 }
 .hero h1 em {
   font-family: var(--font-script);
-  font-style: italic;
-  color: var(--color-accent-dark);
-  font-weight: 500;
+  font-style: normal;
+  color: var(--color-ink);
+  font-weight: 400;
+  font-size: 1.35em;
 }
 .hero-actions { display: flex; gap: 14px; margin-bottom: 40px; flex-wrap: wrap; }
 .hero-stats { display: flex; gap: 36px; flex-wrap: wrap; }
@@ -182,7 +183,7 @@ a { color: inherit; text-decoration: none; }
   text-transform: uppercase; letter-spacing: .12em; font-size: 12px;
   color: var(--color-accent); font-weight: 700; margin-bottom: 10px;
 }
-.section-title { font-size: 32px; margin: 0 0 14px; font-weight: 600; }
+.section-title { font-size: 32px; margin: 0 0 14px; font-weight: 700; }
 .section-lead { color: var(--color-ink-soft); max-width: 640px; margin: 0 0 36px; line-height: 1.6; }
 .center { text-align: center; margin-left: auto; margin-right: auto; }
 
@@ -208,7 +209,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ===== Quote block ===== */
 .quote-block { text-align: center; padding: 56px 0; max-width: 780px; margin: 0 auto; }
-.quote-block p { font-family: var(--font-script); font-style: italic; font-size: 26px; line-height: 1.5; }
+.quote-block p { font-family: var(--font-script); font-style: normal; font-size: 30px; line-height: 1.5; color: var(--color-ink); }
 .quote-block cite { display: block; margin-top: 16px; font-size: 13px; color: var(--color-ink-soft); font-style: normal; }
 
 /* ===== Feature grid ===== */
@@ -282,7 +283,7 @@ a { color: inherit; text-decoration: none; }
   padding: 32px;
   display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
 }
-.newsletter-cta h4 { font-family: var(--font-script); font-style: italic; font-size: 24px; margin: 0; font-weight: 500; }
+.newsletter-cta h4 { font-family: var(--font-script); font-style: normal; font-size: 28px; margin: 0; font-weight: 400; }
 .newsletter-form { display: flex; gap: 10px; flex-wrap: wrap; }
 .newsletter-form input {
   padding: 12px 16px; border-radius: 999px; border: none; min-width: 200px;
@@ -292,7 +293,7 @@ a { color: inherit; text-decoration: none; }
 /* ===== Footer ===== */
 .site-footer { background: var(--color-soft-2); padding: 56px 0 24px; margin-top: 72px; }
 .footer-top { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 32px; }
-.footer-brand .logo { font-family: var(--font-script); font-style: italic; font-size: 24px; margin-bottom: 10px; }
+.footer-brand .logo { font-family: var(--font-script); font-style: normal; font-size: 28px; margin-bottom: 10px; }
 .footer-brand p { color: var(--color-ink-soft); font-size: 14px; line-height: 1.6; }
 .footer-col h5 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 14px; }
 .footer-col a { display: block; font-size: 14px; color: var(--color-ink-soft); margin-bottom: 10px; }
