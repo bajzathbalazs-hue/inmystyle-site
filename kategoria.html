@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kategória — In My Style</title>
+  <meta name="robots" content="noindex,follow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="icon" href="assets/icons/favicon-light.png">
+</head>
+<body>
+
+  <div data-include="header.html"></div>
+
+  <section class="category-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">Kollekciók</a> / <span id="cat-name">Kategória</span></div>
+      <div class="eyebrow" style="margin-top:18px;" id="cat-tagline">Kategória</div>
+      <h1 class="section-title" style="font-size:38px;" id="cat-name-title">Kategória</h1>
+      <p class="section-lead" id="cat-lead"></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid-3" id="product-grid" style="grid-template-columns:repeat(3,1fr);"></div>
+    </div>
+  </section>
+
+  <section class="section section-soft">
+    <div class="container" id="category-overview"></div>
+  </section>
+
+  <div data-include="faq-contact.html"></div>
+  <div data-include="footer.html"></div>
+
+  <script src="js/products-data.js?v=2"></script>
+  <script src="js/catalog.js?v=2"></script>
+  <script src="js/main.js?v=3"></script>
+  <script>
+    renderCategoryPage();
+    renderCategoryOverview("category-overview");
+  </script>
+</body>
+</html>

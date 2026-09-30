@@ -8,6 +8,62 @@ async function includePartials() {
     })
   );
   initNav();
+  initHeaderScroll();
+  initReveal();
+}
+
+function initHeaderScroll() {
+  const header = document.querySelector(".site-header");
+  if (!header) return;
+  function onScroll() {
+    header.classList.toggle("is-scrolled", window.scrollY > 12);
+  }
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+}
+
+function initReveal() {
+  const selector = [
+    ".two-col > div", ".feature", ".help-item", ".testimonial-card",
+    ".category-panel", ".category-card", ".info-card", ".gallery-item",
+    ".product-card", ".event-banner", ".contact-grid > *"
+  ].join(", ");
+  const items = Array.from(document.querySelectorAll(selector));
+  if (!items.length) return;
+
+  items.forEach((el, i) => {
+    el.classList.add("reveal");
+    el.style.transitionDelay = (i % 3) * 90 + "ms";
+  });
+
+  let pending = items.slice();
+  let ticking = false;
+
+  function sweep() {
+    ticking = false;
+    const vh = window.innerHeight;
+    pending = pending.filter((el) => {
+      const r = el.getBoundingClientRect();
+      const visible = r.top < vh + 200 && r.bottom > -200;
+      if (visible) el.classList.add("is-visible");
+      return !visible;
+    });
+    if (pending.length === 0) {
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+    }
+  }
+
+  function onScrollOrResize() {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(sweep);
+    }
+  }
+
+  sweep();
+  window.addEventListener("scroll", onScrollOrResize, { passive: true });
+  window.addEventListener("resize", onScrollOrResize);
 }
 
 function initNav() {
