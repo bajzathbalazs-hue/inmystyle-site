@@ -5,9 +5,15 @@ async function includePartials() {
       const file = node.getAttribute("data-include");
       const res = await fetch(`partials/${file}`);
       node.innerHTML = await res.text();
+      // Unwrap the placeholder div: a wrapper here would make position:sticky
+      // children (the header) only stick within the wrapper's own short height.
+      const parent = node.parentNode;
+      while (node.firstChild) parent.insertBefore(node.firstChild, node);
+      parent.removeChild(node);
     })
   );
   initNav();
+  initNavAccordion();
   initHeaderScroll();
   initReveal();
 }
@@ -83,6 +89,20 @@ function initNav() {
   openBtn?.addEventListener("click", open);
   closeBtn?.addEventListener("click", close);
   backdrop?.addEventListener("click", close);
+}
+
+function initNavAccordion() {
+  document.querySelectorAll("[data-toggle]").forEach((btn) => {
+    const targetId = btn.getAttribute("data-toggle");
+    const panel = document.getElementById(targetId);
+    if (!panel) return;
+    btn.setAttribute("aria-expanded", "false");
+    btn.addEventListener("click", () => {
+      const isOpen = btn.classList.toggle("is-open");
+      panel.classList.toggle("is-open", isOpen);
+      btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+  });
 }
 
 function initFilterPills() {

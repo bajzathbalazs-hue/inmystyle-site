@@ -4,12 +4,12 @@
   <button class="nav-drawer-close" data-nav-close>&times;</button>
   <a href="index.html">Főoldal</a>
 
-  <details class="nav-group">
-    <summary>Termékkategóriák</summary>
+  <div class="nav-group">
+    <button type="button" class="nav-toggle" data-toggle="nav-panel-kategoriak">Termékkategóriák</button>
+    <div class="nav-panel" id="nav-panel-kategoriak">
 
-    <details class="nav-subgroup-details">
-      <summary>Ruházat</summary>
-      <div class="nav-links">
+      <button type="button" class="nav-subtoggle" data-toggle="nav-panel-ruhazat">Ruházat</button>
+      <div class="nav-links" id="nav-panel-ruhazat">
         <a href="kategoria.html?slug=ing">Ing</a>
         <a href="kategoria.html?slug=ingruha">Ing ruha</a>
         <a href="kategoria.html?slug=blezer">Blézer</a>
@@ -20,11 +20,9 @@
         <a href="kategoria.html?slug=aktualis">Aktuális ruhák</a>
         <a href="kategoria.html?slug=kabat">Kabátok</a>
       </div>
-    </details>
 
-    <details class="nav-subgroup-details">
-      <summary>Kiegészítők</summary>
-      <div class="nav-links">
+      <button type="button" class="nav-subtoggle" data-toggle="nav-panel-kiegeszitok">Kiegészítők</button>
+      <div class="nav-links" id="nav-panel-kiegeszitok">
         <a href="kategoria.html?slug=ov">Övek</a>
         <a href="kategoria.html?slug=sal">Sálak</a>
         <a href="kategoria.html?slug=kendo">Kendők</a>
@@ -32,10 +30,10 @@
         <a href="kategoria.html?slug=kituzo">Kitűzők</a>
         <a href="kategoria.html?slug=taska">Táskák</a>
       </div>
-    </details>
 
-    <a href="index.html#termekkategoriak" class="nav-all-link">Összes kategória áttekintése →</a>
-  </details>
+      <a href="index.html#termekkategoriak" class="nav-all-link">Összes kategória áttekintése →</a>
+    </div>
+  </div>
 
   <a href="akcio.html">Akció</a>
   <a href="index.html#szolgaltatasaink">Szolgáltatások</a>
