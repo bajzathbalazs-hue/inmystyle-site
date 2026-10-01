@@ -351,6 +351,7 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 .contact-info { display: flex; gap: 40px; flex-wrap: wrap; font-size: 14px; }
 .contact-info div b { display: block; font-size: 12px; color: var(--color-ink-soft); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
 .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.contact-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
 .booking-card, .map-card {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-line);
@@ -361,6 +362,30 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 .booking-card { padding: 24px; }
 .booking-card h4 { margin: 0 0 6px; }
 .booking-card .btn { margin-top: 18px; }
+.booking-card-calendly { display: flex; flex-direction: column; min-height: 0; }
+.booking-card-calendly .calendly-inline-widget { border-radius: var(--radius-md); overflow: hidden; }
+
+/* ===== Direct-call CTA ===== */
+.call-cta {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+  background: var(--color-ink); color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+}
+.call-cta h3 { margin: 0 0 6px; font-size: 22px; }
+.call-cta p { margin: 0; color: #c7d2d6; font-size: 14px; max-width: 460px; }
+.call-cta-btn { font-size: 16px; padding: 16px 30px; white-space: nowrap; }
+
+@media (max-width: 1100px) {
+  .contact-grid-3 { grid-template-columns: 1fr 1fr; }
+  .contact-grid-3 .media-frame { grid-column: 1 / -1; aspect-ratio: 21/9; }
+}
+@media (max-width: 700px) {
+  .contact-grid-3 { grid-template-columns: 1fr; }
+  .contact-grid-3 .media-frame { aspect-ratio: 16/9; }
+  .call-cta { flex-direction: column; align-items: flex-start; }
+}
 .map-card {
   background: repeating-linear-gradient(45deg, #d6e2e9, #d6e2e9 10px, #e9f0f3 10px, #e9f0f3 20px);
   display: flex; align-items: center; justify-content: center;

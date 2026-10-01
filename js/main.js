@@ -1,10 +1,24 @@
+const PARTIALS_VERSION = "2";
+
 async function includePartials() {
   const nodes = document.querySelectorAll("[data-include]");
   await Promise.all(
     Array.from(nodes).map(async (node) => {
       const file = node.getAttribute("data-include");
-      const res = await fetch(`partials/${file}`);
+      const res = await fetch(`partials/${file}?v=${PARTIALS_VERSION}`, { cache: "no-cache" });
       node.innerHTML = await res.text();
+
+      // <script> tags set via innerHTML never execute — recreate each one so
+      // things like the Calendly embed actually load.
+      Array.from(node.querySelectorAll("script")).forEach((oldScript) => {
+        const newScript = document.createElement("script");
+        Array.from(oldScript.attributes).forEach((attr) =>
+          newScript.setAttribute(attr.name, attr.value)
+        );
+        newScript.textContent = oldScript.textContent;
+        oldScript.replaceWith(newScript);
+      });
+
       // Unwrap the placeholder div: a wrapper here would make position:sticky
       // children (the header) only stick within the wrapper's own short height.
       const parent = node.parentNode;
