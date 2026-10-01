@@ -32,7 +32,7 @@ function initReveal() {
   const selector = [
     ".two-col > div", ".feature", ".help-item", ".testimonial-card",
     ".category-panel", ".category-card", ".info-card", ".gallery-item",
-    ".product-card", ".event-banner", ".contact-grid > *"
+    ".product-card", ".event-banner", ".contact-grid > *", ".process-step", ".size-tool"
   ].join(", ");
   const items = Array.from(document.querySelectorAll(selector));
   if (!items.length) return;
