@@ -351,7 +351,9 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 .contact-info { display: flex; gap: 40px; flex-wrap: wrap; font-size: 14px; }
 .contact-info div b { display: block; font-size: 12px; color: var(--color-ink-soft); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
 .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-.contact-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.contact-grid-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }
+.contact-grid-2 > * { min-width: 0; }
+.contact-grid-2-full { grid-column: 1 / -1; }
 .booking-card, .map-card {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-line);
@@ -363,7 +365,8 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 .booking-card h4 { margin: 0 0 6px; }
 .booking-card .btn { margin-top: 18px; }
 .booking-card-calendly { display: flex; flex-direction: column; min-height: 0; }
-.booking-card-calendly .calendly-inline-widget { border-radius: var(--radius-md); overflow: hidden; }
+.booking-card-calendly .calendly-inline-widget { flex: 1; border-radius: var(--radius-md); overflow: hidden; min-height: 460px; }
+.media-frame.media-frame-tall { min-height: 460px; aspect-ratio: auto; width: 100%; }
 
 /* ===== Direct-call CTA ===== */
 .call-cta {
@@ -377,13 +380,9 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 .call-cta p { margin: 0; color: #c7d2d6; font-size: 14px; max-width: 460px; }
 .call-cta-btn { font-size: 16px; padding: 16px 30px; white-space: nowrap; }
 
-@media (max-width: 1100px) {
-  .contact-grid-3 { grid-template-columns: 1fr 1fr; }
-  .contact-grid-3 .media-frame { grid-column: 1 / -1; aspect-ratio: 21/9; }
-}
 @media (max-width: 700px) {
-  .contact-grid-3 { grid-template-columns: 1fr; }
-  .contact-grid-3 .media-frame { aspect-ratio: 16/9; }
+  .contact-grid-2 { grid-template-columns: 1fr; }
+  .media-frame-tall, .booking-card-calendly .calendly-inline-widget { min-height: 380px; }
   .call-cta { flex-direction: column; align-items: flex-start; }
 }
 .map-card {
