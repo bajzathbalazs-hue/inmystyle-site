@@ -44,7 +44,7 @@ function initHeaderScroll() {
 
 function initReveal() {
   const selector = [
-    ".two-col > div", ".feature", ".help-item", ".testimonial-card",
+    ".two-col > div", ".feature", ".service-card", ".testimonial-card",
     ".category-panel", ".category-card", ".info-card", ".gallery-item",
     ".product-card", ".event-banner", ".contact-grid > *", ".process-step", ".size-tool"
   ].join(", ");
