@@ -651,3 +651,35 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 @media (max-width: 900px) {
   .size-tool { grid-template-columns: 1fr; padding: 28px; }
 }
+
+/* ===== Mobile: horizontally scrollable card rows =====
+   Instead of stacking every card list into one long column on phones,
+   these turn into swipeable rows — the next card peeks in from the edge
+   as a hint that there's more to scroll. */
+@media (max-width: 640px) {
+  .grid-3, .grid-4, .gallery-grid, .service-cards, .category-grid, .process-steps {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 14px;
+    margin: 0 -24px;
+    padding: 4px 24px 16px;
+  }
+  .grid-3 > *, .grid-4 > *, .service-cards > *, .process-steps > * {
+    flex: 0 0 80%;
+    scroll-snap-align: start;
+  }
+  .gallery-grid > *, .category-grid > * {
+    flex: 0 0 62%;
+    scroll-snap-align: start;
+  }
+  .grid-3 > *, .grid-4 > *, .gallery-grid > *, .service-cards > *, .category-grid > *, .process-steps > * {
+    min-width: 0;
+  }
+  /* .category-grid sits inside .category-panel (28px padding), not .container (24px) */
+  .category-panel .category-grid { margin: 0 -28px; padding: 4px 28px 16px; }
+}
