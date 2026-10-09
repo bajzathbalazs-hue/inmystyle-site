@@ -17,21 +17,21 @@ const CATEGORY_ICONS = {
 };
 
 const CATEGORIES = [
-  { slug: "ing", name: "Ing", group: "ruhazat", icon: "list", tagline: "Egyedi + Belga import" },
-  { slug: "ingruha", name: "Ing ruha", group: "ruhazat", icon: "diamond", tagline: "Egyedi + Belga import" },
-  { slug: "blezer", name: "Blézer", group: "ruhazat", icon: "briefcase", tagline: "Egyedi + Belga import" },
-  { slug: "nadrag", name: "Nadrágok", group: "ruhazat", icon: "check", tagline: "Egyedi + Belga import" },
-  { slug: "szoknya", name: "Szoknyák", group: "ruhazat", icon: "diamond", tagline: "Egyedi + Belga import" },
-  { slug: "melleny", name: "Mellények", group: "ruhazat", icon: "bookmark", tagline: "Egyedi + Belga import" },
-  { slug: "alkalmi", name: "Alkalmi ruhák", group: "ruhazat", icon: "shield", tagline: "Egyedi + Belga import" },
+  { slug: "ing", name: "Ing", group: "ruhazat", icon: "list", tagline: "Egyedi méretre" },
+  { slug: "ingruha", name: "Ing ruha", group: "ruhazat", icon: "diamond", tagline: "Egyedi méretre" },
+  { slug: "blezer", name: "Blézer", group: "ruhazat", icon: "briefcase", tagline: "Egyedi méretre" },
+  { slug: "nadrag", name: "Nadrágok", group: "ruhazat", icon: "check", tagline: "Egyedi méretre" },
+  { slug: "szoknya", name: "Szoknyák", group: "ruhazat", icon: "diamond", tagline: "Egyedi méretre" },
+  { slug: "melleny", name: "Mellények", group: "ruhazat", icon: "bookmark", tagline: "Egyedi méretre" },
+  { slug: "alkalmi", name: "Alkalmi ruhák", group: "ruhazat", icon: "shield", tagline: "Egyedi méretre" },
   { slug: "aktualis", name: "Aktuális ruhák", group: "ruhazat", icon: "clock", tagline: "Friss darabok" },
-  { slug: "kabat", name: "Kabátok", group: "ruhazat", icon: "box", tagline: "Egyedi + Belga import" },
-  { slug: "ov", name: "Övek", group: "kiegeszito", icon: "bookmark", tagline: "Belga import" },
-  { slug: "sal", name: "Sálak", group: "kiegeszito", icon: "heart", tagline: "Egyedi + Belga import" },
-  { slug: "kendo", name: "Kendők", group: "kiegeszito", icon: "diamond", tagline: "Egyedi + Belga import" },
+  { slug: "kabat", name: "Kabátok", group: "ruhazat", icon: "box", tagline: "Egyedi méretre" },
+  { slug: "ov", name: "Övek", group: "kiegeszito", icon: "bookmark", tagline: "Válogatott darabok" },
+  { slug: "sal", name: "Sálak", group: "kiegeszito", icon: "heart", tagline: "Egyedi méretre" },
+  { slug: "kendo", name: "Kendők", group: "kiegeszito", icon: "diamond", tagline: "Válogatott darabok" },
   { slug: "sajat-taska", name: "Saját márkás táskák", group: "kiegeszito", icon: "bag", tagline: "In My Style saját gyártás" },
   { slug: "kituzo", name: "Kitűzők", group: "kiegeszito", icon: "check", tagline: "In My Style saját gyártás" },
-  { slug: "taska", name: "Táskák", group: "kiegeszito", icon: "bag", tagline: "Belga import" }
+  { slug: "taska", name: "Táskák", group: "kiegeszito", icon: "bag", tagline: "Válogatott darabok" }
 ];
 
 /* Minden termék mezői:

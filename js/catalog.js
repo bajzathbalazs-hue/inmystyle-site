@@ -5,7 +5,6 @@ function iconSvg(name) {
 function productCardHtml(p) {
   const badges = [];
   if (p.type === "egyedi") badges.push('<span class="tag">In My Style · Egyedi</span>');
-  if (p.type === "import") badges.push('<span class="tag">Belga import</span>');
   if (p.badge) {
     const danger = /elfogy|kiárus/i.test(p.badge);
     badges.push(`<span class="tag ${danger ? "tag-danger" : "tag-dark"}">${p.badge}</span>`);
@@ -36,7 +35,7 @@ function renderCategoryOverview(containerId) {
   const el = document.getElementById(containerId);
   if (!el) return;
   const groups = [
-    { key: "ruhazat", title: "Ruházat", eyebrow: "Ruházat", lead: "Kattints egy kategóriára a teljes válogatásért — mindegyikben találsz In My Style egyedi és belga import darabokat is." },
+    { key: "ruhazat", title: "Ruházat", eyebrow: "Ruházat", lead: "Kattints egy kategóriára a teljes válogatásért — mindegyikben találsz In My Style egyedi darabokat is." },
     { key: "kiegeszito", title: "Táskák, sálak és más apró luxus", eyebrow: "Kiegészítők", lead: "A ruhák mellett gondosan válogatott kiegészítőket is találsz — köztük saját márkás darabokat." }
   ];
   let html = "";
@@ -72,7 +71,7 @@ function renderCategoryPage() {
   document.getElementById("cat-name-title").textContent = cat.name;
   document.getElementById("cat-tagline").textContent = cat.tagline;
   document.getElementById("cat-lead").textContent =
-    `Válogass ${cat.name.toLowerCase()} kínálatunkból — egyedi méretre készíthető In My Style darabok és fix méretű belga import kollekció között.`;
+    `Válogass ${cat.name.toLowerCase()} kínálatunkból — egyedi méretre készíthető In My Style darabok közül.`;
 
   const grid = document.getElementById("product-grid");
   if (items.length === 0) {
