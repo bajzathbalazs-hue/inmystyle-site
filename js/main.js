@@ -58,7 +58,8 @@ function initReveal() {
   const selector = [
     ".two-col > div", ".feature", ".service-card", ".testimonial-card",
     ".category-panel", ".category-card", ".info-card", ".gallery-item",
-    ".product-card", ".event-banner", ".contact-grid > *", ".process-step", ".size-tool"
+    ".product-card", ".event-banner", ".contact-grid > *", ".process-step", ".size-tool",
+    ".voucher-card"
   ].join(", ");
   const items = Array.from(document.querySelectorAll(selector));
   if (!items.length) return;
@@ -147,51 +148,85 @@ function initFilterPills() {
   });
 }
 
-function initQuoteForm() {
-  document.querySelectorAll(".quote-form").forEach((form) => {
-    const state = {};
-    const summary = form.querySelector("[data-quote-summary]");
+function initSwatchGroups() {
+  document.querySelectorAll("[data-swatch-group]").forEach((group) => {
+    group.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        group.querySelectorAll("button").forEach((b) => b.classList.remove("is-selected"));
+        btn.classList.add("is-selected");
+        const scope = group.closest(".size-tool-form, .quote-form") || document;
+        const summary = scope.querySelector("[data-quote-summary]");
+        if (summary) {
+          const anyag = scope.querySelector('[data-swatch-group="anyag"] .is-selected')?.getAttribute("data-value");
+          const szin = scope.querySelector('[data-swatch-group="szin"] .is-selected')?.getAttribute("data-value");
+          const parts = [];
+          if (anyag) parts.push(`Anyag: ${anyag}`);
+          if (szin) parts.push(`Szín: ${szin}`);
+          summary.textContent = parts.length ? parts.join(" · ") : "Válassz anyagot és színt a fentiek közül.";
+        }
+      });
+    });
+  });
+}
 
-    function updateSummary() {
-      if (!summary) return;
-      const parts = [];
-      if (state.anyag) parts.push(`Anyag: ${state.anyag}`);
-      if (state.szin) parts.push(`Szín: ${state.szin}`);
-      summary.textContent = parts.length ? parts.join(" · ") : "Válassz anyagot és színt a fentiek közül.";
-    }
-
-    form.querySelectorAll("[data-swatch-group]").forEach((group) => {
-      const key = group.getAttribute("data-swatch-group");
-      group.querySelectorAll("button").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          group.querySelectorAll("button").forEach((b) => b.classList.remove("is-selected"));
-          btn.classList.add("is-selected");
-          state[key] = btn.getAttribute("data-value");
-          updateSummary();
+function initQuoteTabs() {
+  document.querySelectorAll(".quote-tabs").forEach((tabs) => {
+    const wrap = tabs.parentElement;
+    tabs.querySelectorAll(".quote-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.querySelectorAll(".quote-tab").forEach((t) => t.classList.remove("is-active"));
+        tab.classList.add("is-active");
+        const key = tab.getAttribute("data-tab");
+        wrap.querySelectorAll(".quote-panel").forEach((p) => {
+          p.classList.toggle("is-active", p.getAttribute("data-panel") === key);
         });
       });
     });
   });
 }
 
-function submitQuoteForm(event) {
+function submitCallbackForm(event) {
   event.preventDefault();
   const form = event.target;
-  const category = form.dataset.category || "";
+  const category = form.closest("[data-category]")?.dataset.category || "";
   const name = form.querySelector('[name="name"]').value.trim();
   const phone = form.querySelector('[name="phone"]').value.trim();
-  const anyag = form.querySelector('[data-swatch-group="anyag"] .is-selected')?.getAttribute("data-value") || "nincs megadva";
-  const szin = form.querySelector('[data-swatch-group="szin"] .is-selected')?.getAttribute("data-value") || "nincs megadva";
-  const subject = encodeURIComponent(`Egyedi ajánlatkérés – ${category}`);
-  const body = encodeURIComponent(
-    `Kategória: ${category}\nAnyag: ${anyag}\nSzín: ${szin}\nNév: ${name}\nTelefonszám: ${phone}`
-  );
+  const subject = encodeURIComponent(category ? `Visszahívás kérés – ${category}` : "Visszahívás kérés – In My Style");
+  const body = encodeURIComponent(`${category ? "Kategória: " + category + "\n" : ""}Név: ${name}\nTelefonszám: ${phone}`);
   window.location.href = `mailto:hello@inmystyle.hu?subject=${subject}&body=${body}`;
   return false;
+}
+
+function initSizeQuoteSubmit() {
+  document.querySelectorAll("[data-size-quote-submit]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const panel = btn.closest(".size-tool");
+      const category = btn.closest("[data-category]")?.dataset.category || "";
+      const name = panel.querySelector('[name="name"]')?.value.trim() || "";
+      const phone = panel.querySelector('[name="phone"]')?.value.trim() || "";
+      if (!name || !phone) {
+        alert("Kérlek add meg a neved és telefonszámod az ajánlatkéréshez.");
+        return;
+      }
+      const magassag = panel.querySelector('[data-size-output="magassag"]')?.textContent || "";
+      const mell = panel.querySelector('[data-size-output="mell"]')?.textContent || "";
+      const derek = panel.querySelector('[data-size-output="derek"]')?.textContent || "";
+      const csipo = panel.querySelector('[data-size-output="csipo"]')?.textContent || "";
+      const anyag = panel.querySelector('[data-swatch-group="anyag"] .is-selected')?.getAttribute("data-value") || "nincs megadva";
+      const szin = panel.querySelector('[data-swatch-group="szin"] .is-selected')?.getAttribute("data-value") || "nincs megadva";
+      const subject = encodeURIComponent(category ? `Egyedi méret- és stílustervezés – ${category}` : "Egyedi méret- és stílustervezés – In My Style");
+      const body = encodeURIComponent(
+        `${category ? "Kategória: " + category + "\n" : ""}Magasság: ${magassag}\nMellbőség: ${mell}\nDerékbőség: ${derek}\nCsípőbőség: ${csipo}\nAnyag: ${anyag}\nSzín: ${szin}\nNév: ${name}\nTelefonszám: ${phone}`
+      );
+      window.location.href = `mailto:hello@inmystyle.hu?subject=${subject}&body=${body}`;
+    });
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   includePartials();
   initFilterPills();
-  initQuoteForm();
+  initSwatchGroups();
+  initQuoteTabs();
+  initSizeQuoteSubmit();
 });

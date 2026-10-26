@@ -32,6 +32,13 @@ function productCardHtml(p) {
     </div>`;
 }
 
+function renderFeaturedCollection(containerId, limit) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const items = PRODUCTS.filter((p) => p.featured).slice(0, limit || 6);
+  el.innerHTML = items.map(productCardHtml).join("");
+}
+
 function renderCategoryOverview(containerId) {
   const el = document.getElementById(containerId);
   if (!el) return;
@@ -104,17 +111,10 @@ function renderCategoryPage() {
     }
   }
 
-  const quoteForm = document.getElementById("quote-form");
-  if (quoteForm) quoteForm.dataset.category = cat.name;
+  const quoteSection = document.getElementById("meret-segod");
+  if (quoteSection) quoteSection.dataset.category = cat.name;
   const quoteTitle = document.getElementById("quote-form-title");
   if (quoteTitle) quoteTitle.textContent = `Kérj ajánlatot — ${cat.name}`;
-
-  const grid = document.getElementById("product-grid");
-  if (items.length === 0) {
-    grid.innerHTML = `<p style="color:var(--color-ink-soft); grid-column:1/-1;">Ebben a kategóriában hamarosan új darabok érkeznek — addig is hívj minket, és személyesen megmutatjuk, mi van készleten!</p>`;
-  } else {
-    grid.innerHTML = items.map(productCardHtml).join("");
-  }
 }
 
 function renderSalePage() {

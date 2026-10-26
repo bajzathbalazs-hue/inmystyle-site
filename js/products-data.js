@@ -47,18 +47,18 @@ const CATEGORIES = [
    badge: pl. "Készleten: 5 db" / "Elfogyott" — elhagyható
    sale: true, ha az Akció oldalon is meg kell jelennie */
 const PRODUCTS = [
-  { category: "ing", name: "Klasszikus fehér ing", type: "egyedi", photo: "6vtbLBV5jJjsl8OIOBQ8mfl2Mw.jpg", price: "24 900 Ft", specs: { Anyag: "Pamut popelin", Szín: "Választható", Méret: "Egyedi méretre szabva" } },
+  { category: "ing", name: "Klasszikus fehér ing", type: "egyedi", photo: "6vtbLBV5jJjsl8OIOBQ8mfl2Mw.jpg", price: "24 900 Ft", specs: { Anyag: "Pamut popelin", Szín: "Választható", Méret: "Egyedi méretre szabva" }, featured: true },
   { category: "ing", name: "Csíkos ing", type: "import", photo: "LO5To9FaturNsCvL8WmPyXIQ3SI.jpg", price: "15 900 Ft", specs: { Anyag: "Pamut-keverék", Szín: "Kék-fehér csíkos", Méret: "38-as" }, badge: "Készleten: 5 db" },
   { category: "ing", name: "Rózsaszín csíkos ing", type: "import", photo: "osByvmBIhz5J4WSCI3nUAh42B8.jpeg", price: "", sale: true, badge: "Elfogyott" },
-  { category: "ingruha", name: "Kék wrap ing-ruha", type: "egyedi", photo: "FQMYqbBj47O2wVG4AmlnpeY4PY.jpg", price: "" },
+  { category: "ingruha", name: "Kék wrap ing-ruha", type: "egyedi", photo: "FQMYqbBj47O2wVG4AmlnpeY4PY.jpg", price: "", featured: true },
   { category: "blezer", name: "Sárga blézer", type: "import", photo: "25D23UD4e3h1eYoVZM34fYiQps.jpeg", price: "" },
-  { category: "blezer", name: "Kék öves blézerruha", type: "egyedi", photo: "NF5aKztD4zvcFCh6rvT2ToqpNUo.jpg", price: "" },
+  { category: "blezer", name: "Kék öves blézerruha", type: "egyedi", photo: "NF5aKztD4zvcFCh6rvT2ToqpNUo.jpg", price: "", featured: true },
   { category: "nadrag", name: "Krém szabott nadrág", type: "egyedi", photo: "6vtbLBV5jJjsl8OIOBQ8mfl2Mw.jpg", price: "" },
   { category: "szoknya", name: "Midi szoknya", type: "import", photo: "gAkLhMVLrb8Lomuc2uiJ202qjcY.jpg", price: "" },
   { category: "melleny", name: "Sötétkék mellény", type: "egyedi", photo: "4LChjMZUrFVyUKIp8k0C6eiIM.jpg", price: "" },
   { category: "alkalmi", name: "Estélyi overál", type: "egyedi", photo: "iNWNifDODcXnW2dA6cTeYSwOmWc.jpg", price: "" },
   { category: "alkalmi", name: "Pink alkalmi ruha", type: "import", photo: "WQtmGfSVqR8hXQLZOI29RINwPU.jpg", price: "", sale: true, badge: "Kiárusítás" },
-  { category: "aktualis", name: "Ünnepi kollekció darab", type: "egyedi", photo: "C8ss4vZRvpCsYwYjgsN2PfL5Yy8.jpeg", price: "" },
+  { category: "aktualis", name: "Ünnepi kollekció darab", type: "egyedi", photo: "C8ss4vZRvpCsYwYjgsN2PfL5Yy8.jpeg", price: "", featured: true },
   { category: "kabat", name: "Bőrdzseki", type: "import", photo: "R0qajIH6IqGeP0KKQFttLc6NfI.jpg", price: "" },
   { category: "ov", name: "Barna bőröv", type: "import", photo: "LO5To9FaturNsCvL8WmPyXIQ3SI.jpg", price: "" },
   { category: "sal", name: "Selyemkendő", type: "egyedi", photo: "XQkc4uhz1PjVInXt3ukZQ3WHETY.png", price: "" },

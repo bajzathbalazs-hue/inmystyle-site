@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=18">
+  <link rel="stylesheet" href="css/style.css?v=19">
   <link rel="icon" href="assets/icons/favicon-light.png" media="(prefers-color-scheme: light)">
   <link rel="icon" href="assets/icons/favicon-dark.png" media="(prefers-color-scheme: dark)">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -41,35 +41,15 @@
     </div>
   </section>
 
-  <!-- Ing kollekció teaser -->
-  <section class="section" id="ing-kollekcio">
-    <div class="container two-col">
-      <div>
-        <div class="eyebrow">Kollekcióink</div>
-        <h2 class="section-title">Ing kollekció</h2>
-        <p class="section-lead" style="margin-bottom:20px;">Aktuális ing kollekciónkkal minden napot stílusosan kezdhetsz. A sportos eleganciát a gondosan válogatott alapanyagok teszik tökéletessé.</p>
-        <p style="color:var(--color-ink-soft); font-size:14px; margin-bottom:24px;">A szalonban elérhető készletről folyamatosan frissülő Facebook oldalunkon tájékozódhatsz, vagy látogass el személyesen üzletünkbe.</p>
-        <a href="kategoria.html?slug=ing" class="btn btn-dark">Ing kollekció megtekintése</a>
-        <a href="#idopont" class="btn btn-outline">Időpontfoglalás</a>
-      </div>
-      <div class="hero-media" style="aspect-ratio:4/5;">
-        <img src="assets/photos/70qbcFUqECjhNlMRXhLWXsMVIs.jpg" alt="Ing kollekció — In My Style" style="width:100%; height:100%; object-fit:cover; border-radius:var(--radius-lg);">
-      </div>
-    </div>
-  </section>
-
   <!-- Aktuális kollekció -->
-  <section class="section section-soft">
-    <div class="container two-col">
-      <div class="hero-media" style="aspect-ratio:4/5; order:-1;">
-        <img src="assets/photos/FQMYqbBj47O2wVG4AmlnpeY4PY.jpg" alt="Aktuális, ünnepi kollekció — In My Style" style="width:100%; height:100%; object-fit:cover; border-radius:var(--radius-lg);">
-      </div>
-      <div>
-        <div class="eyebrow">Ünnepi kollekció</div>
-        <h2 class="section-title">Aktuális kollekció</h2>
-        <p class="section-lead" style="margin-bottom:20px;">Az ünnepi kollekció minden darabja kézzel, egyedileg készül — így olyan ruhát viselhetsz, amely nem jön veled szembe sehol.</p>
-        <p style="color:var(--color-ink-soft); font-size:14px; margin-bottom:24px;">Ha valódi exkluzivitásra és személyre szabott figyelemre vágysz, látogass el üzletünkbe, hogy segítsünk kiválasztani a számodra tökéletes darabot.</p>
-        <a href="#idopont" class="btn btn-dark">Időpontfoglalás</a>
+  <section class="section section-soft" id="aktualis-kollekcio">
+    <div class="container">
+      <div class="eyebrow center">Kollekcióink</div>
+      <h2 class="section-title center">Aktuális kollekció</h2>
+      <p class="section-lead center">A mindennapok luxusa — kézzel, egyedileg készülő darabok, amiket most tudsz megrendelni.</p>
+      <div class="grid-3" id="featured-collection"></div>
+      <div style="text-align:center; margin-top:8px;">
+        <a href="akcio.html" class="btn btn-outline">Akciós darabok megtekintése</a>
       </div>
     </div>
   </section>
@@ -88,37 +68,25 @@
   </section>
 
   <!-- Ajándék utalvány -->
-  <section class="section" id="ajandek-utalvany">
-    <div class="container two-col">
-      <div>
-        <div class="eyebrow">Meglepetés</div>
-        <h2 class="section-title">Ajándék Utalvány</h2>
-        <p class="section-lead">Ajándékkártyánk segítségével meglepheted az ünnepeltet alábbi szolgáltatásainkkal:</p>
-        <ul class="voucher-list">
-          <li>Privát shopping</li>
-          <li>Ruhatervezés egyénileg, ruharendelés</li>
-          <li>Kapszulagardrób kialakítás, méretre rendelés</li>
-          <li>Vásárlás stylisttal</li>
-          <li>Stílus coaching szolgáltatás</li>
-        </ul>
-      </div>
-      <div class="hero-media" style="aspect-ratio:4/5;">
-        <img src="assets/photos/gAkLhMVLrb8Lomuc2uiJ202qjcY.jpg" alt="Ajándék utalvány — In My Style" style="width:100%; height:100%; object-fit:cover; border-radius:var(--radius-lg);">
-      </div>
-    </div>
-  </section>
-
-  <!-- Egyedi ruhák minden alkalomra -->
-  <section class="section section-soft" id="egyedi-ruhak-5">
-    <div class="container two-col">
-      <div class="hero-media" style="aspect-ratio:4/5; order:-1;">
-        <img src="assets/photos/7QEfZIBCOvWiBL8ZPmcs1Mi8.jpg" alt="Egyedi ruhák minden alkalomra — In My Style" style="width:100%; height:100%; object-fit:cover; border-radius:var(--radius-lg);">
-      </div>
-      <div>
-        <div class="eyebrow">Testreszabva</div>
-        <h2 class="section-title">Egyedi Ruhák Minden Alkalomra</h2>
-        <p class="section-lead" style="margin-bottom:20px;">A mindennapok is megérdemlik a személyre szabott tökéletességet. Egyedi méretre, közös anyagválasztással, alkatodnak megfelelően készítjük el a kívánt modellt.</p>
-        <a href="#idopont" class="btn btn-dark">Időpontfoglalás</a>
+  <section class="section section-soft" id="ajandek-utalvany">
+    <div class="container">
+      <div class="voucher-card">
+        <div class="voucher-media">
+          <img src="assets/photos/gAkLhMVLrb8Lomuc2uiJ202qjcY.jpg" alt="Ajándék utalvány — In My Style">
+        </div>
+        <div class="voucher-body">
+          <div class="eyebrow">Meglepetés</div>
+          <h2 class="section-title">Ajándék Utalvány</h2>
+          <p class="section-lead" style="margin-bottom:18px;">Ajándékkártyánk segítségével meglepheted az ünnepeltet — bármelyik szolgáltatásunkra beváltható:</p>
+          <div class="voucher-chips">
+            <span class="chip">Privát shopping</span>
+            <span class="chip">Ruhatervezés, ruharendelés</span>
+            <span class="chip">Kapszulagardrób kialakítás</span>
+            <span class="chip">Vásárlás stylisttal</span>
+            <span class="chip">Stílus coaching</span>
+          </div>
+          <a href="#idopont" class="btn btn-dark" style="margin-top:22px; align-self:flex-start;">Ajándékutalvány igénylése</a>
+        </div>
       </div>
     </div>
   </section>
@@ -170,70 +138,131 @@
     </div>
   </section>
 
-  <!-- Méret-segéd (2D vizualizáció) -->
+  <!-- Ajánlatkérés: visszahívás vagy egyedi méret + anyag + szín tervezés -->
   <section class="section section-soft" id="meret-segod">
     <div class="container">
       <div class="eyebrow center">Készülj a konzultációra</div>
-      <h2 class="section-title center">Méret-segéd</h2>
-      <p class="section-lead center">Add meg a méreteidet, és vizuálisan is lásd, mire számíthatsz a konzultáción — a végleges méretet mindig személyesen vesszük fel.</p>
+      <h2 class="section-title center">Kérj ajánlatot</h2>
+      <p class="section-lead center">Válaszd ki, melyik út kényelmesebb — gyors visszahívást kérsz, vagy belevágsz az egyedi méret- és stílustervezésbe.</p>
 
-      <div class="size-tool">
-        <div class="size-tool-figure">
-          <svg viewBox="0 0 240 480" class="size-svg" aria-hidden="true">
-            <ellipse cx="120" cy="38" rx="26" ry="28" />
-            <path d="M104 62 L104 80 Q120 92 136 80 L136 62" />
-            <path d="M136 80 Q180 92 188 150 L182 230 Q178 260 170 300 L162 460 L132 460 L126 290 L114 290 L108 460 L78 460 L70 300 Q62 260 58 230 L52 150 Q60 92 104 80" />
-            <line x1="188" y1="150" x2="206" y2="130" />
-            <line x1="52" y1="150" x2="34" y2="130" />
+      <div class="quote-tabs">
+        <button type="button" class="quote-tab is-active" data-tab="visszahivas">Visszahívást kérek</button>
+        <button type="button" class="quote-tab" data-tab="tervezes">Egyedi méret és stílus</button>
+      </div>
 
-            <g class="size-line" data-line="mell">
-              <line x1="120" y1="118" x2="120" y2="118" />
-              <circle cx="120" cy="118" r="2.5" />
-            </g>
-            <g class="size-line" data-line="derek">
-              <line x1="120" y1="210" x2="120" y2="210" />
-              <circle cx="120" cy="210" r="2.5" />
-            </g>
-            <g class="size-line" data-line="csipo">
-              <line x1="120" y1="268" x2="120" y2="268" />
-              <circle cx="120" cy="268" r="2.5" />
-            </g>
+      <div class="quote-panel is-active" data-panel="visszahivas">
+        <form class="quote-form" onsubmit="return submitCallbackForm(event);">
+          <div class="quote-form-row">
+            <input type="text" name="name" placeholder="Neved" required>
+            <input type="tel" name="phone" placeholder="Telefonszámod" required>
+          </div>
+          <button type="submit" class="btn btn-accent btn-block">Visszahívást kérek</button>
+        </form>
+      </div>
 
-            <g class="size-height">
-              <line x1="20" y1="10" x2="20" y2="460" />
-              <line x1="14" y1="10" x2="26" y2="10" />
-              <line x1="14" y1="460" x2="26" y2="460" />
-            </g>
-          </svg>
+      <div class="quote-panel" data-panel="tervezes">
+        <div class="size-tool">
+          <div class="size-tool-figure">
+            <svg viewBox="0 0 240 480" class="size-svg" aria-hidden="true">
+              <ellipse cx="120" cy="38" rx="26" ry="28" />
+              <path d="M104 62 L104 80 Q120 92 136 80 L136 62" />
+              <path d="M136 80 Q180 92 188 150 L182 230 Q178 260 170 300 L162 460 L132 460 L126 290 L114 290 L108 460 L78 460 L70 300 Q62 260 58 230 L52 150 Q60 92 104 80" />
+              <line x1="188" y1="150" x2="206" y2="130" />
+              <line x1="52" y1="150" x2="34" y2="130" />
 
-          <div class="size-badges">
-            <div class="size-badge" data-badge="mell"><span>Mell</span><b>—</b></div>
-            <div class="size-badge" data-badge="derek"><span>Derék</span><b>—</b></div>
-            <div class="size-badge" data-badge="csipo"><span>Csípő</span><b>—</b></div>
-            <div class="size-badge" data-badge="magassag"><span>Magasság</span><b>—</b></div>
+              <g class="size-line" data-line="mell">
+                <line x1="120" y1="118" x2="120" y2="118" />
+                <circle cx="120" cy="118" r="2.5" />
+              </g>
+              <g class="size-line" data-line="derek">
+                <line x1="120" y1="210" x2="120" y2="210" />
+                <circle cx="120" cy="210" r="2.5" />
+              </g>
+              <g class="size-line" data-line="csipo">
+                <line x1="120" y1="268" x2="120" y2="268" />
+                <circle cx="120" cy="268" r="2.5" />
+              </g>
+
+              <g class="size-height">
+                <line x1="20" y1="10" x2="20" y2="460" />
+                <line x1="14" y1="10" x2="26" y2="10" />
+                <line x1="14" y1="460" x2="26" y2="460" />
+              </g>
+            </svg>
+
+            <div class="size-badges">
+              <div class="size-badge" data-badge="mell"><span>Mell</span><b>—</b></div>
+              <div class="size-badge" data-badge="derek"><span>Derék</span><b>—</b></div>
+              <div class="size-badge" data-badge="csipo"><span>Csípő</span><b>—</b></div>
+              <div class="size-badge" data-badge="magassag"><span>Magasság</span><b>—</b></div>
+            </div>
+          </div>
+
+          <div class="size-tool-form">
+            <label>Magasság (cm)
+              <input type="range" min="150" max="190" value="168" data-size-input="magassag">
+              <output data-size-output="magassag">168 cm</output>
+            </label>
+            <label>Mellbőség (cm)
+              <input type="range" min="78" max="130" value="94" data-size-input="mell">
+              <output data-size-output="mell">94 cm</output>
+            </label>
+            <label>Derékbőség (cm)
+              <input type="range" min="60" max="120" value="76" data-size-input="derek">
+              <output data-size-output="derek">76 cm</output>
+            </label>
+            <label>Csípőbőség (cm)
+              <input type="range" min="80" max="135" value="100" data-size-input="csipo">
+              <output data-size-output="csipo">100 cm</output>
+            </label>
+
+            <div class="quote-form-group">
+              <label class="quote-form-label">Anyag</label>
+              <div class="swatch-group" data-swatch-group="anyag">
+                <button type="button" class="swatch-pill" data-value="Pamut popelin">Pamut popelin</button>
+                <button type="button" class="swatch-pill" data-value="Selyem">Selyem</button>
+                <button type="button" class="swatch-pill" data-value="Vászon">Vászon</button>
+                <button type="button" class="swatch-pill" data-value="Szatén">Szatén</button>
+                <button type="button" class="swatch-pill" data-value="Gyapjú-keverék">Gyapjú-keverék</button>
+              </div>
+            </div>
+            <div class="quote-form-group">
+              <label class="quote-form-label">Szín</label>
+              <div class="swatch-group" data-swatch-group="szin">
+                <button type="button" class="color-swatch" style="background:#ffffff;" data-value="Fehér" title="Fehér" aria-label="Fehér"></button>
+                <button type="button" class="color-swatch" style="background:#1f1f1f;" data-value="Fekete" title="Fekete" aria-label="Fekete"></button>
+                <button type="button" class="color-swatch" style="background:#1c2b45;" data-value="Sötétkék" title="Sötétkék" aria-label="Sötétkék"></button>
+                <button type="button" class="color-swatch" style="background:#7c1f2d;" data-value="Bordó" title="Bordó" aria-label="Bordó"></button>
+                <button type="button" class="color-swatch" style="background:#c8a96a;" data-value="Drapp" title="Drapp" aria-label="Drapp"></button>
+                <button type="button" class="color-swatch" style="background:#9aa9b0;" data-value="Szürke" title="Szürke" aria-label="Szürke"></button>
+                <button type="button" class="color-swatch" style="background:#d88ea0;" data-value="Púder rózsaszín" title="Púder rózsaszín" aria-label="Púder rózsaszín"></button>
+              </div>
+            </div>
+
+            <div class="quote-form-row">
+              <input type="text" name="name" placeholder="Neved" required>
+              <input type="tel" name="phone" placeholder="Telefonszámod" required>
+            </div>
+            <p class="quote-form-selected" data-quote-summary>Válassz anyagot és színt a fentiek közül.</p>
+            <p class="size-note">Ez egy tájékoztató vizualizáció — a végleges, pontos méretet mindig személyesen vesszük fel a szalonban.</p>
+            <button type="button" class="btn btn-dark btn-block" data-size-quote-submit>Ajánlatkérés elküldése</button>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
 
-        <div class="size-tool-form">
-          <label>Magasság (cm)
-            <input type="range" min="150" max="190" value="168" data-size-input="magassag">
-            <output data-size-output="magassag">168 cm</output>
-          </label>
-          <label>Mellbőség (cm)
-            <input type="range" min="78" max="130" value="94" data-size-input="mell">
-            <output data-size-output="mell">94 cm</output>
-          </label>
-          <label>Derékbőség (cm)
-            <input type="range" min="60" max="120" value="76" data-size-input="derek">
-            <output data-size-output="derek">76 cm</output>
-          </label>
-          <label>Csípőbőség (cm)
-            <input type="range" min="80" max="135" value="100" data-size-input="csipo">
-            <output data-size-output="csipo">100 cm</output>
-          </label>
-          <p class="size-note">Ez egy tájékoztató vizualizáció — a végleges, pontos méretet mindig személyesen vesszük fel a szalonban.</p>
-          <a href="#idopont" class="btn btn-dark">Foglalj időpontot a méretvételhez</a>
-        </div>
+  <!-- Egyedi ruhák minden alkalomra -->
+  <section class="section" id="egyedi-ruhak-5">
+    <div class="container two-col">
+      <div class="hero-media" style="aspect-ratio:4/5; order:-1;">
+        <img src="assets/photos/7QEfZIBCOvWiBL8ZPmcs1Mi8.jpg" alt="Egyedi ruhák minden alkalomra — In My Style" style="width:100%; height:100%; object-fit:cover; border-radius:var(--radius-lg);">
+      </div>
+      <div>
+        <div class="eyebrow">Testreszabva</div>
+        <h2 class="section-title">Egyedi Ruhák Minden Alkalomra</h2>
+        <p class="section-lead" style="margin-bottom:20px;">A mindennapok is megérdemlik a személyre szabott tökéletességet. Egyedi méretre, közös anyagválasztással, alkatodnak megfelelően készítjük el a kívánt modellt.</p>
+        <a href="#idopont" class="btn btn-dark">Időpontfoglalás</a>
       </div>
     </div>
   </section>
@@ -376,10 +405,13 @@
   <div data-include="faq-contact.html"></div>
   <div data-include="footer.html"></div>
 
-  <script src="js/products-data.js?v=4"></script>
-  <script src="js/catalog.js?v=4"></script>
-  <script src="js/main.js?v=12"></script>
+  <script src="js/products-data.js?v=5"></script>
+  <script src="js/catalog.js?v=5"></script>
+  <script src="js/main.js?v=13"></script>
   <script src="js/size-tool.js?v=1"></script>
-  <script>renderCategoryOverview("category-overview");</script>
+  <script>
+    renderFeaturedCollection("featured-collection", 6);
+    renderCategoryOverview("category-overview");
+  </script>
 </body>
 </html>

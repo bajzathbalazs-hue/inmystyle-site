@@ -487,31 +487,32 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 /* ===== Category page ===== */
 .category-hero { padding: 40px 0 20px; }
 
-/* Compact photo hero for category landing pages */
+/* Compact photo hero for category landing pages — centered, same language as the homepage hero */
 .cat-hero {
   position: relative;
-  min-height: 300px;
+  min-height: 360px;
   display: flex;
-  align-items: flex-end;
-  padding: 36px 0 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
   background-size: cover;
   background-position: center;
-  background-color: var(--color-soft);
+  background-color: var(--color-ink);
   overflow: hidden;
 }
 .cat-hero-overlay {
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(15,25,32,.1) 0%, rgba(15,25,32,.68) 100%);
+  background: linear-gradient(180deg, rgba(15,25,32,.5) 0%, rgba(15,25,32,.58) 45%, rgba(15,25,32,.78) 100%);
 }
-.cat-hero-inner { position: relative; z-index: 1; width: 100%; }
-.cat-hero .breadcrumb { color: rgba(255,255,255,.78); padding-top: 0; }
+.cat-hero-inner { position: relative; z-index: 1; width: 100%; text-align: center; }
+.cat-hero .breadcrumb { color: rgba(255,255,255,.78); padding-top: 0; justify-content: center; display: flex; }
 .cat-hero .breadcrumb a { color: rgba(255,255,255,.92); }
 .cat-hero .eyebrow { color: #fff; opacity: .9; }
-.cat-hero h1 { color: #fff; margin: 0; font-size: 34px; font-weight: 700; }
+.cat-hero h1 { color: #fff; margin: 0; font-size: 42px; font-weight: 700; }
 .cat-lead-outside { max-width: 640px; color: var(--color-ink-soft); font-size: 15px; }
 @media (max-width: 700px) {
-  .cat-hero { min-height: 220px; padding: 26px 0 22px; }
-  .cat-hero h1 { font-size: 26px; }
+  .cat-hero { min-height: 260px; padding: 32px 0; }
+  .cat-hero h1 { font-size: 28px; }
 }
 .filter-pills { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
 .pill {
@@ -613,7 +614,8 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 .category-card-body { padding: 12px 14px 14px; }
 .category-card h4 { font-size: 15px; margin: 0 0 2px; }
 .category-card .cat-tag { font-size: 12px; color: var(--color-ink-soft); }
-.category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+/* Fluid: as many columns as comfortably fit (up to 5-6 on wide displays), narrowing smoothly — no manual breakpoints needed above mobile. */
+.category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
 .category-panel {
   background: var(--color-card);
   border: 1px solid var(--color-line);
@@ -621,8 +623,29 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
   padding: 28px;
   margin-bottom: 20px;
 }
-@media (max-width: 900px) { .category-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .category-grid { grid-template-columns: 1fr; } }
+
+/* ===== Ajánlatkérés: visszahívás vs. egyedi méret+stílus tab-váltó ===== */
+.quote-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+.quote-tab {
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--color-line);
+  background: #fff;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease);
+}
+.quote-tab.is-active { background: var(--color-ink); color: #fff; border-color: var(--color-ink); }
+.quote-panel { display: none; }
+.quote-panel.is-active { display: block; }
 
 /* ===== Quote / anyag- és színválasztó form ===== */
 .quote-form {
@@ -674,8 +697,33 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 .media-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
 
 /* ===== Voucher list ===== */
-.voucher-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-.voucher-list li { padding: 12px 16px; background: var(--color-card); border: 1px solid var(--color-line); border-radius: var(--radius-md); font-size: 14px; }
+/* ===== Ajándék utalvány (modern card) ===== */
+.voucher-card {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  align-items: stretch;
+}
+.voucher-media { position: relative; min-height: 260px; }
+.voucher-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.voucher-body { padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+.voucher-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.chip {
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--color-badge-bg);
+  color: var(--color-accent-dark);
+  font-size: 12px;
+  font-weight: 600;
+}
+@media (max-width: 800px) {
+  .voucher-card { grid-template-columns: 1fr; }
+  .voucher-media { aspect-ratio: 16/9; min-height: 0; }
+  .voucher-body { padding: 28px; }
+}
 
 /* ===== Birthday banner ===== */
 .event-banner {
