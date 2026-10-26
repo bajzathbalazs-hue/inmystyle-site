@@ -1,4 +1,4 @@
-const PARTIALS_VERSION = "5";
+const PARTIALS_VERSION = "6";
 
 async function includePartials() {
   const nodes = document.querySelectorAll("[data-include]");
@@ -30,6 +30,18 @@ async function includePartials() {
   initNavAccordion();
   initHeaderScroll();
   initReveal();
+  initTopbar();
+}
+
+function initTopbar() {
+  const items = document.querySelectorAll(".topbar-item");
+  if (items.length < 2) return;
+  let i = 0;
+  setInterval(() => {
+    items[i].classList.remove("is-active");
+    i = (i + 1) % items.length;
+    items[i].classList.add("is-active");
+  }, 4200);
 }
 
 function initHeaderScroll() {
