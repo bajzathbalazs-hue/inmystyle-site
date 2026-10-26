@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=20">
+  <link rel="stylesheet" href="css/style.css?v=21">
   <link rel="icon" href="assets/icons/favicon-light.png">
 </head>
 <body>
@@ -75,29 +75,68 @@
         <div class="size-tool">
           <div class="size-tool-figure">
             <svg viewBox="0 0 240 480" class="size-svg" aria-hidden="true">
-              <ellipse cx="120" cy="38" rx="26" ry="28" />
-              <path d="M104 62 L104 80 Q120 92 136 80 L136 62" />
-              <path d="M136 80 Q180 92 188 150 L182 230 Q178 260 170 300 L162 460 L132 460 L126 290 L114 290 L108 460 L78 460 L70 300 Q62 260 58 230 L52 150 Q60 92 104 80" />
-              <line x1="188" y1="150" x2="206" y2="130" />
-              <line x1="52" y1="150" x2="34" y2="130" />
+              <defs>
+                <linearGradient id="figureGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f6fafb"/>
+                  <stop offset="55%" stop-color="#cfdde2"/>
+                  <stop offset="100%" stop-color="#90a9b3"/>
+                </linearGradient>
+                <filter id="figureShadow" x="-40%" y="-10%" width="180%" height="130%">
+                  <feDropShadow dx="5" dy="16" stdDeviation="10" flood-color="#15242e" flood-opacity=".22"/>
+                </filter>
+              </defs>
+
+              <g filter="url(#figureShadow)">
+                <path class="size-arm" d="M82,94 Q58,108 54,145 Q52,168 61,188" />
+                <path class="size-arm" d="M158,94 Q182,108 186,145 Q188,168 179,188" />
+
+                <path class="size-body" d="M108,67
+                  C96,70 85,80 82,92
+                  C78,104 80,116 85,128
+                  C93,156 99,176 97,204
+                  C95,222 86,238 80,264
+                  C75,286 85,303 89,318
+                  C93,342 95,360 93,376
+                  C91,404 95,430 99,454
+                  L93,467
+                  L109,467
+                  L113,454
+                  C109,430 107,404 111,376
+                  C113,350 118,320 120,301
+                  C122,320 127,350 129,376
+                  C133,404 131,430 127,454
+                  L131,467
+                  L147,467
+                  L141,454
+                  C145,430 149,404 147,376
+                  C145,360 147,342 151,318
+                  C155,303 165,286 160,264
+                  C154,238 145,222 143,204
+                  C141,176 147,156 155,128
+                  C160,116 162,104 158,92
+                  C155,80 144,70 132,67
+                  Q120,78 108,67 Z" />
+
+                <ellipse class="size-body" cx="120" cy="42" rx="22" ry="25" />
+              </g>
 
               <g class="size-line" data-line="mell">
-                <line x1="120" y1="118" x2="120" y2="118" />
-                <circle cx="120" cy="118" r="2.5" />
+                <line x1="120" y1="128" x2="120" y2="128" />
+                <circle cx="120" cy="128" r="2.5" />
               </g>
               <g class="size-line" data-line="derek">
-                <line x1="120" y1="210" x2="120" y2="210" />
-                <circle cx="120" cy="210" r="2.5" />
+                <line x1="120" y1="205" x2="120" y2="205" />
+                <circle cx="120" cy="205" r="2.5" />
               </g>
               <g class="size-line" data-line="csipo">
-                <line x1="120" y1="268" x2="120" y2="268" />
-                <circle cx="120" cy="268" r="2.5" />
+                <line x1="120" y1="265" x2="120" y2="265" />
+                <circle cx="120" cy="265" r="2.5" />
               </g>
 
               <g class="size-height">
-                <line x1="20" y1="10" x2="20" y2="460" />
-                <line x1="14" y1="10" x2="26" y2="10" />
-                <line x1="14" y1="460" x2="26" y2="460" />
+                <line x1="20" y1="15" x2="20" y2="467" />
+                <line x1="14" y1="15" x2="26" y2="15" />
+                <line x1="14" y1="467" x2="26" y2="467" />
               </g>
             </svg>
 
@@ -173,7 +212,7 @@
   <script src="js/products-data.js?v=5"></script>
   <script src="js/catalog.js?v=5"></script>
   <script src="js/main.js?v=13"></script>
-  <script src="js/size-tool.js?v=1"></script>
+  <script src="js/size-tool.js?v=2"></script>
   <script>
     renderCategoryPage();
     renderCategoryOverview("category-overview");

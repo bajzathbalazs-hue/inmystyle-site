@@ -787,9 +787,11 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 }
 .size-tool-figure { display: flex; flex-direction: column; align-items: center; gap: 24px; }
 .size-svg {
-  width: 100%; max-width: 220px; height: auto;
+  width: 100%; max-width: 240px; height: auto;
   stroke: var(--color-ink); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
 }
+.size-svg .size-body { fill: url(#figureGrad); stroke: #3a4a52; stroke-width: .75; stroke-opacity: .3; }
+.size-svg .size-arm { fill: none; stroke: url(#figureGrad); stroke-width: 15; stroke-linecap: round; }
 .size-svg .size-line line { stroke: var(--color-accent); stroke-width: 2.5; transition: all .25s var(--ease); }
 .size-svg .size-line circle { fill: var(--color-accent); stroke: none; transition: all .25s var(--ease); }
 .size-svg .size-height line { stroke: var(--color-line); stroke-width: 1; }

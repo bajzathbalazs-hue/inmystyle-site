@@ -3,7 +3,7 @@ function initSizeTool() {
   if (!root) return;
 
   // How far (px, from center x=120) the horizontal line extends at min/max value.
-  const LINE_RANGE = { mell: [18, 58], derek: [14, 50], csipo: [20, 62] };
+  const LINE_RANGE = { mell: [20, 50], derek: [12, 36], csipo: [22, 54] };
 
   function setLine(key, value, min, max) {
     const group = root.querySelector(`.size-line[data-line="${key}"]`);
