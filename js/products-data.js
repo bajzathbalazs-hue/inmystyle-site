@@ -17,7 +17,10 @@ const CATEGORY_ICONS = {
 };
 
 const CATEGORIES = [
-  { slug: "ing", name: "Ing", group: "ruhazat", icon: "list", tagline: "Egyedi méretre" },
+  { slug: "ing", name: "Ing", group: "ruhazat", icon: "list", tagline: "Egyedi méretre",
+    heroText: "Puha pamutpopelintől a könnyű selyemig — minden ing a te alakodra, a te ízlésedre szabva készül. Nézd meg a jelenleg elérhető darabokat, vagy kérj teljesen egyedi tervezést anyag- és színválasztással.",
+    gallery: ["GedtJrI7cNP9rVgxtFwSVIMJyMA.jpeg", "HUQkBb62ebyhvbv3Geh48NtJcqg.jpg", "L45iRZ3KoxUg1DIqnmcC5FXKEiA.jpeg", "5bFqnTfSOc9hMkRM7WxmDFQFQjs.jpg"]
+  },
   { slug: "ingruha", name: "Ing ruha", group: "ruhazat", icon: "diamond", tagline: "Egyedi méretre" },
   { slug: "blezer", name: "Blézer", group: "ruhazat", icon: "briefcase", tagline: "Egyedi méretre" },
   { slug: "nadrag", name: "Nadrágok", group: "ruhazat", icon: "check", tagline: "Egyedi méretre" },

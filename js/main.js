@@ -147,7 +147,51 @@ function initFilterPills() {
   });
 }
 
+function initQuoteForm() {
+  document.querySelectorAll(".quote-form").forEach((form) => {
+    const state = {};
+    const summary = form.querySelector("[data-quote-summary]");
+
+    function updateSummary() {
+      if (!summary) return;
+      const parts = [];
+      if (state.anyag) parts.push(`Anyag: ${state.anyag}`);
+      if (state.szin) parts.push(`Szín: ${state.szin}`);
+      summary.textContent = parts.length ? parts.join(" · ") : "Válassz anyagot és színt a fentiek közül.";
+    }
+
+    form.querySelectorAll("[data-swatch-group]").forEach((group) => {
+      const key = group.getAttribute("data-swatch-group");
+      group.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          group.querySelectorAll("button").forEach((b) => b.classList.remove("is-selected"));
+          btn.classList.add("is-selected");
+          state[key] = btn.getAttribute("data-value");
+          updateSummary();
+        });
+      });
+    });
+  });
+}
+
+function submitQuoteForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const category = form.dataset.category || "";
+  const name = form.querySelector('[name="name"]').value.trim();
+  const phone = form.querySelector('[name="phone"]').value.trim();
+  const anyag = form.querySelector('[data-swatch-group="anyag"] .is-selected')?.getAttribute("data-value") || "nincs megadva";
+  const szin = form.querySelector('[data-swatch-group="szin"] .is-selected')?.getAttribute("data-value") || "nincs megadva";
+  const subject = encodeURIComponent(`Egyedi ajánlatkérés – ${category}`);
+  const body = encodeURIComponent(
+    `Kategória: ${category}\nAnyag: ${anyag}\nSzín: ${szin}\nNév: ${name}\nTelefonszám: ${phone}`
+  );
+  window.location.href = `mailto:hello@inmystyle.hu?subject=${subject}&body=${body}`;
+  return false;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   includePartials();
   initFilterPills();
+  initQuoteForm();
 });

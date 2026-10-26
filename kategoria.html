@@ -8,25 +8,161 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=16">
+  <link rel="stylesheet" href="css/style.css?v=17">
   <link rel="icon" href="assets/icons/favicon-light.png">
 </head>
 <body>
 
   <div data-include="header.html"></div>
 
-  <section class="category-hero">
-    <div class="container">
+  <section class="cat-hero" id="cat-hero">
+    <div class="cat-hero-overlay"></div>
+    <div class="container cat-hero-inner">
       <div class="breadcrumb"><a href="index.html">Kollekciók</a> / <span id="cat-name">Kategória</span></div>
-      <div class="eyebrow" style="margin-top:18px;" id="cat-tagline">Kategória</div>
-      <h1 class="section-title" style="font-size:38px;" id="cat-name-title">Kategória</h1>
-      <p class="section-lead" id="cat-lead"></p>
+      <div class="eyebrow" style="margin-top:14px;" id="cat-tagline">Kategória</div>
+      <h1 id="cat-name-title">Kategória</h1>
     </div>
   </section>
 
+  <section class="section-tight">
+    <div class="container">
+      <p class="section-lead center cat-lead-outside" id="cat-lead"></p>
+    </div>
+  </section>
+
+  <!-- Jelenleg elérhető darabok -->
+  <section class="section" style="padding-top:12px;">
+    <div class="container">
+      <div class="eyebrow center">Most elérhető</div>
+      <h2 class="section-title center" style="font-size:24px;">Jelenleg elérhető darabok</h2>
+      <div class="grid-3" id="featured-grid" style="grid-template-columns:repeat(3,1fr);"></div>
+    </div>
+  </section>
+
+  <!-- Teljes kínálat -->
+  <section class="section section-soft">
+    <div class="container">
+      <div class="eyebrow center">Teljes válogatás</div>
+      <h2 class="section-title center" style="font-size:24px;">A kategória összes darabja</h2>
+      <div class="grid-3" id="product-grid" style="grid-template-columns:repeat(3,1fr);"></div>
+    </div>
+  </section>
+
+  <!-- Referencia galéria (csak ha van feltöltött anyag) -->
+  <section class="section" id="cat-gallery-section" style="display:none;">
+    <div class="container">
+      <div class="eyebrow center">Referenciák</div>
+      <h2 class="section-title center" style="font-size:24px;">Ilyeneket készítettünk már</h2>
+      <p class="section-lead center">Néhány korábbi, egyedi méretre készült darabunk — inspirációnak.</p>
+      <div class="gallery-grid" id="cat-gallery-grid"></div>
+    </div>
+  </section>
+
+  <!-- Méret-segéd (2D vizualizáció) -->
+  <section class="section section-soft" id="meret-segod">
+    <div class="container">
+      <div class="eyebrow center">Készülj a konzultációra</div>
+      <h2 class="section-title center">Méret-segéd</h2>
+      <p class="section-lead center">Add meg a méreteidet, és vizuálisan is lásd, mire számíthatsz a konzultáción — a végleges méretet mindig személyesen vesszük fel.</p>
+
+      <div class="size-tool">
+        <div class="size-tool-figure">
+          <svg viewBox="0 0 240 480" class="size-svg" aria-hidden="true">
+            <ellipse cx="120" cy="38" rx="26" ry="28" />
+            <path d="M104 62 L104 80 Q120 92 136 80 L136 62" />
+            <path d="M136 80 Q180 92 188 150 L182 230 Q178 260 170 300 L162 460 L132 460 L126 290 L114 290 L108 460 L78 460 L70 300 Q62 260 58 230 L52 150 Q60 92 104 80" />
+            <line x1="188" y1="150" x2="206" y2="130" />
+            <line x1="52" y1="150" x2="34" y2="130" />
+
+            <g class="size-line" data-line="mell">
+              <line x1="120" y1="118" x2="120" y2="118" />
+              <circle cx="120" cy="118" r="2.5" />
+            </g>
+            <g class="size-line" data-line="derek">
+              <line x1="120" y1="210" x2="120" y2="210" />
+              <circle cx="120" cy="210" r="2.5" />
+            </g>
+            <g class="size-line" data-line="csipo">
+              <line x1="120" y1="268" x2="120" y2="268" />
+              <circle cx="120" cy="268" r="2.5" />
+            </g>
+
+            <g class="size-height">
+              <line x1="20" y1="10" x2="20" y2="460" />
+              <line x1="14" y1="10" x2="26" y2="10" />
+              <line x1="14" y1="460" x2="26" y2="460" />
+            </g>
+          </svg>
+
+          <div class="size-badges">
+            <div class="size-badge" data-badge="mell"><span>Mell</span><b>—</b></div>
+            <div class="size-badge" data-badge="derek"><span>Derék</span><b>—</b></div>
+            <div class="size-badge" data-badge="csipo"><span>Csípő</span><b>—</b></div>
+            <div class="size-badge" data-badge="magassag"><span>Magasság</span><b>—</b></div>
+          </div>
+        </div>
+
+        <div class="size-tool-form">
+          <label>Magasság (cm)
+            <input type="range" min="150" max="190" value="168" data-size-input="magassag">
+            <output data-size-output="magassag">168 cm</output>
+          </label>
+          <label>Mellbőség (cm)
+            <input type="range" min="78" max="130" value="94" data-size-input="mell">
+            <output data-size-output="mell">94 cm</output>
+          </label>
+          <label>Derékbőség (cm)
+            <input type="range" min="60" max="120" value="76" data-size-input="derek">
+            <output data-size-output="derek">76 cm</output>
+          </label>
+          <label>Csípőbőség (cm)
+            <input type="range" min="80" max="135" value="100" data-size-input="csipo">
+            <output data-size-output="csipo">100 cm</output>
+          </label>
+          <p class="size-note">Ez egy tájékoztató vizualizáció — a végleges, pontos méretet mindig személyesen vesszük fel a szalonban.</p>
+          <a href="#idopont" class="btn btn-dark">Foglalj időpontot a méretvételhez</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Anyag- és színválasztó / ajánlatkérő -->
   <section class="section">
     <div class="container">
-      <div class="grid-3" id="product-grid" style="grid-template-columns:repeat(3,1fr);"></div>
+      <div class="eyebrow center">Kérj egyedi ajánlatot</div>
+      <h2 class="section-title center" id="quote-form-title" style="font-size:24px;">Kérj ajánlatot</h2>
+      <p class="section-lead center">Válaszd ki az anyagot és a színt, amiben elképzeled a darabot — a részleteket a konzultáción pontosítjuk.</p>
+
+      <form class="quote-form" id="quote-form" onsubmit="return submitQuoteForm(event);">
+        <div class="quote-form-group">
+          <label class="quote-form-label">Anyag</label>
+          <div class="swatch-group" data-swatch-group="anyag">
+            <button type="button" class="swatch-pill" data-value="Pamut popelin">Pamut popelin</button>
+            <button type="button" class="swatch-pill" data-value="Selyem">Selyem</button>
+            <button type="button" class="swatch-pill" data-value="Vászon">Vászon</button>
+            <button type="button" class="swatch-pill" data-value="Szatén">Szatén</button>
+            <button type="button" class="swatch-pill" data-value="Gyapjú-keverék">Gyapjú-keverék</button>
+          </div>
+        </div>
+        <div class="quote-form-group">
+          <label class="quote-form-label">Szín</label>
+          <div class="swatch-group" data-swatch-group="szin">
+            <button type="button" class="color-swatch" style="background:#ffffff;" data-value="Fehér" title="Fehér" aria-label="Fehér"></button>
+            <button type="button" class="color-swatch" style="background:#1f1f1f;" data-value="Fekete" title="Fekete" aria-label="Fekete"></button>
+            <button type="button" class="color-swatch" style="background:#1c2b45;" data-value="Sötétkék" title="Sötétkék" aria-label="Sötétkék"></button>
+            <button type="button" class="color-swatch" style="background:#7c1f2d;" data-value="Bordó" title="Bordó" aria-label="Bordó"></button>
+            <button type="button" class="color-swatch" style="background:#c8a96a;" data-value="Drapp" title="Drapp" aria-label="Drapp"></button>
+            <button type="button" class="color-swatch" style="background:#9aa9b0;" data-value="Szürke" title="Szürke" aria-label="Szürke"></button>
+            <button type="button" class="color-swatch" style="background:#d88ea0;" data-value="Púder rózsaszín" title="Púder rózsaszín" aria-label="Púder rózsaszín"></button>
+          </div>
+        </div>
+        <div class="quote-form-row">
+          <input type="text" name="name" placeholder="Neved" required>
+          <input type="tel" name="phone" placeholder="Telefonszámod" required>
+        </div>
+        <p class="quote-form-selected" data-quote-summary>Válassz anyagot és színt a fentiek közül.</p>
+        <button type="submit" class="btn btn-accent btn-block">Ajánlatkérés elküldése</button>
+      </form>
     </div>
   </section>
 
@@ -37,9 +173,10 @@
   <div data-include="faq-contact.html"></div>
   <div data-include="footer.html"></div>
 
-  <script src="js/products-data.js?v=3"></script>
-  <script src="js/catalog.js?v=3"></script>
-  <script src="js/main.js?v=11"></script>
+  <script src="js/products-data.js?v=4"></script>
+  <script src="js/catalog.js?v=4"></script>
+  <script src="js/main.js?v=12"></script>
+  <script src="js/size-tool.js?v=1"></script>
   <script>
     renderCategoryPage();
     renderCategoryOverview("category-overview");

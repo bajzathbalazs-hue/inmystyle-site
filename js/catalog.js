@@ -1,5 +1,6 @@
-function iconSvg(name) {
-  return CATEGORY_ICONS[name] || CATEGORY_ICONS.diamond;
+function categoryPhoto(slug) {
+  const item = PRODUCTS.find((p) => p.category === slug);
+  return item ? item.photo : "";
 }
 
 function productCardHtml(p) {
@@ -49,10 +50,13 @@ function renderCategoryOverview(containerId) {
         <div class="category-grid">
           ${items.map((c) => `
             <a class="category-card" href="kategoria.html?slug=${c.slug}">
-              <div class="cat-icon">${iconSvg(c.icon)}</div>
-              <h4>${c.name}</h4>
-              <div class="cat-tag">${c.tagline}</div>
-              <span class="cat-link">Megnézem →</span>
+              <div class="category-card-media">
+                <img src="assets/photos/${categoryPhoto(c.slug)}" alt="${c.name}" loading="lazy">
+              </div>
+              <div class="category-card-body">
+                <h4>${c.name}</h4>
+                <div class="cat-tag">${c.tagline}</div>
+              </div>
             </a>`).join("")}
         </div>
       </div>`;
@@ -71,7 +75,39 @@ function renderCategoryPage() {
   document.getElementById("cat-name-title").textContent = cat.name;
   document.getElementById("cat-tagline").textContent = cat.tagline;
   document.getElementById("cat-lead").textContent =
-    `Válogass ${cat.name.toLowerCase()} kínálatunkból — egyedi méretre készíthető In My Style darabok közül.`;
+    cat.heroText || `Válogass ${cat.name.toLowerCase()} kínálatunkból — egyedi méretre készíthető In My Style darabok közül.`;
+
+  const heroPhoto = cat.heroPhoto || categoryPhoto(cat.slug);
+  const heroEl = document.getElementById("cat-hero");
+  if (heroEl && heroPhoto) {
+    heroEl.style.backgroundImage = `url('assets/photos/${heroPhoto}')`;
+  }
+
+  const featuredGrid = document.getElementById("featured-grid");
+  if (featuredGrid) {
+    const featured = items.slice(0, 3);
+    featuredGrid.innerHTML = featured.length
+      ? featured.map(productCardHtml).join("")
+      : `<p style="color:var(--color-ink-soft); grid-column:1/-1;">Hamarosan új darabok érkeznek ebbe a kategóriába — addig is hívj minket!</p>`;
+  }
+
+  const gallerySection = document.getElementById("cat-gallery-section");
+  const galleryGrid = document.getElementById("cat-gallery-grid");
+  if (gallerySection && galleryGrid) {
+    if (cat.gallery && cat.gallery.length) {
+      galleryGrid.innerHTML = cat.gallery
+        .map((photo) => `<div class="gallery-item" style="padding:0; overflow:hidden;"><img src="assets/photos/${photo}" alt="${cat.name} — In My Style referencia" style="width:100%; height:100%; object-fit:cover;"></div>`)
+        .join("");
+      gallerySection.style.display = "";
+    } else {
+      gallerySection.style.display = "none";
+    }
+  }
+
+  const quoteForm = document.getElementById("quote-form");
+  if (quoteForm) quoteForm.dataset.category = cat.name;
+  const quoteTitle = document.getElementById("quote-form-title");
+  if (quoteTitle) quoteTitle.textContent = `Kérj ajánlatot — ${cat.name}`;
 
   const grid = document.getElementById("product-grid");
   if (items.length === 0) {
