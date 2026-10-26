@@ -303,7 +303,7 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 }
 
 /* ===== Section ===== */
-.section { padding: 72px 0; }
+.section { padding: 64px 0; }
 .section-tight { padding: 48px 0; }
 .section-soft { background: var(--color-soft-2); }
 .eyebrow {
@@ -311,11 +311,11 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
   color: var(--color-accent); font-weight: 700; margin-bottom: 10px;
 }
 .section-title { font-size: 32px; margin: 0 0 14px; font-weight: 700; }
-.section-lead { color: var(--color-ink-soft); max-width: 640px; margin: 0 0 36px; line-height: 1.6; }
+.section-lead { color: var(--color-ink-soft); max-width: 640px; margin: 0 0 28px; line-height: 1.6; }
 .center { text-align: center; margin-left: auto; margin-right: auto; }
 
 /* ===== Two-card collection ===== */
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
 .info-card {
   background: var(--color-card);
   border: 1px solid var(--color-line);
@@ -615,7 +615,8 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 .category-card h4 { font-size: 15px; margin: 0 0 2px; }
 .category-card .cat-tag { font-size: 12px; color: var(--color-ink-soft); }
 /* Fluid: as many columns as comfortably fit (up to 5-6 on wide displays), narrowing smoothly — no manual breakpoints needed above mobile. */
-.category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+/* minmax tuned so our real item counts (9 ruházat, 6 kiegészítő) land on an even 3 columns at desktop width — no lone orphan card in a half-empty row. Still fluid: narrows gracefully on tablet. */
+.category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 .category-panel {
   background: var(--color-card);
   border: 1px solid var(--color-line);
