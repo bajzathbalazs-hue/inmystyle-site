@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=21">
+  <link rel="stylesheet" href="css/style.css?v=22">
   <link rel="icon" href="assets/icons/favicon-light.png" media="(prefers-color-scheme: light)">
   <link rel="icon" href="assets/icons/favicon-dark.png" media="(prefers-color-scheme: dark)">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -166,14 +166,52 @@
             <svg viewBox="0 0 240 480" class="size-svg" aria-hidden="true">
               <defs>
                 <linearGradient id="figureGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#f6fafb"/>
-                  <stop offset="55%" stop-color="#cfdde2"/>
-                  <stop offset="100%" stop-color="#90a9b3"/>
+                  <stop offset="0%" stop-color="#fbfdfe"/>
+                  <stop offset="45%" stop-color="#d2e1e5"/>
+                  <stop offset="100%" stop-color="#7d99a4"/>
                 </linearGradient>
+                <radialGradient id="figureSheen" cx="38%" cy="18%" r="55%">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity=".6"/>
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                </radialGradient>
+                <radialGradient id="groundShadow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#15242e" stop-opacity=".25"/>
+                  <stop offset="100%" stop-color="#15242e" stop-opacity="0"/>
+                </radialGradient>
                 <filter id="figureShadow" x="-40%" y="-10%" width="180%" height="130%">
-                  <feDropShadow dx="5" dy="16" stdDeviation="10" flood-color="#15242e" flood-opacity=".22"/>
+                  <feDropShadow dx="4" dy="10" stdDeviation="8" flood-color="#15242e" flood-opacity=".2"/>
                 </filter>
+                <clipPath id="bodyClip">
+                  <path d="M108,67
+                    C96,70 85,80 82,92
+                    C78,104 80,116 85,128
+                    C93,156 99,176 97,204
+                    C95,222 86,238 80,264
+                    C75,286 85,303 89,318
+                    C93,342 95,360 93,376
+                    C91,404 95,430 99,454
+                    L93,467
+                    L109,467
+                    L113,454
+                    C109,430 107,404 111,376
+                    C113,350 118,320 120,301
+                    C122,320 127,350 129,376
+                    C133,404 131,430 127,454
+                    L131,467
+                    L147,467
+                    L141,454
+                    C145,430 149,404 147,376
+                    C145,360 147,342 151,318
+                    C155,303 165,286 160,264
+                    C154,238 145,222 143,204
+                    C141,176 147,156 155,128
+                    C160,116 162,104 158,92
+                    C155,80 144,70 132,67
+                    Q120,78 108,67 Z" />
+                </clipPath>
               </defs>
+
+              <ellipse cx="120" cy="472" rx="56" ry="9" fill="url(#groundShadow)" />
 
               <g filter="url(#figureShadow)">
                 <path class="size-arm" d="M82,94 Q58,108 54,145 Q52,168 61,188" />
@@ -207,6 +245,9 @@
                   Q120,78 108,67 Z" />
 
                 <ellipse class="size-body" cx="120" cy="42" rx="22" ry="25" />
+
+                <ellipse cx="97" cy="118" rx="42" ry="75" fill="url(#figureSheen)" clip-path="url(#bodyClip)" />
+                <ellipse cx="112" cy="36" rx="14" ry="16" fill="url(#figureSheen)" />
               </g>
 
               <g class="size-line" data-line="mell">
