@@ -244,7 +244,7 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(15,25,32,.32) 0%, rgba(15,25,32,.42) 45%, rgba(15,25,32,.68) 100%);
+  background: linear-gradient(180deg, rgba(15,25,32,.5) 0%, rgba(15,25,32,.58) 45%, rgba(15,25,32,.8) 100%);
 }
 .hero-inner {
   position: relative;
@@ -264,17 +264,6 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
   .hero-inner > *:nth-child(3) { animation-delay: .16s; }
   .hero-inner > *:nth-child(4) { animation-delay: .24s; }
   .hero-inner > *:nth-child(5) { animation-delay: .32s; }
-}
-.hero-wordmark {
-  font-family: var(--font-script);
-  font-style: normal;
-  font-weight: 700;
-  font-size: 72px;
-  line-height: 1;
-  color: #fff;
-  opacity: .95;
-  margin-bottom: 4px;
-  text-shadow: 0 4px 24px rgba(15,25,32,.35);
 }
 .hero h1 {
   font-size: 44px;
@@ -309,7 +298,6 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 }
 @media (max-width: 700px) {
   .hero { min-height: 540px; padding: 72px 0; background-position: center 18%; }
-  .hero-wordmark { font-size: 48px; }
   .hero h1 { font-size: 32px; }
   .hero-stats { gap: 22px 28px; }
 }
