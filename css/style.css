@@ -11,8 +11,8 @@
   --color-card: #ffffff;
   --color-badge-bg: #e4edf2;
 
-  --font-script: "Allura", cursive;
-  --font-body: "Montserrat", -apple-system, sans-serif;
+  --font-script: "Dancing Script", cursive;
+  --font-body: "Cabinet Grotesk", -apple-system, sans-serif;
 
   --radius-md: 10px;
   --radius-lg: 18px;
@@ -91,6 +91,8 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
   font-size: 34px;
   letter-spacing: .01em;
 }
+.site-header .logo.logo-img { display: flex; align-items: center; }
+.site-header .logo-img img { height: 36px; width: auto; display: block; }
 
 .header-side { display: flex; align-items: center; gap: 16px; }
 
@@ -423,6 +425,7 @@ a, button { transition: color .2s var(--ease), background-color .2s var(--ease),
 .site-footer { background: var(--color-soft-2); padding: 56px 0 24px; margin-top: 72px; }
 .footer-top { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 32px; }
 .footer-brand .logo { font-family: var(--font-script); font-style: normal; font-size: 28px; margin-bottom: 10px; }
+.footer-brand .logo-img img { height: 32px; width: auto; display: block; }
 .footer-brand p { color: var(--color-ink-soft); font-size: 14px; line-height: 1.6; }
 .footer-col h5 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 14px; }
 .footer-col a { display: block; font-size: 14px; color: var(--color-ink-soft); margin-bottom: 10px; }

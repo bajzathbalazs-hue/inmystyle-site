@@ -1,4 +1,4 @@
-const PARTIALS_VERSION = "4";
+const PARTIALS_VERSION = "5";
 
 async function includePartials() {
   const nodes = document.querySelectorAll("[data-include]");
