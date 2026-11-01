@@ -24,13 +24,28 @@
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") open(false); });
   });
 
-  /* Mobil menü */
+  /* Menü (balról nyíló panel) */
   const body = document.body;
-  const setDrawer = (v) => body.classList.toggle("drawer-open", v);
+  const drawer = $("#drawer");
+  const setDrawer = (v) => {
+    body.classList.toggle("drawer-open", v);
+    if (drawer) drawer.setAttribute("aria-hidden", String(!v));
+    $$("[data-drawer-open]").forEach((b) => b.setAttribute("aria-expanded", String(v)));
+    if (v && drawer) setTimeout(() => { const f = $("button, a", drawer); if (f) f.focus(); }, 50);
+  };
   $$("[data-drawer-open]").forEach((b) => b.addEventListener("click", () => setDrawer(true)));
   $$("[data-drawer-close]").forEach((b) => b.addEventListener("click", () => setDrawer(false)));
   $$(".drawer a").forEach((a) => a.addEventListener("click", () => setDrawer(false)));
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") setDrawer(false); });
+  if (drawer && window.matchMedia("(min-width: 761px)").matches) { const d = $("details", drawer); if (d) d.open = true; }
+
+  /* Mobil hívás/időpont sáv: a nyitókép után jelenik meg */
+  const cta = $("[data-mobile-cta]");
+  if (cta) {
+    const onScrollCta = () => cta.classList.toggle("is-visible", window.scrollY > window.innerHeight * 0.6);
+    onScrollCta();
+    window.addEventListener("scroll", onScrollCta, { passive: true });
+  }
 
   /* Megjelenési animáció */
   const reveals = $$(".reveal");

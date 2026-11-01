@@ -138,46 +138,34 @@ ${jsonld.map((j) => `<script type="application/ld+json">${JSON.stringify(j)}</sc
 </head>`;
 }
 
-function megaMenu() {
-  const col = (g) => `<div><h3>${g.title}</h3>${CATEGORIES.filter((c) => c.group === g.key).map((c) => `<a href="${catUrl(c)}">${esc(c.name)}</a>`).join("")}</div>`;
-  return `<div class="mega" id="mega-kollekcio">${groups.map(col).join("")}
-    <a class="mega-feature" href="/#kollekcio">${pic("6es6MykWWyAqSyt10cTe4pX4k.png", "")}<span>Aktuális kollekció<small>Friss darabok korlátozott számban</small></span></a>
-  </div>`;
-}
-
 function header(active = "") {
   const cur = (k) => (active === k ? ' aria-current="page"' : "");
   return `<a class="skip-link" href="#tartalom">Ugrás a tartalomra</a>
 <div class="topbar">
   <div class="container">
-    <div class="topbar-info"><span>${I.clock}${SITE.hoursShort}</span><span class="topbar-hide-m">${I.pin}${SITE.address}</span></div>
+    <span>${I.clock}Nyitva: ${SITE.hoursShort}</span>
+    <span class="topbar-hide-m">${I.pin}${SITE.address}</span>
     <a class="topbar-hide-m" href="${SITE.phoneHref}">${SITE.phone}</a>
   </div>
 </div>
 <header class="site-header" data-header>
   <div class="container header-inner">
-    <a class="logo" href="/" aria-label="In My Style – főoldal"><img src="/assets/logo/in-my-style-logo.png" alt="In My Style" width="180" height="38"></a>
-    <nav class="main-nav" aria-label="Fő navigáció">
-      <div class="nav-item" data-dropdown>
-        <button type="button" aria-expanded="false" aria-controls="mega-kollekcio">Kollekció ${I.chevron}</button>
-        ${megaMenu()}
-      </div>
-      <a href="/#szolgaltatasok">Szolgáltatások</a>
-      <a href="/akcio/"${cur("akcio")}>Akció</a>
-      <a href="/#rolunk">Rólunk</a>
-      <a href="/#kapcsolat">Kapcsolat</a>
-    </nav>
-    <div class="header-cta">
+    <div class="header-left">
+      <button class="menu-btn" type="button" data-drawer-open aria-controls="drawer" aria-expanded="false"><span class="burger" aria-hidden="true"><span></span></span><span class="label">Menü</span></button>
+      <nav class="header-quick" aria-label="Gyorslinkek"><a href="/#kollekcio">Kollekció</a><a href="/akcio/"${cur("akcio")}>Akció</a></nav>
+    </div>
+    <a class="logo" href="/" aria-label="In My Style – főoldal"><img src="/assets/logo/in-my-style-logo.png" alt="In My Style" width="190" height="40"></a>
+    <div class="header-right">
+      <a class="icon-link hide-m" href="${SITE.instagram}" target="_blank" rel="noopener" aria-label="In My Style az Instagramon">${I.instagram}</a>
       <a class="icon-link" href="${SITE.phoneHref}" aria-label="Hívás: ${SITE.phone}">${I.phone}</a>
       <a class="btn btn-dark btn-sm" href="/#idopont">Időpontfoglalás</a>
-      <button class="icon-link menu-toggle" type="button" data-drawer-open aria-label="Menü megnyitása" aria-controls="drawer">${I.menu}</button>
     </div>
   </div>
 </header>
 <div class="drawer-backdrop" data-drawer-close></div>
-<aside class="drawer" id="drawer" aria-label="Mobil menü">
-  <div class="drawer-head"><img src="/assets/logo/in-my-style-logo.png" alt="In My Style" width="150" height="30"><button class="icon-link" type="button" data-drawer-close aria-label="Menü bezárása">${I.close}</button></div>
-  <nav>
+<aside class="drawer" id="drawer" aria-label="Menü" aria-hidden="true">
+  <div class="drawer-head"><img src="/assets/logo/in-my-style-logo.png" alt="In My Style" width="150" height="32"><button class="icon-link" type="button" data-drawer-close aria-label="Menü bezárása">${I.close}</button></div>
+  <nav aria-label="Fő navigáció">
     <a href="/">Főoldal</a>
     <details>
       <summary>Kollekció</summary>
@@ -186,12 +174,13 @@ function header(active = "") {
     <a href="/#szolgaltatasok">Szolgáltatások</a>
     <a href="/akcio/">Akció</a>
     <a href="/#rolunk">Rólunk</a>
+    <a href="/#velemenyek">Vélemények</a>
     <a href="/#ajanlatkeres">Ajánlatkérés</a>
     <a href="/#kapcsolat">Kapcsolat</a>
   </nav>
   <div class="drawer-foot">
-    <a class="btn btn-dark btn-block" href="/#idopont">${I.calendar}Időpontfoglalás</a>
-    <a class="btn btn-outline btn-block" href="${SITE.phoneHref}">${I.phone}${SITE.phone}</a>
+    <div class="row"><a class="btn btn-dark" href="/#idopont">${I.calendar}Időpontfoglalás</a><a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}${SITE.phone}</a></div>
+    <div class="drawer-contact"><span>${SITE.address}</span><span>${SITE.hoursShort}</span><a href="${SITE.instagram}" target="_blank" rel="noopener">Instagram</a><a href="${SITE.facebook}" target="_blank" rel="noopener">Facebook</a></div>
   </div>
 </aside>`;
 }
@@ -270,6 +259,7 @@ function footer() {
     </div>
   </div>
 </footer>
+<div class="mobile-cta" data-mobile-cta><a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a><a class="btn btn-dark" href="/#idopont">${I.calendar}Időpont</a></div>
 <script src="/js/main.js?v=${JS_V}" defer></script>`;
 }
 
@@ -532,23 +522,24 @@ function homePage() {
       <h1 id="hero-cim">Egyedi méretre készülő női ruhák <span class="script">rád szabva</span></h1>
       <p class="lead">Sportos elegancia, kényelem és nőiesség: minden darabot a te alkatodra, a te ízlésed szerint készítünk el — a konzultációtól az utolsó próbáig.</p>
       <div class="hero-actions">
-        <a class="btn btn-dark" href="#idopont">${I.calendar}Időpontot foglalok</a>
-        <a class="btn btn-outline" href="#kollekcio">Kollekció megtekintése</a>
+        <a class="btn btn-light" href="#idopont">${I.calendar}Időpontot foglalok</a>
+        <a class="btn btn-outline-light" href="#kollekcio">Kollekció megtekintése</a>
       </div>
       <div class="hero-proof">
         <div><b>100%</b><span>egyedi méretre</span></div>
         <div><b>1–2 hét</b><span>átfutási idő</span></div>
-        <div><b>Kézzel készül</b><span>hazai műhelyben</span></div>
+        <div><b>Hozott anyagból</b><span>is elkészítjük</span></div>
       </div>
     </div>
   </div>
+  <a class="scroll-cue" href="#szolgaltatasok" aria-label="Tovább a tartalomhoz"></a>
 </section>
 
 <section class="trust" aria-label="Miért az In My Style?">
   <div class="container">
     <div class="trust-item">${I.ruler}<div><b>Pontos méretvétel</b><span>személyesen, a szalonban</span></div></div>
-    <div class="trust-item">${I.swatch}<div><b>Közös anyagválasztás</b><span>vagy hozott anyagból</span></div></div>
-    <div class="trust-item">${I.needle}<div><b>Kézzel varrva</b><span>a te alkatodra</span></div></div>
+    <div class="trust-item">${I.needle}<div><b>Kézzel varrva</b><span>hazai műhelyben</span></div></div>
+    <div class="trust-item">${I.check}<div><b>Próba és igazítás</b><span>amíg tökéletes nem lesz</span></div></div>
     <div class="trust-item">${I.heart}<div><b>Személyes figyelem</b><span>bejelentkezés alapján</span></div></div>
   </div>
 </section>
