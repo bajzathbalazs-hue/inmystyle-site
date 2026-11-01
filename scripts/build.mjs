@@ -909,7 +909,7 @@ for (const p of PRODUCTS) {
 }
 
 fs.rmSync(DIST, { recursive: true, force: true });
-copyDir(path.join(ROOT, "assets"), path.join(DIST, "assets"));
+copyDir(path.join(ROOT, "assets"), path.join(DIST, "assets"), (f) => !f.includes(`${path.sep}photos${path.sep}`));
 copyDir(path.join(ROOT, "css"), path.join(DIST, "css"));
 fs.mkdirSync(path.join(DIST, "js"), { recursive: true });
 fs.copyFileSync(path.join(ROOT, "js/main.js"), path.join(DIST, "js/main.js"));
@@ -941,5 +941,18 @@ const redirects = [
   ...CATEGORIES.filter((c) => c.legacy && c.legacy !== c.slug).map((c) => `/kategoria/${c.legacy} /kategoria/${c.slug}/ 301`),
 ];
 write("_redirects", redirects.join("\n") + "\n");
+
+// csak a ténylegesen használt fotók kerülnek ki
+const used = new Set();
+for (const f of fs.readdirSync(DIST, { recursive: true })) {
+  if (!String(f).endsWith(".html")) continue;
+  const html = fs.readFileSync(path.join(DIST, String(f)), "utf8");
+  for (const m of html.matchAll(/\/assets\/photos\/([^"'\s)?]+)/g)) used.add(m[1]);
+}
+fs.mkdirSync(path.join(DIST, "assets/photos"), { recursive: true });
+for (const f of used) {
+  const src = path.join(ROOT, "assets/photos", f);
+  if (fs.existsSync(src)) fs.copyFileSync(src, path.join(DIST, "assets/photos", f));
+}
 
 console.log(`Kész: ${CATEGORIES.length} kategória, ${PRODUCTS.length} termék, ${urls.length} URL a sitemapben → dist/`);
