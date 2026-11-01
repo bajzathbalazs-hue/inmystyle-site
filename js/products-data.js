@@ -1,68 +1,100 @@
-/* In My Style — kategória és termék adatok.
-   Új termék felvétele: másolj egy meglévő objektumot a megfelelő kategória "items" tömbjében,
-   és írd át a mezőket. Ha nincs ár/méret, hagyd üresen — ilyenkor "Hívj a részletekért" jelenik meg.
-   Fotó: tedd a fájlt az assets/photos/ mappába, és írd be a nevét a "photo" mezőbe. */
+/* ============================================================
+   In My Style — kategóriák és termékek (EZT A FÁJLT KELL SZERKESZTENI)
 
-const CATEGORY_ICONS = {
-  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg>',
-  diamond: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="6" width="12" height="12" rx="2" transform="rotate(45 12 12)"/></svg>',
-  briefcase: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
-  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>',
-  bookmark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4h12v16l-6-4-6 4V4z"/></svg>',
-  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 20s-7-4.35-9.5-9C.9 7.5 3 4 6.5 4 9 4 11 6 12 7.5 13 6 15 4 17.5 4 21 4 23.1 7.5 21.5 11 19 15.65 12 20 12 20z"/></svg>',
-  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
-  box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="8" width="16" height="12" rx="1.5"/><path d="M4 8l2.5-4h11L20 8"/></svg>',
-  bag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
-  shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/></svg>'
-};
+   Új termék felvétele:
+   1. Tedd a fotót az assets/photos/ mappába (lehetőleg álló, 4:5 arányú JPG).
+   2. Másolj le egy meglévő sort a PRODUCTS listában, és írd át a mezőket.
+   3. Mentsd el, és töltsd fel (push) a GitHubra — a Netlify pár perc alatt
+      automatikusan elkészíti a termék saját oldalát, és frissíti a kategóriát.
+
+   Termék mezői:
+     slug        – a termék webcíme, ékezet nélkül, kötőjellel (pl. "feher-ing")
+     category    – a lenti CATEGORIES lista egyik slug-ja
+     name        – a termék neve
+     type        – "egyedi" (méretre készül) vagy "import" (kész darab, fix méret)
+     photos      – fotók fájlnevei az assets/photos/ mappából; az első a fő kép
+     price       – pl. "24 900 Ft"; hagyd üresen (""), ha egyeztetés alapján
+     description – 1–3 mondatos leírás
+     specs       – { Anyag: "...", Szín: "...", Méret: "..." } — bármelyik elhagyható
+     badge       – pl. "Készleten: 5 db", "Elfogyott", "Kiárusítás" — elhagyható
+     featured    – true, ha a főoldali „Aktuális kollekció” részben is megjelenjen
+     sale        – true, ha az Akció oldalon is megjelenjen
+   ============================================================ */
 
 const CATEGORIES = [
-  { slug: "ing", name: "Ing", group: "ruhazat", icon: "list", tagline: "Egyedi méretre",
-    heroText: "Puha pamutpopelintől a könnyű selyemig — minden ing a te alakodra, a te ízlésedre szabva készül. Nézd meg a jelenleg elérhető darabokat, vagy kérj teljesen egyedi tervezést anyag- és színválasztással.",
-    gallery: ["GedtJrI7cNP9rVgxtFwSVIMJyMA.jpeg", "HUQkBb62ebyhvbv3Geh48NtJcqg.jpg", "L45iRZ3KoxUg1DIqnmcC5FXKEiA.jpeg", "5bFqnTfSOc9hMkRM7WxmDFQFQjs.jpg"]
-  },
-  { slug: "ingruha", name: "Ing ruha", group: "ruhazat", icon: "diamond", tagline: "Egyedi méretre" },
-  { slug: "blezer", name: "Blézer", group: "ruhazat", icon: "briefcase", tagline: "Egyedi méretre" },
-  { slug: "nadrag", name: "Nadrágok", group: "ruhazat", icon: "check", tagline: "Egyedi méretre" },
-  { slug: "szoknya", name: "Szoknyák", group: "ruhazat", icon: "diamond", tagline: "Egyedi méretre" },
-  { slug: "melleny", name: "Mellények", group: "ruhazat", icon: "bookmark", tagline: "Egyedi méretre" },
-  { slug: "alkalmi", name: "Alkalmi ruhák", group: "ruhazat", icon: "shield", tagline: "Egyedi méretre" },
-  { slug: "aktualis", name: "Aktuális ruhák", group: "ruhazat", icon: "clock", tagline: "Friss darabok" },
-  { slug: "kabat", name: "Kabátok", group: "ruhazat", icon: "box", tagline: "Egyedi méretre" },
-  { slug: "ov", name: "Övek", group: "kiegeszito", icon: "bookmark", tagline: "Válogatott darabok" },
-  { slug: "sal", name: "Sálak", group: "kiegeszito", icon: "heart", tagline: "Egyedi méretre" },
-  { slug: "kendo", name: "Kendők", group: "kiegeszito", icon: "diamond", tagline: "Válogatott darabok" },
-  { slug: "sajat-taska", name: "Saját márkás táskák", group: "kiegeszito", icon: "bag", tagline: "In My Style saját gyártás" },
-  { slug: "kituzo", name: "Kitűzők", group: "kiegeszito", icon: "check", tagline: "In My Style saját gyártás" },
-  { slug: "taska", name: "Táskák", group: "kiegeszito", icon: "bag", tagline: "Válogatott darabok" }
+  { slug: "ing", legacy: "ing", name: "Ing", title: "Egyedi méretre készülő női ingek", group: "ruhazat", tagline: "Egyedi méretre", heroPhoto: "HUQkBb62ebyhvbv3Geh48NtJcqg.jpg",
+    intro: "Puha pamutpopelintől a könnyű selyemig — minden ing a te alakodra, a te ízlésedre szabva készül. Nézd meg a jelenleg elérhető darabokat, vagy kérj teljesen egyedi tervezést anyag- és színválasztással.",
+    gallery: ["GedtJrI7cNP9rVgxtFwSVIMJyMA.jpeg", "HUQkBb62ebyhvbv3Geh48NtJcqg.jpg", "L45iRZ3KoxUg1DIqnmcC5FXKEiA.jpeg", "5bFqnTfSOc9hMkRM7WxmDFQFQjs.jpg"] },
+  { slug: "ing-ruha", legacy: "ingruha", name: "Ing ruha", title: "Ing ruhák egyedi méretre", group: "ruhazat", tagline: "Egyedi méretre", heroPhoto: "6es6MykWWyAqSyt10cTe4pX4k.png",
+    intro: "Az ing letisztultsága ruhába öntve: kényelmes, mégis kifinomult darabok, amelyek a te alkatodra készülnek — irodába és hétvégére egyaránt." },
+  { slug: "blezer", legacy: "blezer", name: "Blézer", title: "Méretre szabott női blézerek", group: "ruhazat", tagline: "Egyedi méretre", heroPhoto: "FuzmlZu4JwbOrfbz9kuZ30Q7XMM.jpg",
+    intro: "Tiszta vonalak, tökéletes illeszkedés. Méretre szabott blézereink a sportos elegancia alapdarabjai a hétköznapokban és az ünnepi alkalmakon is." },
+  { slug: "nadragok", legacy: "nadrag", name: "Nadrágok", title: "Méretre szabott női nadrágok", group: "ruhazat", tagline: "Egyedi méretre", heroPhoto: "jahxr9wPPHcxK0AWCJ8AZaeHQnY.jpeg",
+    intro: "Szabott és kényelmes nadrágok kompromisszumok nélkül: hosszuk, bőségük és anyaguk a te igényeidhez igazodik." },
+  { slug: "szoknyak", legacy: "szoknya", name: "Szoknyák", title: "Egyedi méretre készülő szoknyák", group: "ruhazat", tagline: "Egyedi méretre", heroPhoto: "C8ss4vZRvpCsYwYjgsN2PfL5Yy8.jpeg",
+    intro: "Midi, ceruza vagy harang fazon: egyedi méretre készülő szoknyáink nőiesek, kényelmesek és könnyen kombinálhatók." },
+  { slug: "mellenyek", legacy: "melleny", name: "Mellények", title: "Méretre készülő női mellények", group: "ruhazat", tagline: "Egyedi méretre", heroPhoto: "ZHXenMDNxDUohhIi2cLGZ0mYT4.jpg",
+    intro: "Réteges öltözködés stílusosan. Mellényeink egyedi méretre készülnek, és egy egyszerű inget vagy ruhát is különlegessé tesznek." },
+  { slug: "alkalmi-ruhak", legacy: "alkalmi", name: "Alkalmi ruhák", title: "Alkalmi ruhák egyedi méretre", group: "ruhazat", tagline: "Egyedi méretre", heroPhoto: "iNWNifDODcXnW2dA6cTeYSwOmWc.jpg",
+    intro: "Ünnepre, rendezvényre, különleges pillanatokra. Alkalmi ruháinkat közösen tervezzük meg, hogy a nagy napon minden tökéletes legyen." },
+  { slug: "aktualis-ruhak", legacy: "aktualis", name: "Aktuális ruhák", title: "Aktuális kollekció", group: "ruhazat", tagline: "Friss darabok", heroPhoto: "WQtmGfSVqR8hXQLZOI29RINwPU.jpg",
+    intro: "Az aktuális kollekció friss darabjai korlátozott számban, fix méretben érhetők el — érdemes időben jelentkezni." },
+  { slug: "kabatok", legacy: "kabat", name: "Kabátok", title: "Női kabátok egyedi méretre", group: "ruhazat", tagline: "Egyedi méretre", heroPhoto: "ajSFhpoOpB5VA8weYFY45oFdoto.jpg",
+    intro: "Átmeneti és téli kabátok, amelyek melegen tartanak, és közben a te alakodra szabott, letisztult eleganciát nyújtják." },
+  { slug: "ovek", legacy: "ov", name: "Övek", title: "Női övek", group: "kiegeszito", tagline: "Válogatott darabok", heroPhoto: "LO5To9FaturNsCvL8WmPyXIQ3SI.jpg",
+    intro: "A részletek teszik teljessé a megjelenést. Válogatott öveink kiemelik a derékvonalat, és egyedi karaktert adnak az öltözéknek." },
+  { slug: "salak", legacy: "sal", name: "Sálak", title: "Sálak", group: "kiegeszito", tagline: "Egyedi méretre", heroPhoto: "XQkc4uhz1PjVInXt3ukZQ3WHETY.png",
+    intro: "Puha, nemes anyagú sálak, amelyek színt és melegséget visznek a hétköznapokba." },
+  { slug: "kendok", legacy: "kendo", name: "Kendők", title: "Selyemkendők és fejkendők", group: "kiegeszito", tagline: "Válogatott darabok", heroPhoto: "ospqHxfiRBYH2iCWMDnK1lJCrQ8.png",
+    intro: "Selyemkendők és mintás fejkendők: apró kiegészítők, nagy hatással." },
+  { slug: "sajat-markas-taskak", legacy: "sajat-taska", name: "Saját márkás táskák", title: "In My Style táskák", group: "kiegeszito", tagline: "In My Style saját gyártás", heroPhoto: "Rc9rmgvWENqT4ibYFaxvdasbQmk.png",
+    intro: "Saját gyártású In My Style táskák: praktikusak, időtállók, és tökéletesen illenek a kollekció darabjaihoz." },
+  { slug: "kituzok", legacy: "kituzo", name: "Kitűzők", title: "In My Style kitűzők", group: "kiegeszito", tagline: "In My Style saját gyártás", heroPhoto: "yLdX1XTK2PFRY9EbeHk9tffDa4U.jpeg",
+    intro: "Saját tervezésű kitűzők, amelyekkel egy egyszerű blézer vagy kabát is személyes hangot kap." },
+  { slug: "taskak", legacy: "taska", name: "Táskák", title: "Női táskák", group: "kiegeszito", tagline: "Válogatott darabok", heroPhoto: "PqalPo2E1o6IkCRlDFZGPw2KVeU.jpeg",
+    intro: "Gondosan válogatott táskák a mindennapokra és az ünnepi alkalmakra." }
 ];
 
-/* Minden termék mezői:
-   category: a fenti slug egyike
-   name: cím
-   type: "egyedi" | "import"
-   photo: fájlnév az assets/photos/ mappából
-   price: pl. "24 900 Ft" — hagyd üresen ("") ha nincs ár, ilyenkor "Hívj a részletekért" gomb jelenik meg
-   specs: { Anyag: "...", Szín: "...", Méret: "..." } — bármelyik elhagyható
-   badge: pl. "Készleten: 5 db" / "Elfogyott" — elhagyható
-   sale: true, ha az Akció oldalon is meg kell jelennie */
 const PRODUCTS = [
-  { category: "ing", name: "Klasszikus fehér ing", type: "egyedi", photo: "6vtbLBV5jJjsl8OIOBQ8mfl2Mw.jpg", price: "24 900 Ft", specs: { Anyag: "Pamut popelin", Szín: "Választható", Méret: "Egyedi méretre szabva" }, featured: true },
-  { category: "ing", name: "Csíkos ing", type: "import", photo: "LO5To9FaturNsCvL8WmPyXIQ3SI.jpg", price: "15 900 Ft", specs: { Anyag: "Pamut-keverék", Szín: "Kék-fehér csíkos", Méret: "38-as" }, badge: "Készleten: 5 db" },
-  { category: "ing", name: "Rózsaszín csíkos ing", type: "import", photo: "osByvmBIhz5J4WSCI3nUAh42B8.jpeg", price: "", sale: true, badge: "Elfogyott" },
-  { category: "ingruha", name: "Kék wrap ing-ruha", type: "egyedi", photo: "FQMYqbBj47O2wVG4AmlnpeY4PY.jpg", price: "", featured: true },
-  { category: "blezer", name: "Sárga blézer", type: "import", photo: "25D23UD4e3h1eYoVZM34fYiQps.jpeg", price: "" },
-  { category: "blezer", name: "Kék öves blézerruha", type: "egyedi", photo: "NF5aKztD4zvcFCh6rvT2ToqpNUo.jpg", price: "", featured: true },
-  { category: "nadrag", name: "Krém szabott nadrág", type: "egyedi", photo: "6vtbLBV5jJjsl8OIOBQ8mfl2Mw.jpg", price: "" },
-  { category: "szoknya", name: "Midi szoknya", type: "import", photo: "gAkLhMVLrb8Lomuc2uiJ202qjcY.jpg", price: "" },
-  { category: "melleny", name: "Sötétkék mellény", type: "egyedi", photo: "4LChjMZUrFVyUKIp8k0C6eiIM.jpg", price: "" },
-  { category: "alkalmi", name: "Estélyi overál", type: "egyedi", photo: "iNWNifDODcXnW2dA6cTeYSwOmWc.jpg", price: "" },
-  { category: "alkalmi", name: "Pink alkalmi ruha", type: "import", photo: "WQtmGfSVqR8hXQLZOI29RINwPU.jpg", price: "", sale: true, badge: "Kiárusítás" },
-  { category: "aktualis", name: "Ünnepi kollekció darab", type: "egyedi", photo: "C8ss4vZRvpCsYwYjgsN2PfL5Yy8.jpeg", price: "", featured: true },
-  { category: "kabat", name: "Bőrdzseki", type: "import", photo: "R0qajIH6IqGeP0KKQFttLc6NfI.jpg", price: "" },
-  { category: "ov", name: "Barna bőröv", type: "import", photo: "LO5To9FaturNsCvL8WmPyXIQ3SI.jpg", price: "" },
-  { category: "sal", name: "Selyemkendő", type: "egyedi", photo: "XQkc4uhz1PjVInXt3ukZQ3WHETY.png", price: "" },
-  { category: "kendo", name: "Mintás fejkendő", type: "import", photo: "XQkc4uhz1PjVInXt3ukZQ3WHETY.png", price: "" },
-  { category: "sajat-taska", name: "In My Style vászontáska", type: "egyedi", photo: "Rc9rmgvWENqT4ibYFaxvdasbQmk.png", price: "" },
-  { category: "taska", name: "Elegáns kéztáska", type: "import", photo: "Rc9rmgvWENqT4ibYFaxvdasbQmk.png", price: "" }
+  { slug: "klasszikus-feher-ing", category: "ing", name: "Klasszikus fehér ing", type: "egyedi", photos: ["6vtbLBV5jJjsl8OIOBQ8mfl2Mw.jpg", "GedtJrI7cNP9rVgxtFwSVIMJyMA.jpeg"], price: "24 900 Ft",
+    description: "Időtlen alapdarab puha pamutpopelinből, a te méreteidre szabva.",
+    specs: { Anyag: "Pamut popelin", Szín: "Választható", Méret: "Egyedi méretre szabva" }, featured: true },
+  { slug: "csikos-ing", category: "ing", name: "Csíkos ing", type: "import", photos: ["LO5To9FaturNsCvL8WmPyXIQ3SI.jpg"], price: "15 900 Ft",
+    description: "Friss, kék-fehér csíkos ing, amely farmerrel és szabott nadrággal is jól kombinálható.",
+    specs: { Anyag: "Pamut-keverék", Szín: "Kék-fehér csíkos", Méret: "38-as" }, badge: "Készleten: 5 db" },
+  { slug: "rozsaszin-csikos-ing", category: "ing", name: "Rózsaszín csíkos ing", type: "import", photos: ["osByvmBIhz5J4WSCI3nUAh42B8.jpeg"], price: "",
+    description: "Nőies, rózsaszín csíkos ing — jelenleg elfogyott, de hasonló darabot egyedi méretre is készítünk.",
+    badge: "Elfogyott", sale: true },
+  { slug: "kek-wrap-ing-ruha", category: "ing-ruha", name: "Kék wrap ing-ruha", type: "egyedi", photos: ["FQMYqbBj47O2wVG4AmlnpeY4PY.jpg"], price: "",
+    description: "Átlapolt fazonú ing-ruha égszínkék árnyalatban, megkötős derékkal.", featured: true },
+  { slug: "sarga-blezer", category: "blezer", name: "Sárga blézer", type: "import", photos: ["25D23UD4e3h1eYoVZM34fYiQps.jpeg"], price: "",
+    description: "Napfényes sárga blézer, amely egy egyszerű összeállítást is azonnal feldob." },
+  { slug: "kek-oves-blezerruha", category: "blezer", name: "Kék öves blézerruha", type: "egyedi", photos: ["NF5aKztD4zvcFCh6rvT2ToqpNUo.jpg"], price: "",
+    description: "Mélykék blézerruha övvel: elegáns, mégis kényelmes viselet egész napra.", featured: true },
+  { slug: "krem-szabott-nadrag", category: "nadragok", name: "Krém szabott nadrág", type: "egyedi", photos: ["jahxr9wPPHcxK0AWCJ8AZaeHQnY.jpeg"], price: "",
+    description: "Világos, egyenes szárú nadrág, egyedi méretre szabva." },
+  { slug: "midi-szoknya", category: "szoknyak", name: "Midi szoknya", type: "import", photos: ["C8ss4vZRvpCsYwYjgsN2PfL5Yy8.jpeg"], price: "",
+    description: "Lágy esésű midi szoknya, amely nappal és este is megállja a helyét." },
+  { slug: "sotetkek-melleny", category: "mellenyek", name: "Sötétkék mellény", type: "egyedi", photos: ["ZHXenMDNxDUohhIi2cLGZ0mYT4.jpg"], price: "",
+    description: "Sötétkék, karcsúsított mellény a réteges öltözködés kedvelőinek." },
+  { slug: "estelyi-overal", category: "alkalmi-ruhak", name: "Estélyi overál", type: "egyedi", photos: ["iNWNifDODcXnW2dA6cTeYSwOmWc.jpg"], price: "",
+    description: "Modern estélyi overál ünnepi alkalmakra, a te alakodra szabva." },
+  { slug: "pink-alkalmi-ruha", category: "alkalmi-ruhak", name: "Pink alkalmi ruha", type: "import", photos: ["WQtmGfSVqR8hXQLZOI29RINwPU.jpg"], price: "",
+    description: "Élénk pink alkalmi ruha — kiárusításban, amíg a készlet tart.", badge: "Kiárusítás", sale: true },
+  { slug: "unnepi-kollekcio-darab", category: "aktualis-ruhak", name: "Ünnepi kollekció darab", type: "egyedi", photos: ["6es6MykWWyAqSyt10cTe4pX4k.png"], price: "",
+    description: "Az aktuális ünnepi kollekció egyik kedvenc darabja.", featured: true },
+  { slug: "bordzseki", category: "kabatok", name: "Bőrdzseki", type: "import", photos: ["oz2RsOeio9NejMmtC293KH1oc.png"], price: "",
+    description: "Klasszikus bőrdzseki, amely minden szezonban stílusos társ." },
+  { slug: "barna-borov", category: "ovek", name: "Barna bőröv", type: "import", photos: ["LO5To9FaturNsCvL8WmPyXIQ3SI.jpg"], price: "",
+    description: "Barna bőröv, amely kiemeli a derékvonalat." },
+  { slug: "selyemkendo", category: "salak", name: "Selyemkendő", type: "egyedi", photos: ["XQkc4uhz1PjVInXt3ukZQ3WHETY.png"], price: "",
+    description: "Puha selyemkendő, egyedi mintával." },
+  { slug: "mintas-fejkendo", category: "kendok", name: "Mintás fejkendő", type: "import", photos: ["XQkc4uhz1PjVInXt3ukZQ3WHETY.png"], price: "",
+    description: "Mintás fejkendő, amely nyári összeállításokhoz is tökéletes." },
+  { slug: "in-my-style-vaszontaska", category: "sajat-markas-taskak", name: "In My Style vászontáska", type: "egyedi", photos: ["Rc9rmgvWENqT4ibYFaxvdasbQmk.png"], price: "",
+    description: "Strapabíró, saját márkás vászontáska a mindennapokra." },
+  { slug: "elegans-keztaska", category: "taskak", name: "Elegáns kéztáska", type: "import", photos: ["Rc9rmgvWENqT4ibYFaxvdasbQmk.png"], price: "",
+    description: "Letisztult kéztáska ünnepi és hétköznapi alkalmakra." }
 ];
+
+if (typeof module !== "undefined") module.exports = { CATEGORIES, PRODUCTS };
