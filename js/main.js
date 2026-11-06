@@ -242,43 +242,134 @@
     if (e.data.event === "calendly.event_scheduled") track("booking_complete", {});
   });
 
-  /* ============ Súgó automatikus válaszokkal ============ */
+  /* ============ Súgó: szövegértés, termékkeresés, oldalra irányítás ============ */
   const help = $("[data-help]");
   if (help) {
-    let DATA = []; try { DATA = JSON.parse($("#help-data").textContent); } catch (e) {}
     const panel = $(".help-panel", help), fab = $(".help-fab", help), log = $("[data-help-log]", help), input = $("#help-input", help);
+    const SS = "ims-help";
+    const ss = { get() { try { return JSON.parse(sessionStorage.getItem(SS)) || null; } catch (e) { return null; } }, set(v) { try { sessionStorage.setItem(SS, JSON.stringify(v)); } catch (e) {} } };
+    const state = ss.get() || { open: false, msgs: [], last: null };
+    let DATA = null;
+    const loadData = () => DATA ? Promise.resolve(DATA) : fetch(help.dataset.src).then((r) => r.json()).then((d) => (DATA = d)).catch(() => (DATA = { faq: [], cats: [], prods: [], pages: [] }));
+    const escH = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const norm = (t) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-    const escH = (t) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    let opened = false;
-    const setOpen = (v) => {
+    /* egyszerű magyar toldalékleválasztás és elírástűrés */
+    const SUFFIX = ["okat", "eket", "akat", "ainkat", "einket", "jaitok", "ban", "ben", "bol", "bol", "rol", "nak", "nek", "val", "vel", "hoz", "hez", "hoz", "nal", "nel", "tol", "ert", "ig", "ok", "ek", "ak", "ot", "et", "at", "os", "es", "as", "t", "k", "a", "e"];
+    const stem = (w) => { for (const s of SUFFIX) if (w.length - s.length >= 3 && w.endsWith(s)) return w.slice(0, -s.length); return w; };
+    const lev = (a, b) => { if (Math.abs(a.length - b.length) > 1) return 2; const m = a.length, n = b.length; let prev = Array.from({ length: n + 1 }, (_, k) => k); for (let x = 1; x <= m; x++) { const cur = [x]; for (let y = 1; y <= n; y++) cur[y] = Math.min(prev[y] + 1, cur[y - 1] + 1, prev[y - 1] + (a[x - 1] === b[y - 1] ? 0 : 1)); prev = cur; } return prev[n]; };
+    const tokenize = (t) => norm(t).split(/[^a-z0-9]+/).filter((w) => w.length > 1);
+    /* egy kulcsszó és a kérdés szavainak egyezése: 1 = pontos, 0.8 = toldalékos, 0.6 = elírás */
+    const hit = (kw, toks, raw) => {
+      if (kw.includes(" ")) return raw.includes(kw) ? 1.2 : 0;
+      let best = 0;
+      for (const w of toks) {
+        if (w === kw) return 1;
+        const sw = stem(w), sk = stem(kw);
+        if (sw === sk || (sk.length >= 3 && w.startsWith(sk) && (w.length - sk.length <= 5 || sk.length >= 5)) || (sw.length >= 5 && kw.startsWith(sw) && kw.length - sw.length <= 1)) best = Math.max(best, 0.8);
+        else if (w.length >= 5 && kw.length >= 5 && lev(w, kw) <= 1) best = Math.max(best, 0.6);
+      }
+      return best;
+    };
+    const scoreItem = (keys, toks, raw) => keys.reduce((sum, k) => sum + hit(k, toks, raw), 0);
+    const NAV = /(mutas|nyis|vigy|vinn|menj|ugor|hol talal|hol lat|lapoz|oldalra)/;
+
+    const render = (m) => {
+      const d = document.createElement("div"); d.className = "help-msg " + m.who; d.innerHTML = m.html; log.appendChild(d); log.scrollTop = log.scrollHeight;
+    };
+    const push = (html, who) => { const m = { html, who }; state.msgs.push(m); state.msgs = state.msgs.slice(-30); ss.set(state); render(m); };
+    const bot = (html, delay) => setTimeout(() => push(html, "bot"), delay == null ? 280 : delay);
+    const link = (n, u) => `<a class="help-cta" href="${escH(u)}"${/^https?:/.test(u) ? ' target="_blank" rel="noopener"' : ""}>${escH(n)} →</a>`;
+    const cards = (list) => `<div class="help-cards">${list.map((p) => `<a class="help-card" href="${escH(p.u)}"><img src="${escH(p.img)}" alt="" loading="lazy" width="48" height="60"><span><b>${escH(p.n)}</b><small>${escH(p.cn)} · ${escH(p.p || "Ár egyeztetés alapján")}</small></span></a>`).join("")}</div>`;
+    const suggest = (list) => `<div class="help-suggest">${list.map((f) => `<button type="button" class="chip" data-help-q="${escH(f.id)}">${escH(f.q)}</button>`).join("")}</div>`;
+    const go = (u, n) => { bot(`Megnyitom: <b>${escH(n)}</b>…`, 200); track("help_navigate", { target: u }); state.open = true; ss.set(state); setTimeout(() => { location.href = u; if (u.startsWith("/#") && location.pathname === "/") setOpen(true); }, 1100); };
+
+    function respond(q) {
+      const raw = " " + norm(q) + " ", toks = tokenize(q);
+      const wantsNav = NAV.test(raw);
+      const faq = DATA.faq.map((f) => ({ f, s: scoreItem(f.k, toks, raw) })).filter((x) => x.s > 0.5).sort((a, b) => b.s - a.s);
+      const cats = DATA.cats.map((c) => ({ c, s: scoreItem(c.k, toks, raw) })).filter((x) => x.s > 0.5).sort((a, b) => b.s - a.s);
+      /* termék: a név szavainak legalább fele egyezzen, vagy egy jellegzetes szó (pl. szín + típus) */
+      const prods = DATA.prods.map((p) => { const s = scoreItem(p.k.filter((k) => k.length > 2), toks, raw); return { p, s }; }).filter((x) => x.s >= 1.6).sort((a, b) => b.s - a.s);
+      if (prods.length) { const top = prods[0].s; for (let k = prods.length - 1; k > 0; k--) if (prods[k].s < top * 0.75) prods.splice(k, 1); }
+      const pages = DATA.pages.map((g) => ({ g, s: scoreItem(g.k, toks, raw) })).filter((x) => x.s > 0.5).sort((a, b) => b.s - a.s);
+      const topCat = cats[0] && cats[0].c;
+      const priceQ = faq.length && faq[0].f.id === "arak";
+      const SERVICE = ["igazitas", "estelyi", "ferfi", "ajandek", "fizetes", "kapcsolat", "tavoli", "alkat", "stilus"];
+      const serviceFirst = faq.length && SERVICE.includes(faq[0].f.id) && !wantsNav;
+
+      /* 1) konkrét termék(ek) */
+      if (prods.length) {
+        const list = prods.slice(0, 3).map((x) => x.p);
+        state.last = { cat: list[0].c };
+        if (wantsNav && prods.length === 1) { go(list[0].u, list[0].n); return "termek"; }
+        let html = list.length === 1 ? `Ezt a darabot találtam:` : `Ezeket a darabokat találtam:`;
+        if (priceQ) {
+          list.sort((x, y) => (y.p ? 1 : 0) - (x.p ? 1 : 0));
+          const priced = list.filter((p) => p.p);
+          html = priced.length ? priced.map((p) => `A(z) <b>${escH(p.n)}</b> ára ${escH(p.p)}.`).join(" ") + (priced.length < list.length ? " A többi darab egyedi méretre készül, ezek árát a díjmentes konzultáción adjuk meg." : "") + " " + html
+            : "Ez a darab egyedi méretre készül, ezért az ára a modelltől és az anyagtól függ. A pontos árat a díjmentes konzultáción adjuk meg. " + html;
+        }
+        bot(html + cards(list)); return "termek";
+      }
+      /* 2) kategória (ár vagy navigáció kérdéssel együtt is) */
+      if (topCat && !serviceFirst && (!faq.length || cats[0].s > faq[0].s || priceQ || wantsNav)) {
+        const inCat = DATA.prods.filter((p) => p.c === topCat.id);
+        state.last = { cat: topCat.id };
+        if (wantsNav) { go(topCat.u, topCat.n); return "kategoria"; }
+        let html;
+        if (priceQ) {
+          const priced = inCat.filter((p) => p.p);
+          html = priced.length ? `A(z) <b>${escH(topCat.n)}</b> kategóriában például: ${priced.slice(0, 3).map((p) => `${escH(p.n)} – ${escH(p.p)}`).join("; ")}. Egyedi méretre készülő darabnál a pontos árat a díjmentes konzultáción adjuk meg.`
+            : `A(z) <b>${escH(topCat.n)}</b> kategória darabjai egyedi méretre készülnek, ezért az áruk a modelltől és az anyagtól függ. A pontos árat a díjmentes konzultáción adjuk meg.`;
+          html += link("Ajánlatot kérek", "/#ajanlatkeres");
+        } else html = `A(z) <b>${escH(topCat.n)}</b> kategóriában ${inCat.length ? `${inCat.length} darabot találsz` : "egyedi méretre is készítünk darabokat"}:`;
+        bot(html + (inCat.length ? cards(inCat.slice(0, 3)) : "") + link(`Összes: ${topCat.n}`, topCat.u)); return "kategoria";
+      }
+      /* 3) kifejezett oldalkérés („vigyél az időpontfoglaláshoz”) */
+      if (wantsNav && pages.length && (!faq.length || pages[0].s >= faq[0].s * 0.8)) { const g = pages[0].g; go(g.u, g.n); return "oldal"; }
+      /* 4) gyakori kérdés */
+      if (faq.length) {
+        const f = faq[0].f;
+        /* követő kérdés: „és mennyibe kerül?” az előző kategóriára */
+        if (f.id === "arak" && state.last && state.last.cat) { const c = DATA.cats.find((x) => x.id === state.last.cat); if (c) return respond(c.n + " ár"); }
+        let html = escH(f.a) + (f.cta ? link(f.cta[0], f.cta[1]) : "");
+        const others = faq.slice(1, 3).filter((x) => x.s >= faq[0].s * 0.7 && !x.f.small).map((x) => x.f);
+        if (others.length) html += `<span class="help-more">Ez is érdekelhet:</span>` + suggest(others);
+        if (wantsNav && f.cta && !/^https?:/.test(f.cta[1]) && pages.length === 0) { bot(escH(f.a)); go(f.cta[1], f.cta[0]); return f.id; }
+        bot(html); return f.id;
+      }
+      /* 4) oldal */
+      if (pages.length) { const g = pages[0].g; if (wantsNav) go(g.u, g.n); else bot(`Ezt itt találod: ${link(g.n, g.u)}`); return "oldal"; }
+      return null;
+    }
+
+    function setOpen(v) {
       panel.hidden = !v; fab.setAttribute("aria-expanded", String(v)); help.classList.toggle("is-open", v);
-      if (v) { setTimeout(() => input.focus(), 60); if (!opened) { opened = true; track("help_open", {}); } }
-      else fab.focus();
-    };
-    $$("[data-help-toggle]", help).forEach((b) => b.addEventListener("click", () => setOpen(panel.hidden)));
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !panel.hidden) setOpen(false); });
-    const say = (html, who) => { const d = document.createElement("div"); d.className = "help-msg " + who; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; };
-    const answer = (item) => {
-      let html = escH(item.a);
-      if (item.cta) html += `<a class="help-cta" href="${escH(item.cta[1])}"${/^https?:/.test(item.cta[1]) ? ' target="_blank" rel="noopener"' : ""}>${escH(item.cta[0])} →</a>`;
-      setTimeout(() => say(html, "bot"), 250);
-    };
-    const fallback = () => setTimeout(() => say("Erre most nem tudok pontos választ adni, de szívesen segítünk személyesen: írj nekünk Messengeren vagy WhatsAppon, vagy hívj minket a lenti gombokkal.", "bot"), 250);
-    $$("[data-help-q]", help).forEach((b) => b.addEventListener("click", () => {
-      const item = DATA.find((d) => d.id === b.dataset.helpQ); if (!item) return;
-      say(escH(item.q), "user"); answer(item); track("help_topic", { topic: item.id });
-    }));
+      state.open = v; ss.set(state);
+      if (v) { loadData(); setTimeout(() => input.focus({ preventScroll: true }), 60); if (!help.dataset.tracked) { help.dataset.tracked = "1"; track("help_open", {}); } }
+    }
+    /* előző beszélgetés visszaállítása oldalváltás után */
+    state.msgs.forEach(render);
+    if (state.open || location.hash === "#segitseg") setOpen(true);
+
+    $$("[data-help-toggle]", help).forEach((b) => b.addEventListener("click", () => { setOpen(panel.hidden); if (panel.hidden) fab.focus(); }));
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !panel.hidden) { setOpen(false); fab.focus(); } });
+    help.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-help-q]"); if (!b) return;
+      loadData().then(() => {
+        const f = DATA.faq.find((d) => d.id === b.dataset.helpQ); if (!f) return;
+        push(escH(f.q), "user"); bot(escH(f.a) + (f.cta ? link(f.cta[0], f.cta[1]) : "")); track("help_topic", { topic: f.id, source: "gomb" });
+      });
+    });
     $("[data-help-form]", help).addEventListener("submit", (e) => {
       e.preventDefault();
       const q = input.value.trim(); if (!q) return;
-      say(escH(q), "user"); input.value = "";
-      const words = norm(q).split(/[^a-z0-9]+/).filter(Boolean);
-      let best = null, score = 0;
-      DATA.forEach((d) => { let sc = 0; d.k.forEach((k) => { if (words.some((w) => w.startsWith(k) || (w.length > 3 && k.startsWith(w)))) sc++; }); if (sc > score) { score = sc; best = d; } });
-      if (best) { answer(best); track("help_topic", { topic: best.id, source: "szabad_szoveg" }); }
-      else { fallback(); track("help_unanswered", {}); }
+      push(escH(q), "user"); input.value = "";
+      loadData().then(() => {
+        const r = respond(q);
+        if (r) track("help_topic", { topic: r, source: "szabad_szoveg" });
+        else { bot("Erre most nem tudok pontos választ adni, de Szilvia szívesen segít személyesen: írj neki Messengeren vagy WhatsAppon, vagy hívd a lenti gombokkal." + suggest(DATA.faq.filter((f) => ["arak", "idopont", "nyitvatartas"].includes(f.id)))); track("help_unanswered", {}); }
+      });
     });
-    if (location.hash === "#segitseg") setOpen(true);
   }
-
 })();

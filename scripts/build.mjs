@@ -490,39 +490,96 @@ function quoteSection({ id = "ajanlatkeres", subject = "", title = "Kérj ajánl
 
 /* ---------------- súgó (automatikus válaszok) és sütisáv ---------------- */
 const HELP = [
-  { id: "arak", q: "Mennyibe kerül?", k: ["ar", "arak", "mennyibe", "koltseg", "dij", "penz", "forint", "ft", "draga"],
+  { id: "udvozles", q: "Szia!", k: ["szia", "hello", "hali", "jo napot", "jonapot", "udv", "csokolom", "hey", "hi"], small: true,
+    a: "Szia! Az In My Style súgója vagyok. Kérdezz bátran az árakról, az átfutásról, a nyitvatartásról vagy bármelyik termékünkről, és ha kell, oda is viszlek a megfelelő oldalra." },
+  { id: "koszonet", q: "Köszönöm!", k: ["koszonom", "koszi", "koszke", "kosz", "thx", "koszonjuk", "szuper", "remek", "rendben", "oke"], small: true,
+    a: "Szívesen! Ha bármi más kérdésed van, itt vagyok. Szilviát személyesen is elérheted Messengeren, WhatsAppon vagy telefonon." },
+  { id: "arak", q: "Mennyibe kerül?", k: ["ar", "ara", "arak", "mennyibe", "kerul", "koltseg", "dij", "forint", "ft", "draga", "olcso", "arajanlat", "arlista"],
     a: "Az egyedi darabok ára a modelltől és az anyagtól függ, ezért a pontos árat a díjmentes első konzultáción adjuk meg. Az igazítás 3 500 Ft-tól kérhető, a kész darabok árát pedig a termékoldalakon találod.",
     cta: ["Ajánlatot kérek", "/#ajanlatkeres"] },
-  { id: "atfutas", q: "Mennyi idő alatt készül el?", k: ["ido", "mikor", "meddig", "atfutas", "hatarido", "het", "nap", "surgos", "gyors"],
+  { id: "atfutas", q: "Mennyi idő alatt készül el?", k: ["ido", "idot", "meddig", "atfutas", "hatarido", "het", "hetet", "napot", "surgos", "gyors", "gyorsan", "elkeszul"],
     a: "Egy egyedi darab jellemzően 1–2 hét alatt készül el, egy igazítás 1–3 nap alatt. Sürgős esetben felár ellenében gyorsabban is vállaljuk; ennek mértéke a megrendeléstől függ." },
-  { id: "nyitvatartas", q: "Hol vagytok, mikor vagytok nyitva?", k: ["nyitva", "nyitvatartas", "cim", "hol", "kapas", "hetfo", "szombat", "parkol", "megkozelit", "akadalymentes", "terkep"],
+  { id: "nyitvatartas", q: "Hol vagytok, mikor vagytok nyitva?", k: ["nyitva", "nyitvatartas", "nyit", "zar", "zarva", "cim", "cimetek", "hol", "kapas", "hetfo", "kedd", "szerda", "csutortok", "pentek", "szombat", "vasarnap", "parkol", "parkolo", "parkolas", "megkozelit", "akadalymentes", "terkep", "utvonal", "buda", "metro", "villamos", "batthyany", "szalon", "uzlet", "bolt"],
     a: `${SITE.address}. Nyitvatartás: kedd–csütörtök 10–18, péntek 10–16, szombaton egyeztetés szerint, hétfőn zárva. Parkolni az utcán, a szalon előtt és a környéken lehet. A bejárat nem akadálymentes.`,
     cta: ["Útvonaltervezés", SITE.maps] },
-  { id: "idopont", q: "Hogyan foglalhatok időpontot?", k: ["idopont", "foglal", "bejelentkez", "konzultacio", "talalkoz", "calendly", "bejon"],
+  { id: "idopont", q: "Hogyan foglalhatok időpontot?", k: ["idopont", "idopontot", "foglal", "foglalas", "bejelentkez", "konzultacio", "talalkoz", "calendly", "bejon", "bemenni", "eljonni", "meretvetel"],
     a: "Az első, körülbelül 30 perces konzultáció és a méretvétel díjmentes. Foglalhatsz online, hívhatsz minket, vagy írhatsz Messengeren. Nyitvatartási időben bejelentkezés nélkül is betérhetsz, de foglalással biztosan ráérünk.",
     cta: ["Online időpontfoglalás", "/#idopont"] },
-  { id: "igazitas", q: "Vállaltok igazítást, javítást?", k: ["igazit", "javit", "felhajt", "cipzar", "szukit", "rovidit", "atalakit", "szakad"],
-    a: "Igen. Méretre igazítjuk és megjavítjuk a kedvenc darabjaidat: az igazítás 3 500 Ft-tól kérhető, és jellemzően 1–3 nap alatt elkészül. Hozd be a ruhát a szalonba, és helyben megbeszéljük a teendőket." },
-  { id: "anyag", q: "Hozhatok saját anyagot?", k: ["anyag", "hozott", "szovet", "minta", "textil"],
+  { id: "igazitas", q: "Vállaltok igazítást, javítást?", k: ["igazit", "igazitas", "javit", "javitas", "felhajt", "cipzar", "szukit", "bovit", "rovidit", "atalakit", "atalakitas", "szakad", "gomb", "foltoz", "varrat"],
+    a: "Igen. Méretre igazítjuk és megjavítjuk a kedvenc darabjaidat: az igazítás 3 500 Ft-tól kérhető, és jellemzően 1–3 nap alatt elkészül. Hozd be a ruhát a szalonba, és helyben megbeszéljük a teendőket.",
+    cta: ["Igazítás részletei", "/#igazitas"] },
+  { id: "anyag", q: "Hozhatok saját anyagot?", k: ["anyag", "anyagot", "hozott", "szovet", "textil", "pamut", "selyem", "gyapju", "anyagminta"],
     a: "Igen, előzetes egyeztetés után, ha az anyag kifogástalan állapotú. A szalonban emellett nagy anyagválasztékból is választhatsz." },
-  { id: "fizetes", q: "Kell előleg? Hogyan fizethetek?", k: ["eloleg", "fizet", "kartya", "keszpenz", "utal", "bankkartya"],
+  { id: "fizetes", q: "Kell előleg? Hogyan fizethetek?", k: ["eloleg", "fizet", "fizetes", "kartya", "keszpenz", "utal", "utalas", "bankkartya", "szep"],
     a: "Egyedi rendelésnél a vételár 50%-át kérjük előlegként, a fennmaradó részt átvételkor. Fizethetsz készpénzzel, bankkártyával vagy átutalással." },
-  { id: "tavoli", q: "Rendelhetek úgy is, hogy nem megyek be?", k: ["tavol", "online", "posta", "videk", "meret", "mereteim", "kuldes"],
+  { id: "tavoli", q: "Rendelhetek úgy is, hogy nem megyek be?", k: ["tavol", "tavolrol", "online", "videk", "videkrol", "kulfold", "meretem", "mereteim", "megadni", "elkuld", "kuldeni"],
     a: "Igen, a méreteidet távolról is leadhatod. Minden ügyfelünk méreteit megőrizzük, így a következő rendelésnél már nem kell újra mérni. Ha az átvétel után igazítani kell valamit, díjtalanul elvégezzük.",
     cta: ["Méreteim megadása", "/#ajanlatkeres"] },
-  { id: "ajandek", q: "Van ajándékkártya?", k: ["ajandek", "utalvany", "kartya", "voucher", "meglepetes"],
-    a: "Igen, szabadon választható összeggel, 6 hónapig érvényes. Megvásárolhatod a szalonban, vagy megrendelheted telefonon, illetve e-mailben átutalással, és postán is elküldjük." },
-  { id: "estelyi", q: "Készítetek estélyi vagy menyasszonyi ruhát?", k: ["estelyi", "menyasszony", "eskuvo", "alkalmi", "gala", "ballag"],
+  { id: "alkat", q: "Nehezen találok jó méretet. Tudtok segíteni?", k: ["meret", "meretben", "molett", "telt", "teltebb", "plus", "size", "vekony", "alacsony", "alkat", "alkatom", "passzol"],
+    a: "Pontosan ebben vagyunk erősek: minden egyedi darab a te méreteidre készül, így alkattól függetlenül jól fog állni. A kész kollekció darabjai fix méretűek, de ha valamelyik nem a te méreted, egyedi méretben is elkészítjük." },
+  { id: "ajandek", q: "Van ajándékkártya?", k: ["ajandek", "ajandekkartya", "utalvany", "voucher", "meglepetes", "szuletesnap", "nevnap", "karacsony", "ajandekoz", "anyanak", "felesegemnek", "baratnomnek"],
+    a: "Igen, szabadon választható összeggel, 6 hónapig érvényes. Megvásárolhatod a szalonban, vagy megrendelheted telefonon, illetve e-mailben átutalással, és postán is elküldjük.",
+    cta: ["Ajándékkártya", "/#ajandekutalvany"] },
+  { id: "estelyi", q: "Készítetek estélyi vagy menyasszonyi ruhát?", k: ["estelyi", "menyasszony", "menyasszonyi", "eskuvo", "eskuvoi", "gala", "ballag", "ballagas", "rendezveny"],
     a: "Estélyi és menyasszonyi ruhát nem vállalunk. Elegáns alkalmi darabokat, például esküvői vendégruhát, ballagásra vagy céges rendezvényre szánt kosztümöt viszont szívesen készítünk." },
-  { id: "kedvezmeny", q: "Van most kedvezmény?", k: ["kedvezmeny", "akcio", "kupon", "hirlevel", "olcsobb", "kiarusitas"],
+  { id: "ferfi", q: "Férfiaknak is készítetek?", k: ["ferfi", "ferfiaknak", "ferj", "pasi", "oltony"],
+    a: "Jelenleg csak női ruhákat készítünk. Ajándékkártyát viszont bárki vásárolhat a hölgyeknek." },
+  { id: "kedvezmeny", q: "Van most kedvezmény?", k: ["kedvezmeny", "akcio", "akcios", "kupon", "hirlevel", "olcsobb", "kiarusitas", "sale", "torzsvasarlo"],
     a: "Hírlevél-feliratkozáskor 10% kedvezményt adunk, törzsvásárlóinknak pedig külön kedvezmény jár. Szezonvégi kiárusításunk darabjait az Akció oldalon találod.",
     cta: ["Akciós darabok", "/akcio/"] },
+  { id: "stilus", q: "Segítetek a stílusom megtalálásában?", k: ["stilus", "stilustanacs", "tanacs", "tanacsadas", "ruhatar", "gardrob", "kapszula", "osszeallit", "szinek", "divat", "kombinal"],
+    a: "Igen. Stílustanácsadást és ruhatár-összeállítást is vállalunk: a konzultáción átbeszéljük, milyen fazonok és színek állnak jól neked, és mit érdemes a ruhatáradba tervezni.",
+    cta: ["Időpontot foglalok", "/#idopont"] },
+  { id: "rolunk", q: "Kik vagytok?", k: ["rolunk", "kik", "szilvia", "mitterer", "tulajdonos", "tortenet", "miota", "csapat"],
+    a: "Az In My Style 2019 óta működik Buda szívében: exkluzív ruhaüzlet és méretes szabóság a 35 év feletti nőknek, a sportos elegancia jegyében. Az ügyfeleket személyesen Mitterer Szilvia fogadja.",
+    cta: ["Rólunk", "/#rolunk"] },
+  { id: "velemenyek", q: "Mit mondanak rólatok a vásárlók?", k: ["velemeny", "velemenyek", "ertekeles", "ertekelesek", "ajanljak", "referencia", "tapasztalat", "csillag"],
+    a: `A Facebookon ${SITE.fbRating.percent}% ajánl minket ${SITE.fbRating.count} értékelés alapján, az oldalon pedig vásárlóink saját szavaival is olvashatsz a tapasztalataikról.`,
+    cta: ["Vélemények", "/#velemenyek"] },
+  { id: "kapcsolat", q: "Hogyan érhetlek el személyesen?", k: ["kapcsolat", "telefon", "telefonszam", "hivni", "hivas", "email", "mail", "messenger", "whatsapp", "irni", "uzenet", "ember", "szemelyesen", "beszelni", "elerhetoseg", "beszel", "valakivel", "szilviaval", "ugyintezo", "elado"],
+    a: `Hívj minket a ${SITE.phone} számon, vagy írj Messengeren, WhatsAppon, illetve e-mailben. Az alsó gombokkal egy kattintással elérsz minket.`,
+    cta: ["Kapcsolat", "/#kapcsolat"] },
 ];
-const norm = (t) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const CAT_SYN = {
+  "ing": ["ing", "ingek", "inget", "ingem", "blúz", "blúzok", "blúzt", "felső"], "ing-ruha": ["ingruha", "ingruhák", "ingruhát", "ing ruha"],
+  "blezer": ["blézer", "blézerek", "blézert", "zakó", "zakók", "kosztüm", "kiskabát"], "nadragok": ["nadrág", "nadrágok", "nadrágot", "pantalló", "szövetnadrág"],
+  "szoknyak": ["szoknya", "szoknyák", "szoknyát", "ceruzaszoknya"], "mellenyek": ["mellény", "mellények", "mellényt"],
+  "alkalmi-ruhak": ["alkalmi", "ünnepi", "koktélruha", "overál"], "aktualis-ruhak": ["aktuális", "újdonság", "újdonságok", "friss", "készleten"],
+  "kabatok": ["kabát", "kabátok", "kabátot", "dzseki", "bőrdzseki", "trencs"], "ovek": ["öv", "övek", "övet", "bőröv"],
+  "salak": ["sál", "sálak", "sálat"], "kendok": ["kendő", "kendők", "kendőt", "selyemkendő", "fejkendő"],
+  "sajat-markas-taskak": ["vászontáska", "vászontáskák"], "taskak": ["táska", "táskák", "táskát", "kézitáska", "retikül"],
+};
+const HELP_PAGES = [
+  ["Kollekció", "/#kollekcio", ["kollekcio", "termekek", "kinalat", "katalogus", "vasarol", "vasarlas", "shop", "webshop"]],
+  ["Akciós darabok", "/akcio/", ["akcio", "akcios", "kiarusitas", "sale", "lealazott"]],
+  ["Időpontfoglalás", "/#idopont", ["idopont", "idopontfoglalas", "foglalas", "calendly", "naptar"]],
+  ["Ajánlatkérés", "/#ajanlatkeres", ["ajanlat", "ajanlatkeres", "arajanlat", "rendeles", "megrendel", "visszahivas"]],
+  ["Kapcsolat", "/#kapcsolat", ["kapcsolat", "elerhetoseg", "terkep"]],
+  ["Rólunk", "/#rolunk", ["rolunk", "bemutatkozas"]],
+  ["Vélemények", "/#velemenyek", ["velemeny", "velemenyek", "ertekeles", "ertekelesek", "referencia"]],
+  ["Gyakori kérdések", "/#gyik", ["gyik", "kerdesek", "gyakori"]],
+  ["Így készül a ruhád", "/#folyamat", ["folyamat", "lepesek", "menete"]],
+  ["Igazítás és javítás", "/#igazitas", ["igazitas", "javitas"]],
+  ["Ajándékkártya", "/#ajandekutalvany", ["ajandekkartya", "utalvany"]],
+  ["Adatkezelési tájékoztató", "/adatkezelesi-tajekoztato/", ["adatkezeles", "adatvedelem", "gdpr", "suti", "impresszum"]],
+];
+const norm = (t) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+const words = (t) => norm(t).split(/[^a-z0-9]+/).filter((w) => w.length > 1);
+function helpData() {
+  const thumb = (f) => { const w = f.replace(/\.(jpe?g|png)$/i, ".webp"); return "/assets/photos/" + (w !== f && fs.existsSync(path.join(ROOT, "assets/photos", w)) ? w : f); };
+  return {
+    faq: HELP.map((h) => ({ id: h.id, q: h.q, a: h.a, k: h.k.map(norm), cta: h.cta || null, small: !!h.small })),
+    cats: CATEGORIES.map((c) => ({ id: c.slug, n: c.name, u: catUrl(c), k: [...new Set([...words(c.name), ...(CAT_SYN[c.slug] || []).map(norm)])] })),
+    prods: PRODUCTS.map((p) => { const c = catBySlug[p.category]; return { n: p.name, u: prodUrl(p), c: p.category, cn: c ? c.name : "", p: p.price || "", img: thumb(p.photos[0]), k: [...new Set(words(p.name))] }; }),
+    pages: HELP_PAGES.map(([n, u, k]) => ({ n, u, k })),
+  };
+}
+
+const HELP_JSON = JSON.stringify(helpData());
+const HELP_V = crypto.createHash("md5").update(HELP_JSON).digest("hex").slice(0, 8);
 
 function helpWidget() {
-  const data = HELP.map((h) => ({ id: h.id, q: h.q, a: h.a, k: h.k.map(norm), cta: h.cta || null }));
-  return `<div class="help" data-help>
+  return `<div class="help" data-help data-src="/js/help-data.json?v=${HELP_V}">
   <button type="button" class="help-fab" aria-expanded="false" aria-controls="help-panel" data-help-toggle>${I.help}<span>Segítség</span></button>
   <section class="help-panel" id="help-panel" role="dialog" aria-modal="false" aria-labelledby="help-title" hidden>
     <header class="help-head">
@@ -531,9 +588,9 @@ function helpWidget() {
       <button type="button" class="help-close" aria-label="Súgó bezárása" data-help-toggle>${I.close}</button>
     </header>
     <div class="help-log" aria-live="polite" data-help-log>
-      <div class="help-msg bot">Szia! Miben segíthetek? Válassz egy témát, vagy írd be a kérdésed.</div>
+      <div class="help-msg bot">Szia! Miben segíthetek? Kérdezz bármit, például: „Mennyibe kerül egy blézer?”, „Mutasd az ingeket” vagy „Hol tudok parkolni?”</div>
     </div>
-    <div class="help-chips" data-help-chips>${HELP.map((h) => `<button type="button" class="chip" data-help-q="${h.id}">${esc(h.q)}</button>`).join("")}</div>
+    <div class="help-chips" data-help-chips>${HELP.filter((h) => !h.small).slice(0, 8).map((h) => `<button type="button" class="chip" data-help-q="${h.id}">${esc(h.q)}</button>`).join("")}</div>
     <form class="help-form" data-help-form>
       <label class="sr-only" for="help-input">Kérdésed</label>
       <input id="help-input" type="text" placeholder="Írd be a kérdésed…" autocomplete="off" maxlength="200">
@@ -545,7 +602,6 @@ function helpWidget() {
       <a href="${SITE.phoneHref}">${I.phone}Hívás</a>
     </div>
   </section>
-  <script type="application/json" id="help-data">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>
 </div>`;
 }
 
@@ -1035,6 +1091,7 @@ const redirects = [
 ];
 redirects.push("/kategoria/kituzok/ /#kollekcio 301", "/kategoria/kituzok /#kollekcio 301", "/kategoria/kituzo/ /#kollekcio 301", "/termek/estelyi-overal/ /termek/elegans-overal/ 301");
 write("_redirects", redirects.join("\n") + "\n");
+write("js/help-data.json", HELP_JSON);
 
 // csak a ténylegesen használt fotók kerülnek ki
 const used = new Set();
