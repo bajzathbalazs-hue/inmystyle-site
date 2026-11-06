@@ -5,6 +5,8 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # A termék-táblázat (Google Táblázat) csak olvasható adatcíme: innen jönnek a termékek és az új fotók.
+  SHEET_API = "https://script.google.com/macros/s/AKfycbwPHcrouKtKkaZpOlyh6HZHtcikW8svsNcM5uOCaFCnq0P3ax_xUNDyx5tzYdCl-u3OqA/exec"
 
 # Az átirányításokat a build generálja: dist/_redirects (a kategóriák régi címei is)
 

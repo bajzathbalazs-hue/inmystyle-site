@@ -12,7 +12,32 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = path.join(ROOT, "dist");
 const require = createRequire(import.meta.url);
 const { CATEGORIES } = require(path.join(ROOT, "js/products-data.js"));
-const RAW_PRODUCTS = JSON.parse(fs.readFileSync(path.join(ROOT, "data/termekek.json"), "utf8"));
+let RAW_PRODUCTS = JSON.parse(fs.readFileSync(path.join(ROOT, "data/termekek.json"), "utf8"));
+/* Ha be van állítva a táblázat adatcíme (SHEET_API), a termékeket és az új fotókat onnan töltjük le.
+   Hiba esetén a tárolóban lévő data/termekek.json marad érvényben, így az oldal akkor is felépül. */
+const SHEET_API = process.env.SHEET_API || "";
+async function fetchJson(u) { const r = await fetch(u, { redirect: "follow" }); if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }
+if (SHEET_API) {
+  try {
+    const d = await fetchJson(SHEET_API + "?mode=products");
+    if (!d.ok || !Array.isArray(d.products) || !d.products.length) throw new Error("üres válasz");
+    for (const p of d.products) {
+      const names = [];
+      for (const ph of p.photos || []) {
+        if (!ph.startsWith("drive:")) { names.push(ph); continue; }
+        const id = ph.slice(6).replace(/[^A-Za-z0-9_-]/g, ""), file = `drive-${id}.jpg`, dst = path.join(ROOT, "assets/photos", file);
+        if (!fs.existsSync(dst)) {
+          try { const f = await fetchJson(`${SHEET_API}?mode=photo&id=${encodeURIComponent(id)}`); if (f.ok) fs.writeFileSync(dst, Buffer.from(f.b64, "base64")); else throw new Error(f.error); }
+          catch (e) { console.warn(`Figyelmeztetés: a(z) ${id} fotó nem tölthető le (${e.message}) – ${p.name}`); continue; }
+        }
+        names.push(file);
+      }
+      p.photos = names;
+    }
+    RAW_PRODUCTS = d.products;
+    console.log(`Termékek a táblázatból: ${RAW_PRODUCTS.length} db`);
+  } catch (e) { console.warn("Figyelmeztetés: a táblázat nem érhető el (" + e.message + "), a tárolóban lévő termékadatokkal építek."); }
+}
 
 /* Fotók előkészítése: a táblázatból feltöltött új képekből webp és átméretezett JPEG készül.
    A hiányzó fotójú termékek kimaradnak (figyelmeztetéssel), így egy elírás nem állítja le az oldalt. */
