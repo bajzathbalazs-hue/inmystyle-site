@@ -662,3 +662,4 @@ p { margin: 0; }
 .testimonial { position: relative; overflow: hidden; }
 .testimonial::before { content: "”"; position: absolute; right: 22px; top: -14px; font-family: Georgia, serif; font-size: 120px; line-height: 1; color: var(--accent-tint); pointer-events: none; }
 .testimonial > * { position: relative; }
+.offer-dark .offer-media img { object-position: 50% 18%; }

@@ -191,7 +191,7 @@ function newsletter() {
     <div class="newsletter">
       <div>
         <h2 id="hirlevel-cim">Iratkozz fel a hírlevelünkre!</h2>
-        <p>Elsőként értesülhetsz az új kollekciókról, az exkluzív ajánlatokról és a stílustippekről.</p>
+        <p>Havonta egyszer írunk: elsőként értesülsz a hetente érkező új darabokról és az ajánlatainkról. Feliratkozáskor <strong>10% kedvezményt</strong> adunk.</p>
       </div>
       <form class="newsletter-form" name="hirlevel" method="POST" action="/koszonjuk/" data-netlify="true" netlify-honeypot="bot-field" data-ajax-form>
         <input type="hidden" name="form-name" value="hirlevel">
@@ -302,7 +302,7 @@ function categoryGroups() {
   return `<div class="cat-groups">${groups.map((g) => `
   <div>
     <div class="cat-group-head"><h3>${g.title}</h3><p>${g.lead}</p></div>
-    <div class="cat-grid" style="--cols:${g.key === "ruhazat" ? 5 : 6}">${CATEGORIES.filter((c) => c.group === g.key).map(categoryTile).join("")}</div>
+    <div class="cat-grid" style="--cols:5">${CATEGORIES.filter((c) => c.group === g.key).map(categoryTile).join("")}</div>
   </div>`).join("")}
 </div>`;
 }
@@ -476,7 +476,12 @@ const businessLd = {
   "@type": "ClothingStore",
   "@id": SITE.url + "/#szalon",
   name: "In My Style",
-  description: "Egyedi méretre készülő női ruhák, aktuális kollekció, igazítás és javítás budapesti szalonunkban.",
+  description: "Méretes szabóság és exkluzív ruhaüzlet 35 év feletti nőknek Budán: egyedi méretre készülő női ruhák, válogatott kollekció, igazítás és javítás.",
+  foundingDate: "2019",
+  areaServed: { "@type": "City", name: "Budapest" },
+  paymentAccepted: "Készpénz, bankkártya, átutalás",
+  currenciesAccepted: "HUF",
+  knowsLanguage: "hu",
   url: SITE.url + "/",
   image: SITE.url + "/assets/photos/hero-szilvia-2.jpg",
   logo: SITE.url + "/assets/logo/in-my-style-logo.png",
@@ -685,10 +690,10 @@ function homePage() {
       <div class="offer-media">${pic("8Itt096HFQA0HT3NX6dYMC0PHcM.jpg", "In My Style ajándékkártya")}</div>
       <div class="offer-body">
         <div class="eyebrow">Meglepetés</div>
-        <h2 class="h3">Ajándékutalvány</h2>
+        <h2 class="h3">Ajándékkártya</h2>
         <p class="muted">Lepd meg az ünnepeltet egy In My Style ajándékkártyával: szabadon választható összeggel, bármelyik szolgáltatásunkra beváltható.</p>
         <div class="chips"><span class="chip">Szabadon választható összeg</span><span class="chip">6 hónapig érvényes</span><span class="chip">A szalonban, telefonon vagy e-mailben rendelhető</span><span class="chip">Postán is elküldjük</span></div>
-        <a class="btn btn-dark" href="#ajanlatkeres">Utalványt igénylek</a>
+        <a class="btn btn-dark" href="#ajanlatkeres">Ajándékkártyát kérek</a>
       </div>
     </article>
     <article class="offer offer-dark reveal">
@@ -713,7 +718,7 @@ ${faqSection()}
 ${contactSection()}`;
   return page({
     title: "In My Style – egyedi méretre készülő női ruhák Budapesten",
-    description: "Egyedi méretre készülő női ruhák, aktuális kollekció, igazítás és javítás a budapesti In My Style szalonban (1027 Budapest, Kapás utca 45/B). Foglalj időpontot!",
+    description: "Méretes szabóság 35 év feletti nőknek Budán: egyedi méretre készülő női ruhák, igazítás és válogatott kollekció. Díjmentes első konzultáció a Kapás utca 45/B-ben.",
     url: "/",
     image: "/assets/icons/og-image.jpg",
     jsonld: [businessLd, { "@context": "https://schema.org", "@type": "WebSite", name: "In My Style", url: SITE.url + "/", inLanguage: "hu-HU" }, faqLd],
