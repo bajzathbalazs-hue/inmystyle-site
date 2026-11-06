@@ -31,7 +31,15 @@ const SITE = {
   maps: "https://www.google.com/maps/search/?api=1&query=In+My+Style+Kap%C3%A1s+utca+45%2FB+Budapest",
   geo: { lat: 47.51046617118123, lng: 19.03103207727521 },
   ogImage: "/assets/icons/og-image.jpg",
+  messenger: "https://m.me/inmystyle.hu",
+  whatsapp: "https://wa.me/36203202996",
+  // Mérőkódok: ide kell beírni az azonosítókat (pl. "G-XXXXXXX" és a Meta pixel száma).
+  // Amíg üresek, az oldal nem tölt be mérőkódot és nem mutat sütisávot.
+  ga4: process.env.GA4_ID || "",
+  metaPixel: process.env.META_PIXEL_ID || "",
+  fbRating: { percent: 98, count: 60 },
 };
+const TRACKING = Boolean(SITE.ga4 || SITE.metaPixel);
 
 /* ---------------- helpers ---------------- */
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -94,6 +102,10 @@ const I = {
   ruler: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6.5 8v3M10.5 8v4M14.5 8v3M18.5 8v4"/></svg>',
   heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-9.3-9C1.2 7.8 3.2 4.5 6.6 4.5c2.2 0 3.6 1.4 5.4 3.3 1.8-1.9 3.2-3.3 5.4-3.3 3.4 0 5.4 3.3 3.9 6.5C19 15.6 12 20 12 20z"/></svg>',
   chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>',
+  messenger: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.4 2 2 6.1 2 11.4c0 2.8 1.2 5.3 3.2 7v3.4l3-1.7c1.2.3 2.5.5 3.8.5 5.6 0 10-4.1 10-9.3S17.6 2 12 2zm1 12.5-2.5-2.7-4.9 2.7 5.4-5.8 2.6 2.7 4.8-2.7-5.4 5.8z"/></svg>',
+  whatsapp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"/><path d="M9 8.5c0 3.5 2.5 6.5 6 6.5l1-1.6-2-1-1 .8c-1-.4-2.2-1.6-2.6-2.6l.8-1-1-2-1.2.9z"/></svg>',
+  help: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>',
+  send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>',
   swatch: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>',
   scissors: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M20 4L8 16M8 8l12 12"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>',
@@ -133,7 +145,7 @@ ${noindex ? '<meta name="robots" content="noindex, follow">\n' : ""}<meta proper
 <link rel="preload" href="/assets/fonts/dancing-script-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800&display=swap">
 <link rel="stylesheet" href="/css/style.css?v=${CSS_V}">
-<script>document.documentElement.classList.add("js")</script>
+<script>document.documentElement.classList.add("js");window.IMS=${JSON.stringify({ ga4: SITE.ga4, pixel: SITE.metaPixel })};window.dataLayer=window.dataLayer||[];</script>
 ${jsonld.map((j) => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join("\n")}
 </head>`;
 }
@@ -220,6 +232,8 @@ function footer() {
         <div class="footer-social">
           <a class="icon-link" href="${SITE.facebook}" target="_blank" rel="noopener" aria-label="In My Style a Facebookon">${I.facebook}</a>
           <a class="icon-link" href="${SITE.instagram}" target="_blank" rel="noopener" aria-label="In My Style az Instagramon">${I.instagram}</a>
+          <a class="icon-link" href="${SITE.messenger}" target="_blank" rel="noopener" aria-label="Írj nekünk Messengeren">${I.messenger}</a>
+          <a class="icon-link" href="${SITE.whatsapp}" target="_blank" rel="noopener" aria-label="Írj nekünk WhatsAppon">${I.whatsapp}</a>
         </div>
       </div>
       <div>
@@ -243,6 +257,7 @@ function footer() {
           <li><a href="${SITE.maps}" target="_blank" rel="noopener">${SITE.address}</a></li>
           <li><a href="${SITE.phoneHref}">${SITE.phone}</a></li>
           <li><a href="mailto:${SITE.email}">${SITE.email}</a></li>
+          <li><a href="${SITE.messenger}" target="_blank" rel="noopener">Írj Messengeren</a> · <a href="${SITE.whatsapp}" target="_blank" rel="noopener">WhatsApp</a></li>
           <li><span>Kedd–csütörtök: 10–18<br>Péntek: 10–16<br>Szombat: egyeztetés szerint</span></li>
         </ul>
       </div>
@@ -253,11 +268,13 @@ function footer() {
         <img src="/assets/photos/Nw90SIdLQKIdHiNqfLWxw5MZGs.png" alt="Visa" width="46" height="26" loading="lazy">
         <img src="/assets/photos/QUXCWKuepJu9WOicM1GGa9eFw.png" alt="Mastercard" width="46" height="26" loading="lazy">
       </div>
-      <nav aria-label="Jogi információk"><a href="/adatkezelesi-tajekoztato/">Adatkezelési tájékoztató</a></nav>
+      <nav aria-label="Jogi információk"><a href="/adatkezelesi-tajekoztato/">Adatkezelési tájékoztató</a>${TRACKING ? ' · <button type="button" class="linklike" data-consent-open>Sütibeállítások</button>' : ""}</nav>
     </div>
   </div>
 </footer>
 <div class="mobile-cta" data-mobile-cta><a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a><a class="btn btn-dark" href="/#idopont">${I.calendar}Időpont</a></div>
+${helpWidget()}
+${TRACKING ? consentBanner() : ""}
 <script src="/js/main.js?v=${JS_V}" defer></script>`;
 }
 
@@ -343,8 +360,8 @@ function contactSection() {
       <p class="lead">Kérdésed van, vagy rendelni szeretnél? Foglalj időpontot online, vagy keress minket az alábbi elérhetőségek egyikén. Szeretettel várlak: Mitterer Szilvia.</p>
     </div>
     <div class="call-band" id="idopont">
-      <div><h3>Hívj minket közvetlenül!</h3><p>Egyetlen hívással azonnal egyeztetünk időpontot.</p></div>
-      <a class="btn btn-light" href="${SITE.phoneHref}">${I.phone}${SITE.phone}</a>
+      <div><h3>Hívj, vagy írj nekünk!</h3><p>Egyetlen hívással vagy üzenettel azonnal egyeztetünk időpontot.</p></div>
+      <div class="call-band-actions"><a class="btn btn-light" href="${SITE.phoneHref}">${I.phone}${SITE.phone}</a><a class="btn btn-outline-light" href="${SITE.messenger}" target="_blank" rel="noopener">${I.messenger}Messenger</a></div>
     </div>
     <div class="contact-grid">
       <div class="contact-card">
@@ -354,7 +371,7 @@ function contactSection() {
           <li><span class="ico">${I.phone}</span><div><small>Telefon</small><a href="${SITE.phoneHref}">${SITE.phone}</a></div></li>
           <li><span class="ico">${I.mail}</span><div><small>E-mail</small><a href="mailto:${SITE.email}">${SITE.email}</a></div></li>
           <li><span class="ico">${I.clock}</span><div><small>Nyitvatartás</small>${SITE.hours}</div></li>
-          <li><span class="ico">${I.chat}</span><div><small>Üzenet</small><a href="https://wa.me/36203202996" target="_blank" rel="noopener">WhatsApp</a> · SMS · Messenger · Instagram</div></li>
+          <li><span class="ico">${I.messenger}</span><div><small>Írj nekünk</small><a href="${SITE.messenger}" target="_blank" rel="noopener">Messenger</a> · <a href="${SITE.whatsapp}" target="_blank" rel="noopener">WhatsApp</a> · <a href="${SITE.instagram}" target="_blank" rel="noopener">Instagram</a> · SMS</div></li>
           <li><span class="ico">${I.pin}</span><div><small>Parkolás és megközelítés</small>Az utcán, a szalon előtt és a környéken lehet parkolni. A bejárat nem akadálymentes.</div></li>
         </ul>
       </div>
@@ -468,6 +485,75 @@ function quoteSection({ id = "ajanlatkeres", subject = "", title = "Kérj ajánl
     </div>
   </div>
 </section>`;
+}
+
+
+/* ---------------- súgó (automatikus válaszok) és sütisáv ---------------- */
+const HELP = [
+  { id: "arak", q: "Mennyibe kerül?", k: ["ar", "arak", "mennyibe", "koltseg", "dij", "penz", "forint", "ft", "draga"],
+    a: "Az egyedi darabok ára a modelltől és az anyagtól függ, ezért a pontos árat a díjmentes első konzultáción adjuk meg. Az igazítás 3 500 Ft-tól kérhető, a kész darabok árát pedig a termékoldalakon találod.",
+    cta: ["Ajánlatot kérek", "/#ajanlatkeres"] },
+  { id: "atfutas", q: "Mennyi idő alatt készül el?", k: ["ido", "mikor", "meddig", "atfutas", "hatarido", "het", "nap", "surgos", "gyors"],
+    a: "Egy egyedi darab jellemzően 1–2 hét alatt készül el, egy igazítás 1–3 nap alatt. Sürgős esetben felár ellenében gyorsabban is vállaljuk; ennek mértéke a megrendeléstől függ." },
+  { id: "nyitvatartas", q: "Hol vagytok, mikor vagytok nyitva?", k: ["nyitva", "nyitvatartas", "cim", "hol", "kapas", "hetfo", "szombat", "parkol", "megkozelit", "akadalymentes", "terkep"],
+    a: `${SITE.address}. Nyitvatartás: kedd–csütörtök 10–18, péntek 10–16, szombaton egyeztetés szerint, hétfőn zárva. Parkolni az utcán, a szalon előtt és a környéken lehet. A bejárat nem akadálymentes.`,
+    cta: ["Útvonaltervezés", SITE.maps] },
+  { id: "idopont", q: "Hogyan foglalhatok időpontot?", k: ["idopont", "foglal", "bejelentkez", "konzultacio", "talalkoz", "calendly", "bejon"],
+    a: "Az első, körülbelül 30 perces konzultáció és a méretvétel díjmentes. Foglalhatsz online, hívhatsz minket, vagy írhatsz Messengeren. Nyitvatartási időben bejelentkezés nélkül is betérhetsz, de foglalással biztosan ráérünk.",
+    cta: ["Online időpontfoglalás", "/#idopont"] },
+  { id: "igazitas", q: "Vállaltok igazítást, javítást?", k: ["igazit", "javit", "felhajt", "cipzar", "szukit", "rovidit", "atalakit", "szakad"],
+    a: "Igen. Méretre igazítjuk és megjavítjuk a kedvenc darabjaidat: az igazítás 3 500 Ft-tól kérhető, és jellemzően 1–3 nap alatt elkészül. Hozd be a ruhát a szalonba, és helyben megbeszéljük a teendőket." },
+  { id: "anyag", q: "Hozhatok saját anyagot?", k: ["anyag", "hozott", "szovet", "minta", "textil"],
+    a: "Igen, előzetes egyeztetés után, ha az anyag kifogástalan állapotú. A szalonban emellett nagy anyagválasztékból is választhatsz." },
+  { id: "fizetes", q: "Kell előleg? Hogyan fizethetek?", k: ["eloleg", "fizet", "kartya", "keszpenz", "utal", "bankkartya"],
+    a: "Egyedi rendelésnél a vételár 50%-át kérjük előlegként, a fennmaradó részt átvételkor. Fizethetsz készpénzzel, bankkártyával vagy átutalással." },
+  { id: "tavoli", q: "Rendelhetek úgy is, hogy nem megyek be?", k: ["tavol", "online", "posta", "videk", "meret", "mereteim", "kuldes"],
+    a: "Igen, a méreteidet távolról is leadhatod. Minden ügyfelünk méreteit megőrizzük, így a következő rendelésnél már nem kell újra mérni. Ha az átvétel után igazítani kell valamit, díjtalanul elvégezzük.",
+    cta: ["Méreteim megadása", "/#ajanlatkeres"] },
+  { id: "ajandek", q: "Van ajándékkártya?", k: ["ajandek", "utalvany", "kartya", "voucher", "meglepetes"],
+    a: "Igen, szabadon választható összeggel, 6 hónapig érvényes. Megvásárolhatod a szalonban, vagy megrendelheted telefonon, illetve e-mailben átutalással, és postán is elküldjük." },
+  { id: "estelyi", q: "Készítetek estélyi vagy menyasszonyi ruhát?", k: ["estelyi", "menyasszony", "eskuvo", "alkalmi", "gala", "ballag"],
+    a: "Estélyi és menyasszonyi ruhát nem vállalunk. Elegáns alkalmi darabokat, például esküvői vendégruhát, ballagásra vagy céges rendezvényre szánt kosztümöt viszont szívesen készítünk." },
+  { id: "kedvezmeny", q: "Van most kedvezmény?", k: ["kedvezmeny", "akcio", "kupon", "hirlevel", "olcsobb", "kiarusitas"],
+    a: "Hírlevél-feliratkozáskor 10% kedvezményt adunk, törzsvásárlóinknak pedig külön kedvezmény jár. Szezonvégi kiárusításunk darabjait az Akció oldalon találod.",
+    cta: ["Akciós darabok", "/akcio/"] },
+];
+const norm = (t) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+function helpWidget() {
+  const data = HELP.map((h) => ({ id: h.id, q: h.q, a: h.a, k: h.k.map(norm), cta: h.cta || null }));
+  return `<div class="help" data-help>
+  <button type="button" class="help-fab" aria-expanded="false" aria-controls="help-panel" data-help-toggle>${I.help}<span>Segítség</span></button>
+  <section class="help-panel" id="help-panel" role="dialog" aria-modal="false" aria-labelledby="help-title" hidden>
+    <header class="help-head">
+      <img src="/assets/icons/apple-touch-icon.png" alt="" width="36" height="36">
+      <div><b id="help-title">In My Style</b><span>Azonnali válaszok a leggyakoribb kérdésekre</span></div>
+      <button type="button" class="help-close" aria-label="Súgó bezárása" data-help-toggle>${I.close}</button>
+    </header>
+    <div class="help-log" aria-live="polite" data-help-log>
+      <div class="help-msg bot">Szia! Miben segíthetek? Válassz egy témát, vagy írd be a kérdésed.</div>
+    </div>
+    <div class="help-chips" data-help-chips>${HELP.map((h) => `<button type="button" class="chip" data-help-q="${h.id}">${esc(h.q)}</button>`).join("")}</div>
+    <form class="help-form" data-help-form>
+      <label class="sr-only" for="help-input">Kérdésed</label>
+      <input id="help-input" type="text" placeholder="Írd be a kérdésed…" autocomplete="off" maxlength="200">
+      <button type="submit" aria-label="Küldés">${I.send}</button>
+    </form>
+    <div class="help-actions">
+      <a href="${SITE.messenger}" target="_blank" rel="noopener">${I.messenger}Messenger</a>
+      <a href="${SITE.whatsapp}" target="_blank" rel="noopener">${I.whatsapp}WhatsApp</a>
+      <a href="${SITE.phoneHref}">${I.phone}Hívás</a>
+    </div>
+  </section>
+  <script type="application/json" id="help-data">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>
+</div>`;
+}
+
+function consentBanner() {
+  return `<div class="cookie-bar" role="dialog" aria-live="polite" aria-label="Sütibeállítások" data-consent hidden>
+  <p>Sütiket használunk, hogy mérjük az oldal látogatottságát és hirdetéseink hatékonyságát. A mérés csak a hozzájárulásoddal indul el, és a döntésedet bármikor megváltoztathatod. <a href="/adatkezelesi-tajekoztato/#sutik">Részletek</a></p>
+  <div class="cookie-bar-actions"><button type="button" class="btn btn-outline" data-consent-choice="denied">Elutasítom</button><button type="button" class="btn btn-dark" data-consent-choice="granted">Elfogadom</button></div>
+</div>`;
 }
 
 /* ---------------- JSON-LD ---------------- */
@@ -669,6 +755,7 @@ function homePage() {
       <div class="eyebrow">Vásárlói vélemények</div>
       <h2 class="h2" id="velemeny-cim">Akik már nálunk jártak</h2>
       <p class="lead">Valódi vélemények azoktól, akik már megtapasztalták a tökéletes szabást.</p>
+      <a class="rating-badge" href="${SITE.facebook}/reviews" target="_blank" rel="noopener">${I.star}<b>${SITE.fbRating.percent}% ajánlja</b><span>${SITE.fbRating.count} Facebook-értékelés alapján</span></a>
     </div>
     <div class="testimonials">${reviews.map(([n, t]) => `<figure class="testimonial reveal"><div class="testimonial-stars" aria-label="5 csillag">${I.star.repeat(5)}</div><blockquote>„${esc(t)}”</blockquote><figcaption>${esc(n)}</figcaption></figure>`).join("")}</div>
   </div>
@@ -811,14 +898,15 @@ function productPage(p) {
       </div>
       <div class="pd-info">
         <div class="badges">${badges.join("")}</div>
-        <h1 id="termek-cim">${esc(p.name)}</h1>
+        <h1 id="termek-cim" data-view-item="${esc(p.name)}" data-item-category="${esc(c.name)}">${esc(p.name)}</h1>
         <p class="lead">${esc(p.description)}</p>
         <div class="pd-price"><span>Ár</span>${p.price ? `<b>${esc(p.price)}</b>` : '<b class="is-quote">Egyeztetés alapján</b>'}</div>
         ${specs.length ? `<dl class="pd-specs">${specs.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}<div><dt>Átfutás</dt><dd>${p.type === "egyedi" ? "Jellemzően 1–2 hét" : "Azonnal elvihető"}</dd></div></dl>` : `<dl class="pd-specs"><div><dt>Kategória</dt><dd>${esc(c.name)}</dd></div><div><dt>Átfutás</dt><dd>${p.type === "egyedi" ? "Jellemzően 1–2 hét" : "Azonnal elvihető"}</dd></div></dl>`}
         <div class="pd-actions">
           <a class="btn btn-dark" href="#ajanlatkeres">Ajánlatot kérek erre a darabra</a>
           <a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a>
-          <a class="btn btn-outline" href="${SITE.instagram}" target="_blank" rel="noopener">${I.instagram}Üzenet</a>
+          <a class="btn btn-outline" href="${SITE.messenger}" target="_blank" rel="noopener">${I.messenger}Messenger</a>
+          <a class="btn btn-outline" href="${SITE.whatsapp}?text=${encodeURIComponent(`Szia! Érdekel a(z) „${p.name}” (${SITE.url}${prodUrl(p)}).`)}" target="_blank" rel="noopener">${I.whatsapp}WhatsApp</a>
         </div>
         <div class="pd-note">
           <h2>Rád szabva</h2>
