@@ -1,0 +1,11 @@
+{
+  "name": "inmystyle-site",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "dependencies": {
+    "sharp": "^0.33.5"
+  }
+}

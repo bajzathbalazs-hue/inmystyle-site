@@ -1,6 +1,6 @@
 /* In My Style — statikus oldalgenerátor (függőség nélkül).
    Futtatás: node scripts/build.mjs  →  kimenet: dist/
-   Tartalom: js/products-data.js (termékek, kategóriák), src/content/ (szövegek). */
+   Tartalom: data/termekek.json (termékek, a Google Táblázatból), js/products-data.js (kategóriák), src/content/ (szövegek). */
 
 import fs from "node:fs";
 import path from "node:path";
@@ -11,7 +11,32 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = path.join(ROOT, "dist");
 const require = createRequire(import.meta.url);
-const { CATEGORIES, PRODUCTS } = require(path.join(ROOT, "js/products-data.js"));
+const { CATEGORIES } = require(path.join(ROOT, "js/products-data.js"));
+const RAW_PRODUCTS = JSON.parse(fs.readFileSync(path.join(ROOT, "data/termekek.json"), "utf8"));
+
+/* Fotók előkészítése: a táblázatból feltöltött új képekből webp és átméretezett JPEG készül.
+   A hiányzó fotójú termékek kimaradnak (figyelmeztetéssel), így egy elírás nem állítja le az oldalt. */
+const PHOTO_DIR = path.join(ROOT, "assets/photos");
+let sharp = null;
+try { sharp = require("sharp"); } catch (e) { console.warn("Figyelmeztetés: a sharp nem érhető el, a képeket nem optimalizálom."); }
+async function preparePhoto(file) {
+  const src = path.join(PHOTO_DIR, file);
+  if (!fs.existsSync(src)) return false;
+  const webp = file.replace(/\.(jpe?g|png)$/i, ".webp");
+  if (!sharp || webp === file || fs.existsSync(path.join(PHOTO_DIR, webp))) return true;
+  const img = sharp(src).rotate().resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true });
+  await img.clone().webp({ quality: 78 }).toFile(path.join(PHOTO_DIR, webp));
+  const buf = await img.clone().jpeg({ quality: 80, mozjpeg: true }).toBuffer();
+  if (/\.jpe?g$/i.test(file)) fs.writeFileSync(src, buf);
+  return true;
+}
+const PRODUCTS = [];
+for (const p of RAW_PRODUCTS) {
+  const ok = [];
+  for (const f of p.photos || []) if (await preparePhoto(f)) ok.push(f); else console.warn(`Figyelmeztetés: hiányzó fotó (${f}) – ${p.name}`);
+  if (!ok.length) { console.warn(`Figyelmeztetés: „${p.name}” fotó nélkül maradt, ezért most nem jelenik meg.`); continue; }
+  PRODUCTS.push({ ...p, photos: ok });
+}
 
 const SITE = {
   url: "https://inmystyle.hu",
