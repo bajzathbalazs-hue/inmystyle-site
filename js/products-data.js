@@ -49,8 +49,6 @@ const CATEGORIES = [
     intro: "Selyemkendők és mintás fejkendők: apró kiegészítők, nagy hatással." },
   { slug: "sajat-markas-taskak", legacy: "sajat-taska", name: "Saját márkás táskák", title: "In My Style táskák", group: "kiegeszito", tagline: "In My Style saját gyártás", heroPhoto: "Rc9rmgvWENqT4ibYFaxvdasbQmk.png",
     intro: "Saját gyártású In My Style táskák: praktikusak, időtállók, és tökéletesen illenek a kollekció darabjaihoz." },
-  { slug: "kituzok", legacy: "kituzo", name: "Kitűzők", title: "In My Style kitűzők", group: "kiegeszito", tagline: "In My Style saját gyártás", heroPhoto: "yLdX1XTK2PFRY9EbeHk9tffDa4U.jpeg",
-    intro: "Saját tervezésű kitűzők, amelyekkel egy egyszerű blézer vagy kabát is személyes hangot kap." },
   { slug: "taskak", legacy: "taska", name: "Táskák", title: "Női táskák", group: "kiegeszito", tagline: "Válogatott darabok", heroPhoto: "PqalPo2E1o6IkCRlDFZGPw2KVeU.jpeg",
     intro: "Gondosan válogatott táskák a mindennapokra és az ünnepi alkalmakra." }
 ];
@@ -58,7 +56,7 @@ const CATEGORIES = [
 const PRODUCTS = [
   /* —— Saját tervezésű darabok (stúdió- és szalonfotók) —— */
   { slug: "megkotos-dereku-blezer", category: "blezer", name: "Megkötős derekú blézer", type: "egyedi", photos: ["megkotos-blezer-teve.jpg", "megkotos-blezer-vaj.jpg", "megkotos-blezer-feher.jpg", "megkotos-blezer-szinek.jpg", "megkotos-blezer-kituzovel.jpg"], price: "",
-    description: "Kétsoros, csúcsos hajtókájú blézer anyagából készült megkötős övvel, amely finoman kiemeli a derékvonalat. Saját In My Style kitűzővel vagy díszzsebkendővel még személyesebb.",
+    description: "Kétsoros, csúcsos hajtókájú blézer anyagából készült megkötős övvel, amely finoman kiemeli a derékvonalat. Díszzsebkendővel vagy kitűzővel még személyesebb.",
     specs: { Fazon: "Kétsoros, karcsúsított, megkötős övvel", Szín: "A képen fehér, vajszín és teveszín", Méret: "Egyedi méretre szabva" }, featured: true },
   { slug: "megkotos-dereku-ing", category: "ing", name: "Megkötős derekú ing", type: "egyedi", photos: ["megkotos-ing-kek-babun.jpg", "megkotos-ing-kek-viselve.jpg", "megkotos-ing-szinek.jpg"], price: "",
     description: "Elöl megkötős, karcsúsított ing duplahajtású mandzsettával. Szabott nadrággal irodába, farmerrel hétvégére is tökéletes.",
@@ -126,8 +124,8 @@ const PRODUCTS = [
     description: "Lágy esésű midi szoknya, amely nappal és este is megállja a helyét." },
   { slug: "sotetkek-melleny", category: "mellenyek", name: "Sötétkék mellény", type: "egyedi", photos: ["sotetkek-melleny-nadrag-kockas-ing.jpg", "ZHXenMDNxDUohhIi2cLGZ0mYT4.jpg"], price: "",
     description: "Sötétkék, karcsúsított, ötgombos mellény a réteges öltözködés kedvelőinek. A képen egyenes szárú nadrággal és rózsaszín kockás inggel." },
-  { slug: "estelyi-overal", category: "alkalmi-ruhak", name: "Estélyi overál", type: "egyedi", photos: ["iNWNifDODcXnW2dA6cTeYSwOmWc.jpg"], price: "",
-    description: "Modern estélyi overál ünnepi alkalmakra, a te alakodra szabva." },
+  { slug: "elegans-overal", category: "alkalmi-ruhak", name: "Elegáns overál", type: "egyedi", photos: ["iNWNifDODcXnW2dA6cTeYSwOmWc.jpg"], price: "",
+    description: "Modern, elegáns overál ünnepi alkalmakra, a te alakodra szabva." },
   { slug: "pink-alkalmi-ruha", category: "alkalmi-ruhak", name: "Pink alkalmi ruha", type: "import", photos: ["WQtmGfSVqR8hXQLZOI29RINwPU.jpg"], price: "",
     description: "Élénk pink alkalmi ruha — kiárusításban, amíg a készlet tart.", badge: "Kiárusítás", sale: true },
   { slug: "unnepi-kollekcio-darab", category: "aktualis-ruhak", name: "Ünnepi kollekció darab", type: "egyedi", photos: ["6es6MykWWyAqSyt10cTe4pX4k.png"], price: "",

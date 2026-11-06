@@ -19,16 +19,16 @@ const SITE = {
   phone: "+36 20 320 2996",
   phoneHref: "tel:+36203202996",
   email: "hello@inmystyle.hu",
-  street: "Kapás utca 45.",
+  street: "Kapás utca 45/B",
   city: "Budapest",
   zip: "1027",
-  address: "1027 Budapest, Kapás utca 45.",
-  hours: "Kedd–csütörtök 10–18, péntek 10–16",
+  address: "1027 Budapest, Kapás utca 45/B",
+  hours: "Kedd–csütörtök 10–18, péntek 10–16, szombaton egyeztetés szerint",
   hoursShort: "K–Cs 10–18, P 10–16",
   facebook: "https://www.facebook.com/inmystyle.hu",
   instagram: "https://www.instagram.com/inmystyle.hu/",
   calendly: "https://calendly.com/inmystyle-hu/szemelyes-konzultacio",
-  maps: "https://www.google.com/maps/search/?api=1&query=In+My+Style+Kap%C3%A1s+utca+45+Budapest",
+  maps: "https://www.google.com/maps/search/?api=1&query=In+My+Style+Kap%C3%A1s+utca+45%2FB+Budapest",
   geo: { lat: 47.51046617118123, lng: 19.03103207727521 },
   ogImage: "/assets/icons/og-image.jpg",
 };
@@ -243,7 +243,7 @@ function footer() {
           <li><a href="${SITE.maps}" target="_blank" rel="noopener">${SITE.address}</a></li>
           <li><a href="${SITE.phoneHref}">${SITE.phone}</a></li>
           <li><a href="mailto:${SITE.email}">${SITE.email}</a></li>
-          <li><span>Kedd–csütörtök: 10–18<br>Péntek: 10–16</span></li>
+          <li><span>Kedd–csütörtök: 10–18<br>Péntek: 10–16<br>Szombat: egyeztetés szerint</span></li>
         </ul>
       </div>
     </div>
@@ -252,8 +252,6 @@ function footer() {
       <div class="payments" aria-label="Elfogadott fizetési módok">
         <img src="/assets/photos/Nw90SIdLQKIdHiNqfLWxw5MZGs.png" alt="Visa" width="46" height="26" loading="lazy">
         <img src="/assets/photos/QUXCWKuepJu9WOicM1GGa9eFw.png" alt="Mastercard" width="46" height="26" loading="lazy">
-        <img src="/assets/photos/mFN7qRFb6aBfqn8RZtBNQ5G678.png" alt="Apple Pay" width="46" height="26" loading="lazy">
-        <img src="/assets/photos/wF1FvkGQKavYUtCR8N43p7LHvpk.png" alt="Google Pay" width="46" height="26" loading="lazy">
       </div>
       <nav aria-label="Jogi információk"><a href="/adatkezelesi-tajekoztato/">Adatkezelési tájékoztató</a></nav>
     </div>
@@ -310,12 +308,17 @@ function categoryGroups() {
 }
 
 const FAQ = [
-  ["Mennyi idő alatt készül el a ruhám?", "Az egyedi méretre készülő darabok átfutási ideje jellemzően 1–2 hét, a naptártól és a választott modelltől függően. A pontos határidőt a konzultáción egyeztetjük."],
+  ["Mennyi idő alatt készül el a ruhám?", "Az egyedi méretre készülő darabok átfutási ideje jellemzően 1–2 hét, egy igazításé 1–3 nap. Sürgős esetben felár ellenében gyorsabban is vállaljuk, ennek mértéke a megrendeléstől függ. A pontos határidőt a konzultáción egyeztetjük."],
+  ["Mennyibe kerül az első konzultáció?", "Az első, körülbelül 30 perces konzultáció és a méretvétel díjmentes."],
+  ["Kell-e előleget fizetni?", "Egyedi rendelésnél a vételár 50%-át előlegként kérjük, a fennmaradó összeget átvételkor. Fizethetsz készpénzzel, bankkártyával vagy átutalással."],
   ["Van-e méretsor az aktuális kollekcióban?", "Az aktuális kollekció darabjai korlátozott számban, fix méretben érhetők el. Üzletünkben vagy a Facebook-oldalunkon mindig látod, mi van éppen készleten."],
-  ["Hozott anyagból is készítenek ruhát?", "Igen. Ha van saját kedvenc anyagod, hozd magaddal a konzultációra — együtt megnézzük, milyen modellhez illik a legjobban."],
+  ["Hozott anyagból is készítenek ruhát?", "Igen, előzetes egyeztetés után, ha az anyag kifogástalan állapotú. Hozd magaddal a konzultációra, és együtt megnézzük, milyen modellhez illik a legjobban."],
   ["Egyedi ötlet vagy fotó alapján is készítenek ruhát?", "Igen, szívesen dolgozunk elképzelés, inspirációs fotó vagy vázlat alapján is. Ezekből közösen alakítjuk ki a végleges modellt."],
-  ["Szükséges bejelentkezni?", "Igen. Az időpontfoglalás segít abban, hogy nyugodt körülmények között, teljes figyelemmel foglalkozhassunk veled."],
-  ["Vállalnak igazítást és javítást is?", "Igen. Ha egy kedvenc darabod megsérült vagy méretre kell igazítani, megjavítjuk, hogy továbbra is tökéletesen szolgáljon."],
+  ["Szükséges bejelentkezni?", "Nyitvatartási időben bejelentkezés nélkül is betérhetsz, de érdemes időpontot foglalni: így nyugodt körülmények között, teljes figyelemmel foglalkozhatunk veled."],
+  ["Akkor is rendelhetek, ha nem tudok bejönni?", "Igen, a méreteidet távolról is leadhatod. Minden ügyfelünk méreteit megőrizzük, így a következő rendelésnél már nem kell újra mérni."],
+  ["Mi történik, ha az átvétel után igazítani kell valamit?", "Ha az elkészült darabon utólag igazítani kell, díjtalanul elvégezzük."],
+  ["Vállalnak igazítást és javítást is?", "Igen. Ha egy kedvenc darabod megsérült vagy méretre kell igazítani, megjavítjuk, hogy továbbra is tökéletesen szolgáljon. Az igazítás 3 500 Ft-tól kérhető."],
+  ["Estélyi vagy menyasszonyi ruhát is készítenek?", "Estélyi és menyasszonyi ruhát nem vállalunk. Elegáns alkalmi darabokat, például esküvői vendégruhát vagy ünnepi kosztümöt viszont szívesen készítünk."],
 ];
 
 function faqSection() {
@@ -351,9 +354,11 @@ function contactSection() {
           <li><span class="ico">${I.phone}</span><div><small>Telefon</small><a href="${SITE.phoneHref}">${SITE.phone}</a></div></li>
           <li><span class="ico">${I.mail}</span><div><small>E-mail</small><a href="mailto:${SITE.email}">${SITE.email}</a></div></li>
           <li><span class="ico">${I.clock}</span><div><small>Nyitvatartás</small>${SITE.hours}</div></li>
+          <li><span class="ico">${I.chat}</span><div><small>Üzenet</small><a href="https://wa.me/36203202996" target="_blank" rel="noopener">WhatsApp</a> · SMS · Messenger · Instagram</div></li>
+          <li><span class="ico">${I.pin}</span><div><small>Parkolás és megközelítés</small>Az utcán, a szalon előtt és a környéken lehet parkolni. A bejárat nem akadálymentes.</div></li>
         </ul>
       </div>
-      <div class="map-frame" data-lazy-embed='<iframe src="https://www.google.com/maps?q=In+My+Style,+Kap%C3%A1s+utca+45,+Budapest&amp;output=embed" title="In My Style a térképen" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>'></div>
+      <div class="map-frame" data-lazy-embed='<iframe src="https://www.google.com/maps?q=In+My+Style,+Kap%C3%A1s+utca+45%2FB,+Budapest&amp;output=embed" title="In My Style a térképen" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>'></div>
     </div>
     <div class="contact-card booking">
       <h3 class="h3">Online időpontfoglalás</h3>
@@ -501,7 +506,7 @@ function homePage() {
     [I.chat, "Konzultáció", "Elmondod az elképzelésed, megmutatod, ami inspirál."],
     [I.swatch, "Anyagválasztás", "Közösen kiválasztjuk a hozzád illő anyagot és színt."],
     [I.ruler, "Méretvétel", "Pontos méretet veszünk, hogy tökéletesen álljon."],
-    [I.scissors, "Szabás és varrás", "Kézzel, a te alkatodra készül el a ruha."],
+    [I.scissors, "Szabás és varrás", "Gondos munkával, a te alkatodra készül el a ruha."],
     [I.check, "Próba és igazítás", "Felpróbálod, és ha kell, finomhangoljuk."],
     [I.bag, "Átvétel", "A kész, rád szabott darab a tiéd."],
   ];
@@ -518,7 +523,7 @@ function homePage() {
   <div class="hero-media">${pic("hero-szilvia-2.jpg", "Mitterer Szilvia, az In My Style alapítója, saját tervezésű sötétkék kosztümben", { eager: true })}</div>
   <div class="container">
     <div class="hero-inner">
-      <div class="eyebrow">Budapesti szalon · Kapás utca 45.</div>
+      <div class="eyebrow">Budapesti szalon · Kapás utca 45/B</div>
       <h1 id="hero-cim">Egyedi méretre készülő női ruhák <span class="script">rád szabva</span></h1>
       <p class="lead">Sportos elegancia, kényelem és nőiesség: minden darabot a te alkatodra, a te ízlésed szerint készítünk el — a konzultációtól az utolsó próbáig.</p>
       <div class="hero-actions">
@@ -528,7 +533,7 @@ function homePage() {
       <div class="hero-proof">
         <div><b>100%</b><span>egyedi méretre</span></div>
         <div><b>1–2 hét</b><span>átfutási idő</span></div>
-        <div><b>Hozott anyagból</b><span>is elkészítjük</span></div>
+        <div><b>Díjmentes</b><span>első konzultáció</span></div>
       </div>
     </div>
   </div>
@@ -538,7 +543,7 @@ function homePage() {
 <section class="trust" aria-label="Miért az In My Style?">
   <div class="container">
     <div class="trust-item">${I.ruler}<div><b>Pontos méretvétel</b><span>személyesen, a szalonban</span></div></div>
-    <div class="trust-item">${I.needle}<div><b>Kézzel varrva</b><span>hazai műhelyben</span></div></div>
+    <div class="trust-item">${I.needle}<div><b>Gondos kidolgozás</b><span>Szilvia személyes felügyeletével</span></div></div>
     <div class="trust-item">${I.check}<div><b>Próba és igazítás</b><span>amíg tökéletes nem lesz</span></div></div>
     <div class="trust-item">${I.heart}<div><b>Személyes figyelem</b><span>bejelentkezés alapján</span></div></div>
   </div>
@@ -560,14 +565,14 @@ function homePage() {
       </article>
       <article class="service reveal">
         <div class="service-media">${pic("6es6MykWWyAqSyt10cTe4pX4k.png", "Rózsaszín csíkos ingruhák az aktuális kollekcióból")}</div>
-        <div class="service-body"><span class="num">02</span><h3 class="h3">Aktuális kollekció</h3><p>Kézzel készülő, korlátozott számú darabok, amelyeket azonnal megvásárolhatsz vagy megrendelhetsz.</p><a class="link-arrow" href="#kollekcio">Kollekció</a></div>
+        <div class="service-body"><span class="num">02</span><h3 class="h3">Aktuális kollekció</h3><p>Válogatott, kis szériás darabok, hetente frissülő kínálattal. Azonnal megvásárolhatod vagy megrendelheted őket.</p><a class="link-arrow" href="#kollekcio">Kollekció</a></div>
       </article>
       <article class="service reveal">
-        <div class="service-media">${pic("5bFqnTfSOc9hMkRM7WxmDFQFQjs.jpg", "Varrókellékek az In My Style műhelyében")}</div>
+        <div class="service-media">${pic("5bFqnTfSOc9hMkRM7WxmDFQFQjs.jpg", "Varrókellékek az In My Style szalonban")}</div>
         <div class="service-body"><span class="num">03</span><h3 class="h3">Igazítás és javítás</h3><p>A kedvenc darabjaid is megérdemlik a törődést: megjavítjuk és méretre igazítjuk őket.</p><a class="link-arrow" href="#igazitas">Részletek</a></div>
       </article>
     </div>
-    <div class="extras"><span>További szolgáltatások:</span><span class="chip">Privát shopping</span><span class="chip">Kapszulagardrób kialakítása</span><span class="chip">Vásárlás stylisttal</span><span class="chip">Stíluscoaching</span></div>
+    <div class="extras"><span>További szolgáltatások:</span><span class="chip">Stílustanácsadás</span><span class="chip">Ruhatár-összeállítás</span><span class="chip">Kedvenc ruha lemásolása</span><span class="chip">Ajándékkártya</span></div>
   </div>
 </section>
 
@@ -577,7 +582,7 @@ function homePage() {
       <div class="section-head">
         <div class="eyebrow">Aktuális kollekció</div>
         <h2 class="h2" id="kollekcio-cim">A mindennapok luxusa</h2>
-        <p class="lead">Kézzel, egyedileg készülő darabok, amelyeket most rendelhetsz meg.</p>
+        <p class="lead">Egyedi méretre készülő és válogatott kész darabok, hetente frissülő kínálattal.</p>
       </div>
       <a class="link-arrow" href="/akcio/">Akciós darabok</a>
     </div>
@@ -598,7 +603,7 @@ function homePage() {
       <p class="lead">A mindennapok is megérdemlik a személyre szabott tökéletességet.</p>
       <p class="muted">Egyedi méretre, közös anyagválasztással, az alkatodnak megfelelően készítjük el a kívánt modellt — legyen szó egy tökéletes fehér ingről, egy szabott nadrágról vagy egy alkalmi ruháról.</p>
       <ul class="checklist">
-        <li>Hozott anyagból vagy inspirációs fotó alapján is</li>
+        <li>Inspirációs fotó vagy hozott anyag alapján is</li>
         <li>Próbával és finomhangolással</li>
         <li>Jellemzően 1–2 hét alatt elkészül</li>
       </ul>
@@ -625,6 +630,10 @@ function homePage() {
       <h2 class="h2" id="igazitas-cim">Igazítás és javítás</h2>
       <p class="lead">Még a legfinomabb darabok is megérdemlik a törődést.</p>
       <p class="muted">Ha elszakadt, megjavítjuk; ha szükséges, méretre igazítjuk, hogy továbbra is tökéletesen szolgáljon. Hozd be a ruhát a szalonba, és helyben megbeszéljük a teendőket.</p>
+      <ul class="checklist">
+        <li>Igazítás 3 500 Ft-tól</li>
+        <li>Jellemzően 1–3 nap alatt elkészül</li>
+      </ul>
       <a class="btn btn-outline" href="#idopont">Időpontot foglalok</a>
     </div>
     <div class="split-media reveal">${pic("ZHXenMDNxDUohhIi2cLGZ0mYT4.jpg", "Ruhaigazítás próbán az In My Style szalonban")}</div>
@@ -637,12 +646,12 @@ function homePage() {
     <div class="split-body">
       <div class="eyebrow" style="color:#a9c6e2">Rólunk</div>
       <h2 class="h2" id="rolunk-cim">Valódi nőknek, valódi nőktől</h2>
-      <p class="lead" style="color:#d5dde0">Olyan márka vagyunk, amely értékeli a valódi szépséget és a kifogástalan szabást.</p>
+      <p class="lead" style="color:#d5dde0">2019 óta Buda szívében: exkluzív ruhaüzlet és méretes szabóság a 35 év feletti nőknek, a sportos elegancia jegyében.</p>
       <p style="color:#c9d3d6">Célunk, hogy minden nő megtapasztalja a személyre szabott luxust — akár a hétköznapokban is —, és hogy a ruhái igazán kiemeljék az egyéniségét. Üzleti, sportos megjelenés, kényelem és nőiesség, a megfizethetőség jegyében.</p>
       <ul class="checklist checklist-light" style="color:#e6ecee">
         <li>Személyes konzultáció Mitterer Szilviával</li>
-        <li>Kézzel készülő darabok hazai műhelyből</li>
-        <li>Barátságos szalon a Kapás utcában</li>
+        <li>Tanácsadással egybekötött, személyre szabott kiszolgálás</li>
+        <li>Szalonhangulat a Kapás utcában, szezonális frissítőkkel</li>
       </ul>
       <a class="btn btn-light" href="#kapcsolat">Látogass el hozzánk</a>
     </div>
@@ -670,28 +679,28 @@ function homePage() {
   </div>
 </section>
 
-<section class="section" id="ajandekutalvany" aria-label="Ajándékutalvány és születésnapi élmény">
+<section class="section" id="ajandekutalvany" aria-label="Ajándékkártya és díjmentes konzultáció">
   <div class="container offers">
     <article class="offer reveal">
       <div class="offer-media">${pic("8Itt096HFQA0HT3NX6dYMC0PHcM.jpg", "In My Style ajándékkártya")}</div>
       <div class="offer-body">
         <div class="eyebrow">Meglepetés</div>
         <h2 class="h3">Ajándékutalvány</h2>
-        <p class="muted">Lepd meg az ünnepeltet egy In My Style ajándékkártyával — bármelyik szolgáltatásunkra beváltható.</p>
-        <div class="chips"><span class="chip">Ruhatervezés, ruharendelés</span><span class="chip">Privát shopping</span><span class="chip">Kapszulagardrób</span><span class="chip">Vásárlás stylisttal</span><span class="chip">Stíluscoaching</span></div>
+        <p class="muted">Lepd meg az ünnepeltet egy In My Style ajándékkártyával: szabadon választható összeggel, bármelyik szolgáltatásunkra beváltható.</p>
+        <div class="chips"><span class="chip">Szabadon választható összeg</span><span class="chip">6 hónapig érvényes</span><span class="chip">A szalonban, telefonon vagy e-mailben rendelhető</span><span class="chip">Postán is elküldjük</span></div>
         <a class="btn btn-dark" href="#ajanlatkeres">Utalványt igénylek</a>
       </div>
     </article>
     <article class="offer offer-dark reveal">
-      <div class="offer-media">${pic("s0kyJSUrJ3nebAMkxarE4o4a4.jpg", "Születésnapi ünneplés az In My Style szalonban")}</div>
+      <div class="offer-media">${pic("feher-megkotos-ingruha-szalon.jpg", "Az In My Style szalon belső tere")}</div>
       <div class="offer-body">
-        <div class="eyebrow">Ünnepeld velünk</div>
-        <h2 class="h3">Születésnapi élmény az In My Style-ban</h2>
-        <p class="muted">Tedd felejthetetlenné a születésnapodat, vagy ajándékozz stílusos ünneplést!</p>
+        <div class="eyebrow">Első lépés</div>
+        <h2 class="h3">Díjmentes első konzultáció</h2>
+        <p class="muted">Gyere el egy kötetlen, körülbelül 30 perces beszélgetésre: megismerjük az elképzelésedet, felvesszük a méreteidet, és együtt választunk anyagot.</p>
         <ul class="checklist checklist-light" style="margin-top:4px">
-          <li>VIP-tagság kedvezményekkel</li>
-          <li>Ünnepi dekoráció és mini catering</li>
-          <li>Személyre szabott ruhák, tanácsadás és coaching</li>
+          <li>Kb. 30 perc, díjmentesen</li>
+          <li>Méretvétel és anyagválasztás</li>
+          <li>Személyre szabott stílustanács</li>
         </ul>
         <a class="btn btn-light" href="#idopont">Időpontot foglalok</a>
       </div>
@@ -704,7 +713,7 @@ ${faqSection()}
 ${contactSection()}`;
   return page({
     title: "In My Style – egyedi méretre készülő női ruhák Budapesten",
-    description: "Egyedi méretre készülő női ruhák, aktuális kollekció, igazítás és javítás a budapesti In My Style szalonban (1027 Budapest, Kapás utca 45.). Foglalj időpontot!",
+    description: "Egyedi méretre készülő női ruhák, aktuális kollekció, igazítás és javítás a budapesti In My Style szalonban (1027 Budapest, Kapás utca 45/B). Foglalj időpontot!",
     url: "/",
     image: "/assets/icons/og-image.jpg",
     jsonld: [businessLd, { "@context": "https://schema.org", "@type": "WebSite", name: "In My Style", url: SITE.url + "/", inLanguage: "hu-HU" }, faqLd],
@@ -754,7 +763,7 @@ ${faqSection()}
 ${contactSection()}`;
   return page({
     title: `${c.title} – In My Style, Budapest`,
-    description: `${c.intro} Budapesti szalon: 1027 Budapest, Kapás utca 45.`.slice(0, 300),
+    description: `${c.intro} Budapesti szalon: 1027 Budapest, Kapás utca 45/B`.slice(0, 300),
     url: catUrl(c),
     image: `/assets/photos/${c.heroPhoto}`,
     jsonld: [breadcrumbLd(crumbs), {
@@ -824,7 +833,7 @@ ${related.length ? `<section class="section" aria-labelledby="hasonlo-cim">
 ${contactSection()}`;
   return page({
     title: `${p.name} – ${c.name} | In My Style`,
-    description: `${p.description} ${p.price ? `Ár: ${p.price}.` : "Ár egyeztetés alapján."} In My Style szalon, 1027 Budapest, Kapás utca 45.`,
+    description: `${p.description} ${p.price ? `Ár: ${p.price}.` : "Ár egyeztetés alapján."} In My Style szalon, 1027 Budapest, Kapás utca 45/B`,
     url: prodUrl(p),
     image: `/assets/photos/${p.photos[0]}`,
     jsonld: [breadcrumbLd(crumbs), productLd],
@@ -931,6 +940,7 @@ const redirects = [
   ...CATEGORIES.filter((c) => c.legacy && c.legacy !== c.slug).map((c) => `/kategoria/${c.legacy}/ /kategoria/${c.slug}/ 301`),
   ...CATEGORIES.filter((c) => c.legacy && c.legacy !== c.slug).map((c) => `/kategoria/${c.legacy} /kategoria/${c.slug}/ 301`),
 ];
+redirects.push("/kategoria/kituzok/ /#kollekcio 301", "/kategoria/kituzok /#kollekcio 301", "/kategoria/kituzo/ /#kollekcio 301", "/termek/estelyi-overal/ /termek/elegans-overal/ 301");
 write("_redirects", redirects.join("\n") + "\n");
 
 // csak a ténylegesen használt fotók kerülnek ki
