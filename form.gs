@@ -77,25 +77,22 @@ function createInMyStyleForm() {
     'Soronként egy oszlopot jelölj. Csak akkor írjuk ki, ha az előző kérdésben ezt választottad.');
   pa('Mennyibe kerülnek a leggyakoribb igazítások?', 'Pl. nadrág felhajtása, derékbőség szűkítése, ujjhossz rövidítése, cipzárcsere.');
   cb('Milyen fizetési módokat fogadsz el a szalonban?', ['Készpénz', 'Bankkártya', 'Apple Pay / Google Pay', 'Átutalás', 'SZÉP-kártya'], null, true);
-  mc('Szeretnéd-e, hogy az oldalon online is lehessen fizetni?', ['Nem, csak a szalonban', 'Csak az ajándékkártyáért', 'A kész (import) darabokért is', 'Az egyedi rendelés előlegéért is']);
 
   // 6
-  sec('6. Kollekció és webshop', 'Az oldalon most 15 kategória szerepel. Itt döntjük el, mi maradjon, és hogyan működjön a vásárlás.');
+  sec('6. Kollekció', 'Az oldalon most 15 kategória szerepel. Itt döntjük el, mi maradjon, és mit mutassunk be a kész darabokról.');
   cb('Mely kategóriák maradjanak az oldalon?', ['Ing', 'Ing ruha', 'Blézer', 'Nadrágok', 'Szoknyák', 'Mellények', 'Alkalmi ruhák', 'Aktuális ruhák', 'Kabátok', 'Övek', 'Sálak', 'Kendők', 'Saját márkás táskák', 'Kitűzők', 'Táskák']);
   tx('Hiányzik-e valamilyen kategória? Ha igen, melyik?');
-  mc('Hogyan vásárolhassanak a kész darabokból?', ['Csak érdeklődés, foglalás a szalonban', 'Online foglalás, fizetés átvételkor', 'Teljes webshop kosárral és online fizetéssel'], 'Egyedi méretre készült ruhánál a vásárlót a jogszabály szerint nem illeti meg a 14 napos elállási jog. A kész darabokra viszont online vásárlásnál igen, ezért webshop esetén ÁSZF és visszaküldési folyamat kell.');
   mc('Honnan származnak a kész (import) darabok?', ['Olaszországból', 'Más uniós országból', 'Magyar beszállítótól', 'Vegyesen'], null, true);
   mc('Hány kész darab van egyszerre kínálatban?', ['10 alatt', '10–30', '30–100', '100 felett']);
   mc('Milyen gyakran érkezik új áru?', ['Hetente', 'Havonta', 'Szezononként', 'Ritkábban']);
-  mc('Kell-e házhoz szállítás?', ['Nem, csak személyes átvétel', 'Igen, futárral', 'Igen, csomagautomatába is']);
   mc('Van-e rendszeresen kiárusítás, akció?', ['Igen, szezonvégen', 'Igen, folyamatosan', 'Ritkán', 'Nincs']);
-  mc('Ki tölti fel majd az új termékeket és fotókat?', ['Én magam', 'Egy munkatárs', 'Balázs / külső segítő', 'Még nem tudom']);
+  mc('Ki frissíti majd az oldalon a kollekciót (új darabok, fotók)?', ['Én magam', 'Egy munkatárs', 'Balázs / külső segítő', 'Még nem tudom']);
 
   // 7
   sec('7. Ajándékkártya és kedvezmények');
   cb('Milyen értékű ajándékkártyák legyenek?', ['10 000 Ft', '20 000 Ft', '30 000 Ft', '50 000 Ft', 'Szabadon választható összeg', 'Szolgáltatásra szóló (pl. egy ing elkészítése)'], null, true);
   mc('Meddig érvényes az ajándékkártya?', ['6 hónap', '1 év', '2 év', 'Korlátlan']);
-  cb('Hogyan lehet megvásárolni?', ['A szalonban', 'Telefonon / e-mailben megrendelve, átutalással', 'Online, azonnal letölthetően', 'Postán küldve']);
+  cb('Hogyan lehet megvásárolni?', ['A szalonban', 'Telefonon / e-mailben megrendelve, átutalással', 'Postán küldve']);
   pa('Mi pontosan a születésnapi ajánlat?', 'Az oldalon most szerepel ilyen ajánlat. Kérlek, írd le a pontos részleteket: kedvezmény mértéke, mikor és hogyan érvényes.');
   cb('Milyen további kedvezmények vannak vagy legyenek?', ['Hírlevél-feliratkozási kedvezmény', 'Első vásárlás kedvezménye', 'Törzsvásárlói kedvezmény', 'Ajánlói kedvezmény (barátnő hoz barátnőt)', 'Nincs és nem is lesz'], null, true);
   tx('Ha van hírlevél-kedvezmény, mennyi legyen?');
@@ -154,7 +151,7 @@ function createInMyStyleForm() {
 
   // 13
   sec('13. Célok');
-  mc('Mi az oldal legfontosabb feladata?', ['Minél több időpontfoglalás', 'Ajánlatkérések egyedi darabokra', 'Kész darabok eladása', 'A márka ismertségének növelése']);
+  mc('Mi az oldal legfontosabb feladata?', ['Minél több időpontfoglalás', 'Ajánlatkérések egyedi darabokra', 'Érdeklődés a kész darabok iránt', 'A márka ismertségének növelése']);
   mc('Hány új ügyfelet tudnál havonta fogadni?', ['5 alatt', '5–10', '10–20', '20 felett']);
   mc('Mikorra szeretnéd élesíteni az új oldalt az inmystyle.hu címen?', ['Amint lehet', '1 hónapon belül', '1–3 hónapon belül', 'Nincs határidő']);
   mc('Mennyit tudsz havonta marketingre fordítani?', ['Nincs keret', '50 000 Ft alatt', '50–150 000 Ft', '150 000 Ft felett']);
