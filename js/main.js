@@ -351,6 +351,7 @@
     /* előző beszélgetés visszaállítása oldalváltás után */
     state.msgs.forEach(render);
     if (state.open || location.hash === "#segitseg") setOpen(true);
+    window.imsHelpOpen = () => { setOpen(true); track("help_open", { source: "fejlec_gomb" }); };
 
     $$("[data-help-toggle]", help).forEach((b) => b.addEventListener("click", () => { setOpen(panel.hidden); if (panel.hidden) fab.focus(); }));
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !panel.hidden) { setOpen(false); fab.focus(); } });
@@ -372,4 +373,129 @@
       });
     });
   }
+  /* ============ Üzenetgomb a fejlécben ============ */
+  $$("[data-help-open]").forEach((b) => b.addEventListener("click", () => { if (window.imsHelpOpen) window.imsHelpOpen(); }));
+
+  /* ============ Kattintásra betöltődő beágyazás (Facebook) ============ */
+  $$("[data-embed-load]").forEach((b) => b.addEventListener("click", () => {
+    const box = b.closest("[data-click-embed]"); if (!box) return;
+    box.innerHTML = box.dataset.clickEmbed; box.classList.add("is-loaded"); track("facebook_feed_open", {});
+  }));
+
+  /* ============ Kedvencek ============ */
+  const FAV_KEY = "ims-kedvencek";
+  const favGet = () => { try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; } catch (e) { return []; } };
+  const favSet = (a) => { try { localStorage.setItem(FAV_KEY, JSON.stringify(a)); } catch (e) {} };
+  function favRender() {
+    const list = favGet();
+    $$("[data-fav]").forEach((b) => {
+      const on = list.includes(b.dataset.fav); b.setAttribute("aria-pressed", String(on)); b.classList.toggle("is-on", on);
+      const l = $("[data-fav-label]", b); if (l) l.textContent = on ? "Kedvencek között" : "Kedvencekhez";
+    });
+    $$("[data-fav-count]").forEach((c) => { c.textContent = list.length; c.hidden = !list.length; });
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-fav]"); if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    const id = b.dataset.fav, list = favGet(), i = list.indexOf(id);
+    if (i >= 0) list.splice(i, 1); else { list.push(id); track("add_to_wishlist", { item_id: id }); }
+    favSet(list); favRender();
+    if ($("[data-favorites]")) renderFavPage();
+  });
+  favRender();
+  const favPage = $("[data-favorites]");
+  let ALL = null;
+  function renderFavPage() {
+    const go = (data) => {
+      const list = favGet(), items = list.map((s) => data.prods.find((p) => p.s === s)).filter(Boolean);
+      const esc2 = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      $("[data-fav-grid]").innerHTML = items.map((p) => `<article class="product-card is-visible"><div class="product-card-media"><img src="${esc2(p.img)}" alt="${esc2(p.n)}" loading="lazy"><button type="button" class="fav-btn is-on" data-fav="${esc2(p.s)}" aria-pressed="true" aria-label="${esc2(p.n)} eltávolítása a kedvencek közül"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-9.2-8.6C1.2 8.3 3 5 6.3 5c2 0 3.2 1.1 3.7 2 .5-.9 1.7-2 3.7-2C17 5 18.8 8.3 17.2 11.4 15 15.6 12 20 12 20z" fill="currentColor"/></svg></button></div><div class="product-card-body"><span class="product-card-cat">${esc2(p.cn)}</span><h3><a href="${esc2(p.u)}">${esc2(p.n)}</a></h3><span class="product-card-price${p.p ? "" : " is-quote"}">${esc2(p.p || "Ár egyeztetés alapján")}</span></div></article>`).join("");
+      $("[data-fav-empty]").hidden = !!items.length; $("[data-fav-quote]").hidden = !items.length;
+      const f = $("[data-fav-field]"); if (f) f.value = items.map((p) => `${p.n} (${location.origin}${p.u})`).join("; ");
+    };
+    if (ALL) go(ALL); else { const h = $("[data-help]"); fetch(h ? h.dataset.src : "/js/help-data.json").then((r) => r.json()).then((d) => { ALL = d; go(d); }); }
+  }
+  if (favPage) renderFavPage();
+
+  /* ============ Kollekció: szűrés, keresés, rendezés ============ */
+  const col = $("[data-collection]");
+  if (col) {
+    const form = $("[data-filters]", col), grid = $("[data-grid]", col), cards = $$(".product-card", grid), count = $("[data-count]", col), empty = $("[data-empty]", col);
+    const order = cards.slice();
+    const nrm = (t) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+    const vals = (n) => $$(`input[name="${n}"]:checked`, form).map((i) => i.value);
+    function apply(push) {
+      const q = nrm($("#f-q").value.trim()).split(/\s+/).filter(Boolean);
+      const kat = vals("kat"), szin = vals("szin"), tipus = vals("tipus"), akcio = vals("akcio").length > 0, rend = form.rend.value;
+      let n = 0;
+      cards.forEach((c) => {
+        const ok = (!kat.length || kat.includes(c.dataset.cat)) && (!tipus.length || tipus.includes(c.dataset.type)) && (!akcio || c.dataset.sale)
+          && (!szin.length || szin.some((s) => (c.dataset.colors || "").split("|").includes(s))) && q.every((w) => c.dataset.name.includes(w));
+        c.hidden = !ok; if (ok) { n++; c.classList.add("is-visible"); }
+      });
+      const sorted = order.slice();
+      if (rend === "nev") sorted.sort((a, b) => $("h3", a).textContent.localeCompare($("h3", b).textContent, "hu"));
+      if (rend === "ar") sorted.sort((a, b) => (Number(a.dataset.price) || 1e9) - (Number(b.dataset.price) || 1e9));
+      sorted.forEach((c) => grid.appendChild(c));
+      count.textContent = n + " darab"; empty.hidden = n > 0;
+      if (push) {
+        const u = new URLSearchParams();
+        if ($("#f-q").value.trim()) u.set("q", $("#f-q").value.trim());
+        kat.forEach((v) => u.append("kat", v)); szin.forEach((v) => u.append("szin", v)); tipus.forEach((v) => u.append("tipus", v)); if (akcio) u.set("akcio", "1"); if (rend) u.set("rend", rend);
+        history.replaceState(null, "", location.pathname + (u.toString() ? "?" + u : ""));
+      }
+    }
+    const init = new URLSearchParams(location.search);
+    $("#f-q").value = init.get("q") || "";
+    ["kat", "szin", "tipus", "akcio"].forEach((n) => init.getAll(n).forEach((v) => { const i = $(`input[name="${n}"][value="${CSS.escape(v)}"]`, form); if (i) i.checked = true; }));
+    if (init.get("rend")) form.rend.value = init.get("rend");
+    let t;
+    form.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => { apply(true); track("collection_filter", {}); }, 150); });
+    form.addEventListener("change", () => apply(true));
+    form.addEventListener("reset", () => setTimeout(() => apply(true), 0));
+    apply(false);
+  }
+
+  /* ============ Ruhatervező ============ */
+  const dz = $("[data-designer]");
+  if (dz) {
+    const form = $("[data-designer-form]", dz), steps = $$(".dstep", form), prev = $("[data-prev]", dz), next = $("[data-next]", dz), bar = $("[data-progress]", dz);
+    const PIECE_KEYS = { "Ing": "ing", "Ingruha": "ingruha", "Blézer": "blezer", "Nadrág": "nadrag", "Szoknya": "szoknya", "Mellény": "melleny", "Alkalmi darab": "alkalmi", "Kabát": "kabat" };
+    let cur = 0;
+    dz.classList.add("is-js");
+    const val = (n) => { const i = $(`input[name="${n}"]:checked`, form); return i ? i.value : ""; };
+    function show(i) {
+      cur = i; steps.forEach((s, k) => { s.hidden = k !== i; });
+      prev.hidden = i === 0; next.hidden = i === steps.length - 1;
+      bar.style.width = ((i + 1) / steps.length * 100) + "%";
+      if (i === 1) { const k = PIECE_KEYS[val("darab")]; $$("[data-cuts]", form).forEach((g) => { const on = g.dataset.cuts === k; g.hidden = !on; $$("input", g).forEach((r) => { r.disabled = !on; if (!on) r.checked = false; }); }); }
+      if (i === steps.length - 1) {
+        const rows = [["Ruhadarab", val("darab")], ["Fazon", val("fazon")], ["Anyag", val("anyag")], ["Szín", val("szin")], ["Alkalom", val("alkalom")]];
+        $("[data-summary]", form).innerHTML = rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v ? v.replace(/</g, "&lt;") : "–"}</dd></div>`).join("");
+      }
+      const top = dz.getBoundingClientRect().top + scrollY - 90; if (scrollY > top) scrollTo({ top, behavior: "smooth" });
+    }
+    const names = ["darab", "fazon", "anyag", "szin", "alkalom"];
+    next.addEventListener("click", () => {
+      if (cur < names.length && !val(names[cur])) { const f = $(`input[name="${names[cur]}"]:not(:disabled)`, steps[cur]); if (f) f.reportValidity(); return; }
+      track("designer_step", { step: cur + 1, value: val(names[cur]) });
+      show(cur + 1);
+    });
+    prev.addEventListener("click", () => show(Math.max(0, cur - 1)));
+    form.addEventListener("change", (e) => { if (e.target.type === "radio" && cur < names.length) setTimeout(() => next.click(), 220); });
+    show(0);
+  }
+
+  /* ============ Lookbook ============ */
+  const lb = $("[data-lookbook]");
+  if (lb) {
+    const track_ = $("[data-lb-track]", lb), slides = $$(".lb-slide", lb), out = $("[data-lb-count]", lb);
+    const idx = () => { let best = 0, d = 1e9; slides.forEach((s, i) => { const x = Math.abs(s.getBoundingClientRect().left - track_.getBoundingClientRect().left); if (x < d) { d = x; best = i; } }); return best; };
+    const go = (i) => { const s = slides[Math.max(0, Math.min(slides.length - 1, i))]; track_.scrollTo({ left: s.offsetLeft - track_.offsetLeft, behavior: "smooth" }); };
+    $("[data-lb-prev]", lb).addEventListener("click", () => go(idx() - 1));
+    $("[data-lb-next]", lb).addEventListener("click", () => go(idx() + 1));
+    track_.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") { e.preventDefault(); go(idx() + 1); } if (e.key === "ArrowLeft") { e.preventDefault(); go(idx() - 1); } });
+    let raf; track_.addEventListener("scroll", () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { out.textContent = (idx() + 1) + " / " + slides.length; }); }, { passive: true });
+  }
+
 })();

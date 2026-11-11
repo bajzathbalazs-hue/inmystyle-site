@@ -729,3 +729,105 @@ p { margin: 0; }
 .help-more { display: block; margin-top: 10px; font-size: 12.5px; color: var(--ink-soft); }
 .help-suggest { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .help-suggest .chip { cursor: pointer; border: 1px solid var(--soft); background: #fff; font: inherit; font-size: 12.5px; }
+
+/* ---------- Fejléc: kedvencek és üzenetgomb ---------- */
+.fav-link, .msg-link { position: relative; }
+.msg-link { cursor: pointer; font: inherit; background: #fff; color: var(--ink); }
+.live-dot { position: absolute; top: 6px; right: 6px; width: 9px; height: 9px; border-radius: 50%; background: #2fb862; box-shadow: 0 0 0 2px #fff; }
+.badge-count { position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--rose); color: #fff; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; }
+.badge-count[hidden] { display: none; }
+@media (max-width: 760px) { .fav-link { display: none; } }
+
+/* ---------- Kedvenc szív a termékkártyán ---------- */
+.fav-btn { position: absolute; top: 10px; right: 10px; z-index: 3; width: 38px; height: 38px; border: 0; border-radius: 50%; background: rgba(255,255,255,.92); color: var(--ink); display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 14px rgba(14,20,24,.12); transition: transform .2s ease, color .2s ease; }
+.fav-btn:hover { transform: scale(1.08); }
+.fav-btn svg { width: 19px; height: 19px; }
+.fav-btn.is-on { color: var(--rose); }
+.fav-btn.is-on svg path, .fav-btn.is-on svg { fill: currentColor; }
+.pd-actions [data-fav].is-on { color: var(--rose); border-color: var(--rose); }
+.pd-actions [data-fav].is-on svg { fill: currentColor; }
+
+/* ---------- Kollekció szűrők ---------- */
+.filters { display: grid; gap: 14px; padding: 20px; margin-bottom: 28px; border: 1px solid var(--soft-2); border-radius: var(--radius-lg); background: #fff; }
+.filter-search input { width: 100%; height: 48px; border: 1px solid var(--soft); border-radius: 999px; padding: 0 20px; font: inherit; font-size: 15px; }
+.filter-search input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.filter-row { display: grid; grid-template-columns: 90px 1fr; gap: 10px; align-items: start; }
+.filter-label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); padding-top: 8px; }
+.fchips { display: flex; flex-wrap: wrap; gap: 8px; }
+.fchip input { position: absolute; opacity: 0; pointer-events: none; }
+.fchip span { display: inline-block; padding: 7px 14px; border: 1px solid var(--soft); border-radius: 999px; font-size: 14px; cursor: pointer; background: #fff; transition: .2s; }
+.fchip input:checked + span { background: var(--ink); color: #fff; border-color: var(--ink); }
+.fchip input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.filter-bar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--soft-2); padding-top: 14px; }
+.filter-bar output { font-weight: 700; }
+.filter-bar select { height: 38px; border: 1px solid var(--soft); border-radius: 999px; padding: 0 14px; font: inherit; background: #fff; }
+.link-btn { margin-left: auto; background: none; border: 0; font: inherit; color: var(--accent-dark); text-decoration: underline; cursor: pointer; }
+.product-card[hidden] { display: none; }
+@media (max-width: 760px) { .filter-row { grid-template-columns: 1fr; gap: 6px; } .filter-label { padding-top: 0; } .fchips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; } .fchip span { white-space: nowrap; } }
+
+/* ---------- Kedvencek oldal ---------- */
+.fav-quote { margin-top: 40px; padding: 28px; border-radius: var(--radius-lg); background: var(--soft-3); }
+.fav-quote h2 { margin-bottom: 16px; }
+
+/* ---------- Ruhatervező ---------- */
+.designer-teaser { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 28px 32px; border-radius: var(--radius-lg); background: var(--accent-tint); }
+.designer-teaser .h3 { margin: 4px 0 6px; }
+.dprogress { height: 6px; border-radius: 999px; background: var(--soft-2); margin-bottom: 28px; overflow: hidden; }
+.dprogress span { display: block; height: 100%; width: 0; background: var(--ink); transition: width .35s ease; }
+.designer:not(.is-js) .dprogress, .designer:not(.is-js) .dnav { display: none; }
+.dstep { border: 0; padding: 0; margin: 0 0 32px; min-width: 0; }
+.dstep[hidden] { display: none; }
+.dstep legend { font-size: clamp(22px, 3vw, 30px); font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+.dnum { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--soft-2); color: var(--ink-soft); }
+.dstep > p { margin-bottom: 18px; }
+.dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.dgrid[hidden] { display: none; }
+.dopt { position: relative; display: flex; align-items: center; gap: 12px; padding: 16px 18px; border: 1.5px solid var(--soft); border-radius: 16px; cursor: pointer; background: #fff; transition: .2s; min-height: 64px; }
+.dopt:hover { border-color: var(--ink-soft); }
+.dopt input { position: absolute; opacity: 0; pointer-events: none; }
+.dopt:has(input:checked) { border-color: var(--ink); box-shadow: 0 0 0 2px var(--ink) inset; }
+.dopt:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.dopt small { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 2px; }
+.dgrid-img { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.dopt-img { flex-direction: column; align-items: stretch; padding: 8px 8px 12px; gap: 10px; text-align: center; font-weight: 600; }
+.dopt-img picture, .dopt-img > img { display: block; aspect-ratio: 4 / 5; border-radius: 10px; overflow: hidden; }
+.dopt-img img { width: 100%; height: 100%; object-fit: cover; }
+.dopt-color i { width: 30px; height: 30px; border-radius: 50%; flex: none; border: 1px solid rgba(0,0,0,.15); }
+.dsummary { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; margin: 6px 0 24px; }
+.dsummary div { padding: 12px 14px; border-radius: 12px; background: var(--soft-3); }
+.dsummary dt { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); }
+.dsummary dd { margin: 2px 0 0; font-weight: 700; }
+.dnav { display: flex; justify-content: space-between; gap: 12px; }
+.dnav [hidden] { display: none; }
+.dnav [data-next] { margin-left: auto; }
+
+/* ---------- Lookbook ---------- */
+.lookbook { padding: clamp(24px, 4vw, 48px) 0 clamp(40px, 6vw, 72px); background: var(--ink); color: #fff; }
+.lookbook .breadcrumb, .lookbook .breadcrumb a { color: #c9d3d6; }
+.lb-head h1 { font-size: clamp(36px, 6vw, 64px); margin: 8px 0; }
+.lb-head .lead { color: #c9d3d6; margin-bottom: 28px; }
+.lb-track { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 max(16px, calc((100vw - 1200px) / 2)); scrollbar-width: none; outline: none; }
+.lb-track::-webkit-scrollbar { display: none; }
+.lb-slide { position: relative; flex: none; width: min(78vw, 460px); aspect-ratio: 4 / 5; margin: 0; border-radius: 18px; overflow: hidden; scroll-snap-align: start; }
+.lb-slide picture, .lb-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lb-slide figcaption { position: absolute; inset: auto 0 0 0; padding: 60px 18px 18px; background: linear-gradient(180deg, transparent, rgba(10,14,16,.82)); display: grid; gap: 4px; }
+.lb-slide figcaption span { font-size: 12px; letter-spacing: .1em; color: #a9c6e2; }
+.lb-slide figcaption b { font-size: 18px; }
+.lb-slide figcaption a { color: #fff; font-size: 14px; text-decoration: underline; }
+.lb-nav { display: flex; align-items: center; gap: 14px; margin-top: 22px; }
+.lb-nav .icon-link { background: rgba(255,255,255,.12); color: #fff; border: 0; font-size: 18px; cursor: pointer; }
+.lb-nav output { min-width: 64px; text-align: center; color: #c9d3d6; }
+.lb-nav .btn { margin-left: auto; background: #fff; color: var(--ink); }
+
+/* ---------- Facebook-posztok ---------- */
+.fb-layout { display: grid; grid-template-columns: 1fr 500px; gap: clamp(28px, 5vw, 64px); align-items: center; }
+.fb-frame { width: 100%; max-width: 500px; min-height: 640px; border-radius: var(--radius-lg); overflow: hidden; background: #fff; box-shadow: 0 18px 50px rgba(14,20,24,.12); justify-self: center; }
+.fb-frame iframe { width: 100%; display: block; }
+.fb-placeholder { height: 640px; display: grid; place-content: center; justify-items: center; gap: 14px; text-align: center; padding: 24px; color: var(--ink-soft); }
+.fb-placeholder svg { width: 44px; height: 44px; color: #1877f2; }
+.fb-placeholder small { font-size: 12px; max-width: 280px; }
+@media (max-width: 960px) { .fb-layout { grid-template-columns: 1fr; } .fb-frame, .fb-placeholder { min-height: 0; } .fb-placeholder { height: 420px; } }
+.filters, .filter-row, .filter-row > *, .fchips { min-width: 0; }
+.fchip { position: relative; flex: none; } .dopt input, .fchip input { width: 1px; height: 1px; }
+@media (max-width: 760px) { .dgrid { grid-template-columns: 1fr; } .dgrid.dgrid-img { grid-template-columns: repeat(2, 1fr); } .dgrid.dgrid-color { grid-template-columns: repeat(2, 1fr); } .header-right { gap: 6px; } }
+@media (max-width: 420px) { .logo img { width: 128px; height: auto; } }

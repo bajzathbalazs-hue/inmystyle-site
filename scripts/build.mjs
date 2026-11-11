@@ -214,11 +214,13 @@ function header(active = "") {
   <div class="container header-inner">
     <div class="header-left">
       <button class="menu-btn" type="button" data-drawer-open aria-controls="drawer" aria-expanded="false"><span class="burger" aria-hidden="true"><span></span></span><span class="label">Menü</span></button>
-      <nav class="header-quick" aria-label="Gyorslinkek"><a href="/#kollekcio">Kollekció</a><a href="/akcio/"${cur("akcio")}>Akció</a></nav>
+      <nav class="header-quick" aria-label="Gyorslinkek"><a href="/kollekcio/"${cur("kollekcio")}>Kollekció</a><a href="/tervezd-meg/"${cur("tervezd")}>Tervezd meg</a><a href="/lookbook/"${cur("lookbook")}>Lookbook</a></nav>
     </div>
     <a class="logo" href="/" aria-label="In My Style – főoldal"><img src="/assets/logo/in-my-style-logo.png" alt="In My Style" width="190" height="40"></a>
     <div class="header-right">
       <a class="icon-link hide-m" href="${SITE.instagram}" target="_blank" rel="noopener" aria-label="In My Style az Instagramon">${I.instagram}</a>
+      <a class="icon-link fav-link" href="/kedvencek/" aria-label="Kedvenceim">${I.heart}<span class="badge-count" data-fav-count hidden>0</span></a>
+      <button class="icon-link msg-link" type="button" data-help-open aria-label="Írj nekünk – azonnali válaszok">${I.messenger}<span class="live-dot" aria-hidden="true"></span></button>
       <a class="icon-link" href="${SITE.phoneHref}" aria-label="Hívás: ${SITE.phone}">${I.phone}</a>
       <a class="btn btn-dark btn-sm" href="/#idopont">Időpontfoglalás</a>
     </div>
@@ -233,6 +235,10 @@ function header(active = "") {
       <summary>Kollekció</summary>
       <div class="sub">${groups.map((g) => `<h3>${g.title}</h3>${CATEGORIES.filter((c) => c.group === g.key).map((c) => `<a href="${catUrl(c)}">${esc(c.name)}</a>`).join("")}`).join("")}</div>
     </details>
+    <a href="/kollekcio/">Teljes kollekció</a>
+    <a href="/tervezd-meg/">Tervezd meg a ruhád</a>
+    <a href="/lookbook/">Lookbook</a>
+    <a href="/kedvencek/">Kedvenceim</a>
     <a href="/#szolgaltatasok">Szolgáltatások</a>
     <a href="/akcio/">Akció</a>
     <a href="/#rolunk">Rólunk</a>
@@ -342,13 +348,14 @@ ${footer()}
 }
 
 /* ---------------- shared blocks ---------------- */
-function productCard(p, { showCat = true } = {}) {
+function productCard(p, { showCat = true, filterable = false } = {}) {
   const c = catBySlug[p.category];
   const badges = [];
   if (p.badge) badges.push(`<span class="tag ${/elfogy/i.test(p.badge) ? "tag-dark" : /kiárus|akci/i.test(p.badge) ? "tag-rose" : "tag-accent"}">${esc(p.badge)}</span>`);
   else if (p.type === "egyedi") badges.push('<span class="tag">Egyedi méretre</span>');
-  return `<article class="product-card reveal">
-  <div class="product-card-media">${pic(p.photos[0], p.name)}<div class="badges">${badges.join("")}</div></div>
+  const data = filterable ? ` data-cat="${p.category}" data-type="${p.type}" data-colors="${esc(colorTags(p).join("|"))}" data-name="${esc(norm(p.name + " " + (c ? c.name : "") + " " + ((p.specs && p.specs["Szín"]) || "")))}" data-price="${priceNum(p)}"${p.sale ? ' data-sale="1"' : ""}` : "";
+  return `<article class="product-card reveal"${data}>
+  <div class="product-card-media">${pic(p.photos[0], p.name)}<div class="badges">${badges.join("")}</div><button type="button" class="fav-btn" data-fav="${p.slug}" aria-pressed="false" aria-label="${esc(p.name)} hozzáadása a kedvencekhez">${I.heart}</button></div>
   <div class="product-card-body">
     ${showCat && c ? `<span class="product-card-cat">${esc(c.name)}</span>` : ""}
     <h3><a href="${prodUrl(p)}">${esc(p.name)}</a></h3>
@@ -600,7 +607,10 @@ const CAT_SYN = {
   "sajat-markas-taskak": ["vászontáska", "vászontáskák"], "taskak": ["táska", "táskák", "táskát", "kézitáska", "retikül"],
 };
 const HELP_PAGES = [
-  ["Kollekció", "/#kollekcio", ["kollekcio", "termekek", "kinalat", "katalogus", "vasarol", "vasarlas", "shop", "webshop"]],
+  ["Kollekció", "/kollekcio/", ["kollekcio", "termekek", "kinalat", "katalogus", "vasarol", "vasarlas", "shop", "webshop", "osszes"]],
+  ["Tervezd meg a ruhád", "/tervezd-meg/", ["tervez", "tervezes", "ruhatervezo", "megtervez", "osszeallit", "konfigur"]],
+  ["Lookbook", "/lookbook/", ["lookbook", "inspiracio", "galeria", "kepek", "fotok"]],
+  ["Kedvenceim", "/kedvencek/", ["kedvenc", "kedvenceim", "mentett", "kivalasztott"]],
   ["Akciós darabok", "/akcio/", ["akcio", "akcios", "kiarusitas", "sale", "lealazott"]],
   ["Időpontfoglalás", "/#idopont", ["idopont", "idopontfoglalas", "foglalas", "calendly", "naptar"]],
   ["Ajánlatkérés", "/#ajanlatkeres", ["ajanlat", "ajanlatkeres", "arajanlat", "rendeles", "megrendel", "visszahivas"]],
@@ -620,7 +630,7 @@ function helpData() {
   return {
     faq: HELP.map((h) => ({ id: h.id, q: h.q, a: h.a, k: h.k.map(norm), cta: h.cta || null, small: !!h.small })),
     cats: CATEGORIES.map((c) => ({ id: c.slug, n: c.name, u: catUrl(c), k: [...new Set([...words(c.name), ...(CAT_SYN[c.slug] || []).map(norm)])] })),
-    prods: PRODUCTS.map((p) => { const c = catBySlug[p.category]; return { n: p.name, u: prodUrl(p), c: p.category, cn: c ? c.name : "", p: p.price || "", img: thumb(p.photos[0]), k: [...new Set(words(p.name))] }; }),
+    prods: PRODUCTS.map((p) => { const c = catBySlug[p.category]; return { s: p.slug, n: p.name, u: prodUrl(p), c: p.category, cn: c ? c.name : "", p: p.price || "", img: thumb(p.photos[0]), k: [...new Set(words(p.name))] }; }),
     pages: HELP_PAGES.map(([n, u, k]) => ({ n, u, k })),
   };
 }
@@ -781,7 +791,7 @@ function homePage() {
         <h2 class="h2" id="kollekcio-cim">A mindennapok luxusa</h2>
         <p class="lead">Egyedi méretre készülő és válogatott kész darabok, hetente frissülő kínálattal.</p>
       </div>
-      <a class="link-arrow" href="/akcio/">Akciós darabok</a>
+      <a class="link-arrow" href="/kollekcio/">Teljes kollekció</a>
     </div>
     <div class="product-grid">${featured.map((p) => productCard(p)).join("")}</div>
     <div style="margin-top:clamp(56px,7vw,88px)">
@@ -819,6 +829,8 @@ function homePage() {
     <ol class="process" style="list-style:none;margin:0;padding:0">${steps.map(([ic, t, d], i) => `<li class="step reveal"><div class="step-icon">${ic}</div><div class="step-num">${String(i + 1).padStart(2, "0")}</div><h3>${t}</h3><p>${d}</p></li>`).join("")}</ol>
   </div>
 </section>
+
+${configuratorTeaser()}
 
 <section class="section" id="igazitas" aria-labelledby="igazitas-cim">
   <div class="container split">
@@ -867,11 +879,13 @@ function homePage() {
   </div>
 </section>
 
+${facebookSection()}
+
 <section class="section bg-tint" id="galeria" aria-labelledby="galeria-cim">
   <div class="container">
     <div class="section-head-row">
       <div class="section-head"><div class="eyebrow">Galéria</div><h2 class="h2" id="galeria-cim">Sportos elegancia minden részletben</h2></div>
-      <a class="link-arrow" href="${SITE.instagram}" target="_blank" rel="noopener">Kövess az Instagramon</a>
+      <a class="link-arrow" href="/lookbook/">Lookbook megnyitása</a>
     </div>
     <div class="gallery">${gallery.map((g) => `<figure class="reveal">${pic(g, "In My Style ruha — inspiráció")}</figure>`).join("")}</div>
   </div>
@@ -1011,6 +1025,7 @@ function productPage(p) {
         <div class="pd-actions">
           <a class="btn btn-dark" href="#ajanlatkeres">Ajánlatot kérek erre a darabra</a>
           <a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a>
+          <button type="button" class="btn btn-outline" data-fav="${p.slug}" aria-pressed="false">${I.heart}<span data-fav-label>Kedvencekhez</span></button>
           <a class="btn btn-outline" href="${SITE.messenger}" target="_blank" rel="noopener">${I.messenger}Messenger</a>
           <a class="btn btn-outline" href="${SITE.whatsapp}?text=${encodeURIComponent(`Szia! Érdekel a(z) „${p.name}” (${SITE.url}${prodUrl(p)}).`)}" target="_blank" rel="noopener">${I.whatsapp}WhatsApp</a>
         </div>
@@ -1065,6 +1080,207 @@ ${contactSection()}`;
   });
 }
 
+
+/* ================= Új oldalak: kollekció (szűrés, keresés), kedvencek, ruhatervező, lookbook ================= */
+const COLOR_RULES = [
+  ["Fehér", /feh[eé]r|ekr[uü]/], ["Sötétkék", /s[oö]t[eé]tk[eé]k|navy/], ["Kék", /(^|[^t])k[eé]k|vil[aá]gosk[eé]k|[eé]gsz[ií]nk[eé]k/],
+  ["Piros", /piros|bord[oó]/], ["Rózsaszín", /r[oó]zsasz[ií]n|pink/], ["Sárga", /s[aá]rga|vajsz[ií]n/],
+  ["Bézs és barna", /b[eé]zs|kr[eé]m|teve|drapp|barna|b[oő]r/], ["Fekete", /fekete/], ["Mintás", /mint[aá]s|cs[ií]kos|kock[aá]s|vir[aá]g/],
+];
+function colorTags(p) {
+  const t = (p.name + " " + ((p.specs && p.specs["Szín"]) || "")).toLowerCase();
+  return COLOR_RULES.filter(([, re]) => re.test(t)).map(([n]) => n);
+}
+const priceNum = (p) => { const n = Number(String(p.price || "").replace(/\D/g, "")); return n || ""; };
+
+function collectionPage() {
+  const crumbs = [["Főoldal", "/"], ["Kollekció", "/kollekcio/"]];
+  const colors = COLOR_RULES.map(([n]) => n).filter((n) => PRODUCTS.some((p) => colorTags(p).includes(n)));
+  const cards = PRODUCTS.map((p) => productCard(p, { filterable: true })).join("");
+  const chip = (name, val, label) => `<label class="fchip"><input type="checkbox" name="${name}" value="${esc(val)}"><span>${esc(label)}</span></label>`;
+  const body = `
+<section class="page-hero page-hero-plain" aria-labelledby="koll-cim">
+  <div class="container">
+    ${breadcrumbHtml(crumbs)}
+    <div class="eyebrow">Teljes kollekció</div>
+    <h1 id="koll-cim">Kollekció</h1>
+    <p class="lead">Egyedi méretre készülő darabok és válogatott, kész ruhák egy helyen. Szűrj kategóriára, színre vagy típusra, és jelöld meg szívvel a kedvenceidet.</p>
+  </div>
+</section>
+<section class="section collection" data-collection>
+  <div class="container">
+    <form class="filters" data-filters role="search" aria-label="Termékszűrő" onsubmit="return false">
+      <div class="filter-search"><label class="sr-only" for="f-q">Keresés a kollekcióban</label><input id="f-q" type="search" name="q" placeholder="Keresés, pl. fehér ing, blézer…" autocomplete="off"></div>
+      <div class="filter-row"><span class="filter-label">Kategória</span><div class="fchips">${CATEGORIES.filter((c) => PRODUCTS.some((p) => p.category === c.slug)).map((c) => chip("kat", c.slug, c.name)).join("")}</div></div>
+      <div class="filter-row"><span class="filter-label">Szín</span><div class="fchips">${colors.map((c) => chip("szin", c, c)).join("")}</div></div>
+      <div class="filter-row"><span class="filter-label">Típus</span><div class="fchips">${chip("tipus", "egyedi", "Egyedi méretre")}${chip("tipus", "import", "Kész darab")}${chip("akcio", "1", "Akciós")}</div></div>
+      <div class="filter-bar"><output data-count aria-live="polite">${PRODUCTS.length} darab</output>
+        <label class="sort"><span class="sr-only">Rendezés</span><select name="rend"><option value="">Ajánlott sorrend</option><option value="nev">Név szerint</option><option value="ar">Ár szerint</option></select></label>
+        <button type="reset" class="link-btn" data-reset>Szűrők törlése</button></div>
+    </form>
+    <div class="product-grid" data-grid>${cards}</div>
+    <div class="empty-state" data-empty hidden><p>Erre a keresésre most nincs kész darab, de egyedi méretre szinte bármit elkészítünk.</p><a class="btn btn-dark" href="/tervezd-meg/">Tervezd meg a ruhád</a></div>
+  </div>
+</section>
+${configuratorTeaser()}
+${contactSection()}`;
+  return page({
+    title: "Kollekció – egyedi méretre készülő női ruhák | In My Style",
+    description: "Az In My Style teljes kollekciója: ingek, ingruhák, blézerek, nadrágok és kiegészítők. Szűrj kategóriára, színre, és kérj ajánlatot egyedi méretre.",
+    url: "/kollekcio/", active: "kollekcio",
+    jsonld: [breadcrumbLd(crumbs), { "@context": "https://schema.org", "@type": "CollectionPage", name: "In My Style kollekció", url: SITE.url + "/kollekcio/",
+      mainEntity: { "@type": "ItemList", itemListElement: PRODUCTS.map((p, i) => ({ "@type": "ListItem", position: i + 1, url: SITE.url + prodUrl(p), name: p.name })) } }],
+    body,
+  });
+}
+
+function favoritesPage() {
+  const crumbs = [["Főoldal", "/"], ["Kedvenceim", "/kedvencek/"]];
+  const body = `
+<section class="page-hero page-hero-plain" aria-labelledby="fav-cim">
+  <div class="container">${breadcrumbHtml(crumbs)}<div class="eyebrow">Kedvenceim</div><h1 id="fav-cim">A kiválasztott darabjaid</h1>
+  <p class="lead">Itt találod a szívvel megjelölt darabokat. Egy kattintással ajánlatot kérhetsz rájuk, és Szilvia a konzultáción már ezekkel készül.</p></div>
+</section>
+<section class="section" data-favorites>
+  <div class="container">
+    <div class="product-grid" data-fav-grid></div>
+    <div class="empty-state" data-fav-empty hidden><p>Még nincs kedvenced. A kollekcióban a termékképek sarkában lévő szívvel jelölheted meg a tetsző darabokat.</p><a class="btn btn-dark" href="/kollekcio/">Irány a kollekció</a></div>
+    <div class="fav-quote" data-fav-quote hidden>
+      <h2 class="h3">Ajánlatot kérek a kedvenceimre</h2>
+      <form name="kedvencek" method="POST" action="/koszonjuk/" data-netlify="true" netlify-honeypot="bot-field" data-ajax-form>
+        ${hidden("kedvencek")}
+        <input type="hidden" name="kedvencek" data-fav-field value="">
+        <div class="form-grid">
+          <div class="field"><label for="fv-nev">Neved</label><input id="fv-nev" type="text" name="nev" autocomplete="name" required></div>
+          <div class="field"><label for="fv-tel">Telefonszámod</label><input id="fv-tel" type="tel" name="telefon" autocomplete="tel" inputmode="tel" required></div>
+          <div class="field full"><label for="fv-email">E-mail-címed <span class="muted">(nem kötelező)</span></label><input id="fv-email" type="email" name="email" autocomplete="email"></div>
+          <div class="field full"><label for="fv-msg">Megjegyzés <span class="muted">(nem kötelező)</span></label><textarea id="fv-msg" name="uzenet" rows="3" placeholder="Pl. melyik színben, milyen alkalomra szeretnéd?"></textarea></div>
+          <div class="form-actions full">${privacyNote}<button class="btn btn-dark btn-block" type="submit">Ajánlatot kérek ezekre</button>${formStatus}</div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>`;
+  return page({ title: "Kedvenceim – In My Style", description: "A kollekcióban szívvel megjelölt darabjaid, egy kattintással ajánlatkéréshez.", url: "/kedvencek/", noindex: true, active: "kedvencek", jsonld: [breadcrumbLd(crumbs)], body });
+}
+
+/* --- ruhatervező --- */
+const DESIGNER = {
+  pieces: [
+    ["ing", "Ing", "ing"], ["ingruha", "Ingruha", "ing-ruha"], ["blezer", "Blézer", "blezer"], ["nadrag", "Nadrág", "nadragok"],
+    ["szoknya", "Szoknya", "szoknyak"], ["melleny", "Mellény", "mellenyek"], ["alkalmi", "Alkalmi darab", "alkalmi-ruhak"], ["kabat", "Kabát", "kabatok"],
+  ],
+  cuts: {
+    ing: ["Klasszikus", "Megkötős derekú", "Fodros elejű", "Átlapolt, hasított ujjú"],
+    ingruha: ["Midi, megkötős", "Hosszú, harang aljú", "Paszpólozott", "Rövid ujjú, nyári"],
+    blezer: ["Egysoros", "Kétsoros", "Megkötős derekú", "Hosszított"],
+    nadrag: ["Egyenes szárú", "Szivarnadrág", "Bő szárú", "Hétnyolcados"],
+    szoknya: ["Ceruzaszoknya", "Midi harangszoknya", "Rakott szoknya", "A-vonalú"],
+    melleny: ["Rövid, karcsúsított", "Hosszú, kétsoros", "Megkötős", "Kosztümhöz illő"],
+    alkalmi: ["Egyenes ruha", "Overál", "Kosztüm", "Ruha és blézer együttes"],
+    kabat: ["Rövid", "Hosszú, egyenes", "Trencs", "Megkötős derekú"],
+  },
+  fabrics: [["Pamut popelin", "Friss, könnyen kezelhető, ingekhez ideális"], ["Len és vászon", "Légies, nyári darabokhoz"], ["Krep és szövet", "Szép esésű, blézerhez, nadrághoz"], ["Gyapjú-keverék", "Melegebb, formatartó"], ["Selyem hatású", "Fényes, ünnepi hatás"], ["Még nem tudom", "A konzultáción segítünk választani"]],
+  colors: [["Fehér", "#ffffff"], ["Ekrü", "#efe6d2"], ["Bézs és teve", "#c8a37a"], ["Sötétkék", "#1c2b45"], ["Világoskék", "#a9c6e2"], ["Piros", "#c0303a"], ["Rózsaszín", "#e58fb0"], ["Fekete", "#1f1f1f"], ["Csíkos vagy mintás", "repeating-linear-gradient(45deg,#fff 0 6px,#e58fb0 6px 12px)"], ["A konzultáción választok", "conic-gradient(#c0303a,#e8c547,#4d81b3,#e58fb0,#c0303a)"]],
+  occasions: ["Iroda és tárgyalás", "Hétköznapok", "Ünnep és rendezvény", "Utazás és szabadidő"],
+};
+function configuratorTeaser() {
+  return `<section class="section-sm"><div class="container"><div class="designer-teaser">
+  <div><div class="eyebrow">Újdonság</div><h2 class="h3">Tervezd meg a ruhád hat lépésben</h2><p class="muted">Válaszd ki a ruhadarabot, a fazont, az anyagot és a színt, és mi a díjmentes konzultáción valóra váltjuk.</p></div>
+  <a class="btn btn-dark" href="/tervezd-meg/">Tervezés indítása</a></div></div></section>`;
+}
+function designerPage() {
+  const crumbs = [["Főoldal", "/"], ["Tervezd meg a ruhád", "/tervezd-meg/"]];
+  const catPhoto = (slug) => (catBySlug[slug] || {}).heroPhoto;
+  const radio = (name, val, inner, cls = "dopt") => `<label class="${cls}"><input type="radio" name="${name}" value="${esc(val)}" required>${inner}</label>`;
+  const step = (n, title, hint, inner) => `<fieldset class="dstep" data-step="${n}"><legend><span class="dnum">${n}/6</span>${title}</legend>${hint ? `<p class="muted">${hint}</p>` : ""}${inner}</fieldset>`;
+  const body = `
+<section class="page-hero page-hero-plain" aria-labelledby="dz-cim">
+  <div class="container">${breadcrumbHtml(crumbs)}<div class="eyebrow">Ruhatervező</div><h1 id="dz-cim">Tervezd meg a ruhád</h1>
+  <p class="lead">Hat egyszerű lépésben összeállíthatod, milyen darabot szeretnél. Az elképzelésedet elküldjük Szilviának, aki felhív, és a díjmentes konzultáción együtt véglegesítitek a részleteket.</p></div>
+</section>
+<section class="section designer" data-designer>
+  <div class="container">
+    <div class="dprogress" aria-hidden="true"><span data-progress></span></div>
+    <form name="ruhatervezo" method="POST" action="/koszonjuk/" data-netlify="true" netlify-honeypot="bot-field" data-ajax-form data-designer-form>
+      ${hidden("ruhatervezo")}
+      ${step(1, "Milyen ruhadarabot szeretnél?", "", `<div class="dgrid dgrid-img">${DESIGNER.pieces.map(([v, n, cat]) => radio("darab", n, `${catPhoto(cat) ? pic(catPhoto(cat), "") : ""}<span>${esc(n)}</span>`, "dopt dopt-img")).join("")}</div>`)}
+      ${step(2, "Milyen fazont?", "A fazonokat a konzultáción a te alkatodhoz igazítjuk.", Object.entries(DESIGNER.cuts).map(([k, list]) => `<div class="dgrid" data-cuts="${k}">${list.map((c) => radio("fazon", c, `<span>${esc(c)}</span>`)).join("")}${radio("fazon", "Még nem tudom", "<span>Még nem tudom</span>")}</div>`).join(""))}
+      ${step(3, "Milyen anyagból?", "A szalonban nagy anyagválasztékból választhatsz, és hozott anyaggal is dolgozunk.", `<div class="dgrid">${DESIGNER.fabrics.map(([n, d]) => radio("anyag", n, `<span><b>${esc(n)}</b><small>${esc(d)}</small></span>`)).join("")}</div>`)}
+      ${step(4, "Milyen színben?", "", `<div class="dgrid dgrid-color">${DESIGNER.colors.map(([n, c]) => radio("szin", n, `<i style="background:${c}"></i><span>${esc(n)}</span>`, "dopt dopt-color")).join("")}</div>`)}
+      ${step(5, "Milyen alkalomra?", "", `<div class="dgrid">${DESIGNER.occasions.map((o) => radio("alkalom", o, `<span>${esc(o)}</span>`)).join("")}</div>`)}
+      <fieldset class="dstep" data-step="6"><legend><span class="dnum">6/6</span>Az elképzelésed összefoglalója</legend>
+        <dl class="dsummary" data-summary></dl>
+        <div class="form-grid">
+          <div class="field"><label for="dz-nev">Neved</label><input id="dz-nev" type="text" name="nev" autocomplete="name" required></div>
+          <div class="field"><label for="dz-tel">Telefonszámod</label><input id="dz-tel" type="tel" name="telefon" autocomplete="tel" inputmode="tel" required></div>
+          <div class="field full"><label for="dz-email">E-mail-címed <span class="muted">(nem kötelező)</span></label><input id="dz-email" type="email" name="email" autocomplete="email"></div>
+          <div class="field full"><label for="dz-msg">Még valami? <span class="muted">(nem kötelező)</span></label><textarea id="dz-msg" name="uzenet" rows="3" placeholder="Pl. határidő, inspirációs kép leírása, különleges kérés"></textarea></div>
+          <div class="form-actions full">${privacyNote}<button class="btn btn-dark btn-block" type="submit">Elküldöm az elképzelésem</button>${formStatus}</div>
+        </div>
+      </fieldset>
+      <div class="dnav"><button type="button" class="btn btn-outline" data-prev>Vissza</button><button type="button" class="btn btn-dark" data-next>Tovább</button></div>
+    </form>
+  </div>
+</section>`;
+  return page({
+    title: "Tervezd meg a ruhád – egyedi méretre | In My Style",
+    description: "Állítsd össze az álmaid ruháját hat lépésben: ruhadarab, fazon, anyag, szín és alkalom. Szilvia a díjmentes konzultáción valóra váltja.",
+    url: "/tervezd-meg/", active: "tervezd", jsonld: [breadcrumbLd(crumbs)], body,
+  });
+}
+
+/* --- lookbook --- */
+const LOOKBOOK = [
+  ["hero-szilvia-2.jpg", "Sötétkék kosztüm, rád szabva", "/kategoria/blezer/"],
+  ["Y4sAXNy1J7sbea58QacwT0D9O0.jpg", "A tökéletes fehér ing", "/kategoria/ing/"],
+  ["rozsaszin-csikos-ingruha.jpg", "Rózsaszín csíkos ingruha", "/termek/rozsaszin-csikos-ingruha/"],
+  ["si9qbKa5ffmxJrftg6g3nZ7Uc.jpg", "Szatén ing ünnepi alkalmakra", "/kategoria/ing/"],
+  ["FQMYqbBj47O2wVG4AmlnpeY4PY.jpg", "Égszínkék wrap ing fehér nadrággal", "/kategoria/ing-ruha/"],
+  ["sotetkek-fodros-ing.jpg", "Sötétkék fodros ing", "/termek/sotetkek-fodros-ing/"],
+  ["1ZtdorXsHBKEc4bN2LHremaGBo.jpg", "Csíkos ing, hétköznapi elegancia", "/kategoria/ing/"],
+  ["feher-megkotos-ingruha-szalon.jpg", "Fehér ingruha a szalonban", "/termek/feher-megkotos-ingruha/"],
+  ["NF5aKztD4zvcFCh6rvT2ToqpNUo.jpg", "Mélykék öves blézerruha", "/kategoria/blezer/"],
+  ["megkotos-ing-kek-viselve.jpg", "Megkötős derekú ing", "/termek/megkotos-dereku-ing/"],
+  ["PqalPo2E1o6IkCRlDFZGPw2KVeU.jpeg", "Napfényes sárga nyáron", "/kategoria/blezer/"],
+  ["feher-ing-hasitott-ujj-utcan.jpg", "Fehér ing hasított ujjal", "/termek/feher-ing-hasitott-ujjal/"],
+  ["FuzmlZu4JwbOrfbz9kuZ30Q7XMM.jpg", "Szabott sötétkék nadrágkosztüm", "/kategoria/nadragok/"],
+  ["upWGtveMvi615CIZmXjEm2wyQ4.jpg", "Fehér ing szürke nadrággal", "/kategoria/ing/"],
+];
+function lookbookPage() {
+  const crumbs = [["Főoldal", "/"], ["Lookbook", "/lookbook/"]];
+  const items = LOOKBOOK.filter(([f]) => fs.existsSync(path.join(ROOT, "assets/photos", f)));
+  const body = `
+<section class="lookbook" aria-labelledby="lb-cim" data-lookbook>
+  <div class="lb-head container">${breadcrumbHtml(crumbs)}<h1 id="lb-cim">Lookbook</h1><p class="lead">Sportos elegancia, kényelem és nőiesség – válogatás az In My Style darabjaiból.</p></div>
+  <div class="lb-track" data-lb-track tabindex="0" aria-label="Lookbook képek, lapozható">
+    ${items.map(([f, cap, url], i) => `<figure class="lb-slide" aria-label="${i + 1} / ${items.length}">${pic(f, cap, { eager: i < 2 })}<figcaption><span>${String(i + 1).padStart(2, "0")}</span><b>${esc(cap)}</b><a href="${url}">Megnézem →</a></figcaption></figure>`).join("")}
+  </div>
+  <div class="lb-nav container"><button type="button" class="icon-link" data-lb-prev aria-label="Előző kép">←</button><output data-lb-count>1 / ${items.length}</output><button type="button" class="icon-link" data-lb-next aria-label="Következő kép">→</button><a class="btn btn-dark" href="/tervezd-meg/">Ilyet szeretnék</a></div>
+</section>
+${contactSection()}`;
+  return page({ title: "Lookbook – In My Style, Budapest", description: "Lapozz bele az In My Style lookbookjába: egyedi méretre készült ingek, ingruhák, blézerek és kosztümök, sportos eleganciával.", url: "/lookbook/", active: "lookbook", image: "/assets/photos/" + items[0][0], jsonld: [breadcrumbLd(crumbs)], body });
+}
+
+/* --- Facebook-posztok a főoldalon --- */
+function facebookSection() {
+  const src = `https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(SITE.facebook)}&tabs=timeline&width=500&height=640&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&locale=hu_HU`;
+  return `<section class="section bg-soft" id="facebook" aria-labelledby="fb-cim">
+  <div class="container fb-layout">
+    <div class="split-body">
+      <div class="eyebrow">Facebook</div>
+      <h2 class="h2" id="fb-cim">Friss hírek a szalonból</h2>
+      <p class="lead">Új darabok, akciók és ünnepi nyitvatartás: a Facebook-oldalunkon mindig elsőként jelennek meg.</p>
+      <p class="muted">${SITE.fbRating.percent}% ajánl minket ${SITE.fbRating.count} értékelés alapján.</p>
+      <div class="hero-actions" style="justify-content:flex-start"><a class="btn btn-dark" href="${SITE.facebook}" target="_blank" rel="noopener">${I.facebook}Kövess a Facebookon</a><a class="btn btn-outline" href="${SITE.messenger}" target="_blank" rel="noopener">${I.messenger}Írj Messengeren</a></div>
+    </div>
+    <div class="fb-frame" data-click-embed='<iframe src="${src}" width="500" height="640" title="Az In My Style Facebook-oldalának bejegyzései" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="encrypted-media; picture-in-picture; web-share" loading="lazy"></iframe>'>
+      <div class="fb-placeholder">${I.facebook}<p>A legfrissebb Facebook-bejegyzéseink itt jelennek meg.</p><button type="button" class="btn btn-dark" data-embed-load>Bejegyzések megjelenítése</button><small>A betöltéssel a Facebook sütiket helyezhet el a böngésződben.</small></div>
+    </div>
+  </div>
+</section>`;
+}
+
 function privacyPage() {
   const crumbs = [["Főoldal", "/"], ["Adatkezelési tájékoztató", "/adatkezelesi-tajekoztato/"]];
   const content = fs.readFileSync(path.join(ROOT, "src/content/adatkezeles.html"), "utf8");
@@ -1117,13 +1333,17 @@ write("index.html", homePage());
 CATEGORIES.forEach((c) => write(`kategoria/${c.slug}/index.html`, categoryPage(c)));
 PRODUCTS.forEach((p) => write(`termek/${p.slug}/index.html`, productPage(p)));
 write("akcio/index.html", salePage());
+write("kollekcio/index.html", collectionPage());
+write("kedvencek/index.html", favoritesPage());
+write("tervezd-meg/index.html", designerPage());
+write("lookbook/index.html", lookbookPage());
 write("adatkezelesi-tajekoztato/index.html", privacyPage());
 write("koszonjuk/index.html", noticePage({ url: "/koszonjuk/", title: "Köszönjük! – In My Style", h1: "Köszönjük, megkaptuk!", lead: "Hamarosan felvesszük veled a kapcsolatot. Ha sürgős, hívj minket bátran: " + SITE.phone + "." }));
 write("404.html", noticePage({ url: "/404.html", title: "Az oldal nem található – In My Style", h1: "Ez az oldal nem található", lead: "Lehet, hogy a keresett oldal megszűnt vagy átköltözött. Nézz körül a kollekcióban, vagy térj vissza a főoldalra." }));
 
 // sitemap + robots + átirányítások
 const today = new Date().toISOString().slice(0, 10);
-const urls = ["/", "/akcio/", "/adatkezelesi-tajekoztato/", ...CATEGORIES.map(catUrl), ...PRODUCTS.map(prodUrl)];
+const urls = ["/", "/kollekcio/", "/tervezd-meg/", "/lookbook/", "/akcio/", "/adatkezelesi-tajekoztato/", ...CATEGORIES.map(catUrl), ...PRODUCTS.map(prodUrl)];
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${SITE.url}${u}</loc><lastmod>${today}</lastmod></url>`).join("\n")}\n</urlset>\n`);
 write("robots.txt", `User-agent: *\nAllow: /\nDisallow: /koszonjuk/\n\nSitemap: ${SITE.url}/sitemap.xml\n`);
 const redirects = [

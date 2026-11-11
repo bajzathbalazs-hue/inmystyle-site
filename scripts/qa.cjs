@@ -6,7 +6,7 @@ const path = require("path");
 
 const BASE = process.env.BASE || "http://localhost:4173";
 const OUT = process.argv[2] || "qa-shots";
-const PAGES = ["/", "/kategoria/ing/", "/termek/klasszikus-feher-ing/", "/termek/megkotos-dereku-blezer/", "/kategoria/ing-ruha/", "/kategoria/mellenyek/", "/akcio/", "/adatkezelesi-tajekoztato/", "/404.html"];
+const PAGES = ["/", "/kollekcio/", "/tervezd-meg/", "/lookbook/", "/kedvencek/", "/kategoria/ing/", "/termek/klasszikus-feher-ing/", "/termek/megkotos-dereku-blezer/", "/kategoria/ing-ruha/", "/kategoria/mellenyek/", "/akcio/", "/adatkezelesi-tajekoztato/", "/404.html"];
 const VIEWPORTS = [["desktop", 1440, 900], ["phone", 390, 844]];
 
 (async () => {
