@@ -73,6 +73,8 @@ const SITE = {
   city: "Budapest",
   zip: "1027",
   address: "1027 Budapest, Kapás utca 45/B",
+  addressFull: "1027 Budapest, II. kerület, Kapás utca 45/B",
+  district: "II. kerület",
   hours: "Kedd–csütörtök 10–18, péntek 10–16, szombaton egyeztetés szerint",
   hoursShort: "K–Cs 10–18, P 10–16",
   facebook: "https://www.facebook.com/inmystyle.hu",
@@ -206,7 +208,7 @@ function header(active = "") {
 <div class="topbar">
   <div class="container">
     <span>${I.clock}Nyitva: ${SITE.hoursShort}</span>
-    <span class="topbar-hide-m">${I.pin}${SITE.address}</span>
+    <span class="topbar-hide-m">${I.pin}Budapest II. kerület, Kapás utca 45/B</span>
     <a class="topbar-hide-m" href="${SITE.phoneHref}">${SITE.phone}</a>
   </div>
 </div>
@@ -248,7 +250,7 @@ function header(active = "") {
   </nav>
   <div class="drawer-foot">
     <div class="row"><a class="btn btn-dark" href="/#idopont">${I.calendar}Időpontfoglalás</a><a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}${SITE.phone}</a></div>
-    <div class="drawer-contact"><span>${SITE.address}</span><span>${SITE.hoursShort}</span><a href="${SITE.instagram}" target="_blank" rel="noopener">Instagram</a><a href="${SITE.facebook}" target="_blank" rel="noopener">Facebook</a></div>
+    <div class="drawer-contact"><span>${SITE.addressFull}</span><span>${SITE.hoursShort}</span><a href="${SITE.instagram}" target="_blank" rel="noopener">Instagram</a><a href="${SITE.facebook}" target="_blank" rel="noopener">Facebook</a></div>
   </div>
 </aside>`;
 }
@@ -310,7 +312,7 @@ function footer() {
       <div>
         <h3>Kapcsolat</h3>
         <ul class="footer-links">
-          <li><a href="${SITE.maps}" target="_blank" rel="noopener">${SITE.address}</a></li>
+          <li><a href="${SITE.maps}" target="_blank" rel="noopener">${SITE.addressFull}</a></li>
           <li><a href="${SITE.phoneHref}">${SITE.phone}</a></li>
           <li><a href="mailto:${SITE.email}">${SITE.email}</a></li>
           <li><a href="${SITE.messenger}" target="_blank" rel="noopener">Írj Messengeren</a> · <a href="${SITE.whatsapp}" target="_blank" rel="noopener">WhatsApp</a></li>
@@ -414,7 +416,7 @@ function contactSection() {
     <div class="section-head">
       <div class="eyebrow">Kapcsolat</div>
       <h2 class="h2" id="kapcsolat-cim">Foglalj időpontot a szalonba</h2>
-      <p class="lead">Kérdésed van, vagy rendelni szeretnél? Foglalj időpontot online, vagy keress minket az alábbi elérhetőségek egyikén. Szeretettel várlak: Mitterer Szilvia.</p>
+      <p class="lead">Szalonunk Budán, a II. kerületben, a Kapás utcában vár. Kérdésed van, vagy rendelni szeretnél? Foglalj időpontot online, vagy keress minket az alábbi elérhetőségek egyikén. Szeretettel várlak: Mitterer Szilvia.</p>
     </div>
     <div class="call-band" id="idopont">
       <div><h3>Hívj, vagy írj nekünk!</h3><p>Egyetlen hívással vagy üzenettel azonnal egyeztetünk időpontot.</p></div>
@@ -424,7 +426,7 @@ function contactSection() {
       <div class="contact-card">
         <h3 class="h3">In My Style szalon</h3>
         <ul class="contact-list">
-          <li><span class="ico">${I.pin}</span><div><small>Cím</small><a href="${SITE.maps}" target="_blank" rel="noopener">${SITE.address}</a></div></li>
+          <li><span class="ico">${I.pin}</span><div><small>Cím</small><a href="${SITE.maps}" target="_blank" rel="noopener">${SITE.addressFull}</a></div></li>
           <li><span class="ico">${I.phone}</span><div><small>Telefon</small><a href="${SITE.phoneHref}">${SITE.phone}</a></div></li>
           <li><span class="ico">${I.mail}</span><div><small>E-mail</small><a href="mailto:${SITE.email}">${SITE.email}</a></div></li>
           <li><span class="ico">${I.clock}</span><div><small>Nyitvatartás</small>${SITE.hours}</div></li>
@@ -557,7 +559,7 @@ const HELP = [
   { id: "atfutas", q: "Mennyi idő alatt készül el?", k: ["ido", "idot", "meddig", "atfutas", "hatarido", "het", "hetet", "napot", "surgos", "gyors", "gyorsan", "elkeszul"],
     a: "Egy egyedi darab jellemzően 1–2 hét alatt készül el, egy igazítás 1–3 nap alatt. Sürgős esetben felár ellenében gyorsabban is vállaljuk; ennek mértéke a megrendeléstől függ." },
   { id: "nyitvatartas", q: "Hol vagytok, mikor vagytok nyitva?", k: ["nyitva", "nyitvatartas", "nyit", "zar", "zarva", "cim", "cimetek", "hol", "kapas", "hetfo", "kedd", "szerda", "csutortok", "pentek", "szombat", "vasarnap", "parkol", "parkolo", "parkolas", "megkozelit", "akadalymentes", "terkep", "utvonal", "buda", "metro", "villamos", "batthyany", "szalon", "uzlet", "bolt"],
-    a: `${SITE.address}. Nyitvatartás: kedd–csütörtök 10–18, péntek 10–16, szombaton egyeztetés szerint, hétfőn zárva. Parkolni az utcán, a szalon előtt és a környéken lehet. A bejárat nem akadálymentes.`,
+    a: `Szalonunk a II. kerületben van: ${SITE.address}. Nyitvatartás: kedd–csütörtök 10–18, péntek 10–16, szombaton egyeztetés szerint, hétfőn zárva. Parkolni az utcán, a szalon előtt és a környéken lehet. A bejárat nem akadálymentes.`,
     cta: ["Útvonaltervezés", SITE.maps] },
   { id: "idopont", q: "Hogyan foglalhatok időpontot?", k: ["idopont", "idopontot", "foglal", "foglalas", "bejelentkez", "konzultacio", "talalkoz", "calendly", "bejon", "bemenni", "eljonni", "meretvetel"],
     a: "Az első, körülbelül 30 perces konzultáció és a méretvétel díjmentes. Foglalhatsz online, hívhatsz minket, vagy írhatsz Messengeren. Nyitvatartási időben bejelentkezés nélkül is betérhetsz, de foglalással biztosan ráérünk.",
@@ -588,7 +590,7 @@ const HELP = [
     a: "Igen. Stílustanácsadást és ruhatár-összeállítást is vállalunk: a konzultáción átbeszéljük, milyen fazonok és színek állnak jól neked, és mit érdemes a ruhatáradba tervezni.",
     cta: ["Időpontot foglalok", "/#idopont"] },
   { id: "rolunk", q: "Kik vagytok?", k: ["rolunk", "kik", "szilvia", "mitterer", "tulajdonos", "tortenet", "miota", "csapat"],
-    a: "Az In My Style 2019 óta működik Buda szívében: exkluzív ruhaüzlet és méretes szabóság a 35 év feletti nőknek, a sportos elegancia jegyében. Az ügyfeleket személyesen Mitterer Szilvia fogadja.",
+    a: "Az In My Style 2019 óta működik Buda szívében, a II. kerületben: exkluzív ruhaüzlet és méretes szabóság a 35 év feletti nőknek, a sportos elegancia jegyében. Az ügyfeleket személyesen Mitterer Szilvia fogadja.",
     cta: ["Rólunk", "/#rolunk"] },
   { id: "velemenyek", q: "Mit mondanak rólatok a vásárlók?", k: ["velemeny", "velemenyek", "ertekeles", "ertekelesek", "ajanljak", "referencia", "tapasztalat", "csillag"],
     a: `A Facebookon ${SITE.fbRating.percent}% ajánl minket ${SITE.fbRating.count} értékelés alapján, az oldalon pedig vásárlóink saját szavaival is olvashatsz a tapasztalataikról.`,
@@ -678,7 +680,7 @@ const businessLd = {
   "@type": "ClothingStore",
   "@id": SITE.url + "/#szalon",
   name: "In My Style",
-  description: "Méretes szabóság és exkluzív ruhaüzlet 35 év feletti nőknek Budán: egyedi méretre készülő női ruhák, válogatott kollekció, igazítás és javítás.",
+  description: "Méretes szabóság és exkluzív ruhaüzlet 35 év feletti nőknek Budapest II. kerületében: egyedi méretre készülő női ruhák, válogatott kollekció, igazítás és javítás.",
   foundingDate: "2019",
   areaServed: { "@type": "City", name: "Budapest" },
   paymentAccepted: "Készpénz, bankkártya, átutalás",
@@ -730,9 +732,9 @@ function homePage() {
   <div class="hero-media">${pic("hero-szilvia-2.jpg", "Mitterer Szilvia, az In My Style alapítója, saját tervezésű sötétkék kosztümben", { eager: true })}</div>
   <div class="container">
     <div class="hero-inner">
-      <div class="eyebrow">Budapesti szalon · Kapás utca 45/B</div>
+      <div class="eyebrow">Budapest II. kerület · Kapás utca 45/B</div>
       <h1 id="hero-cim">Egyedi méretre készülő női ruhák <span class="script">rád szabva</span></h1>
-      <p class="lead">Sportos elegancia, kényelem és nőiesség: minden darabot a te alkatodra, a te ízlésed szerint készítünk el — a konzultációtól az utolsó próbáig.</p>
+      <p class="lead">Sportos elegancia, kényelem és nőiesség: minden darabot a te alkatodra, a te ízlésed szerint készítünk, a konzultációtól az utolsó próbáig.</p>
       <div class="hero-actions">
         <a class="btn btn-light" href="#idopont">${I.calendar}Időpontot foglalok</a>
         <a class="btn btn-outline-light" href="#kollekcio">Kollekció megtekintése</a>
@@ -851,16 +853,16 @@ ${configuratorTeaser()}
 
 <section class="section bg-ink" id="rolunk" aria-labelledby="rolunk-cim">
   <div class="container split">
-    <div class="split-media reveal">${pic("npAcJL2BvKL0vi51wMBNg1Ozks.png", "Az In My Style szalon a Kapás utcában")}</div>
+    <div class="split-media reveal">${pic("npAcJL2BvKL0vi51wMBNg1Ozks.png", "Az In My Style szalon a II. kerületi Kapás utcában")}</div>
     <div class="split-body">
       <div class="eyebrow" style="color:#a9c6e2">Rólunk</div>
       <h2 class="h2" id="rolunk-cim">Valódi nőknek, valódi nőktől</h2>
-      <p class="lead" style="color:#d5dde0">2019 óta Buda szívében: exkluzív ruhaüzlet és méretes szabóság a 35 év feletti nőknek, a sportos elegancia jegyében.</p>
+      <p class="lead" style="color:#d5dde0">2019 óta Buda szívében, a II. kerületben: exkluzív ruhaüzlet és méretes szabóság a 35 év feletti nőknek, a sportos elegancia jegyében.</p>
       <p style="color:#c9d3d6">Célunk, hogy minden nő megtapasztalja a személyre szabott luxust — akár a hétköznapokban is —, és hogy a ruhái igazán kiemeljék az egyéniségét. Üzleti, sportos megjelenés, kényelem és nőiesség, a megfizethetőség jegyében.</p>
       <ul class="checklist checklist-light" style="color:#e6ecee">
         <li>Személyes konzultáció Mitterer Szilviával</li>
         <li>Tanácsadással egybekötött, személyre szabott kiszolgálás</li>
-        <li>Szalonhangulat a Kapás utcában, szezonális frissítőkkel</li>
+        <li>Szalonhangulat a II. kerületi Kapás utcában, szezonális frissítőkkel</li>
       </ul>
       <a class="btn btn-light" href="#kapcsolat">Látogass el hozzánk</a>
     </div>
@@ -924,8 +926,8 @@ ${quoteSection()}
 ${faqSection()}
 ${contactSection()}`;
   return page({
-    title: "In My Style – egyedi méretre készülő női ruhák Budapesten",
-    description: "Méretes szabóság 35 év feletti nőknek Budán: egyedi méretre készülő női ruhák, igazítás és válogatott kollekció. Díjmentes első konzultáció a Kapás utca 45/B-ben.",
+    title: "In My Style – méretre készülő női ruhák, Budapest II. kerület",
+    description: "Méretes szabóság 35 év feletti nőknek Budán: egyedi méretre készülő női ruhák, igazítás és válogatott kollekció. Díjmentes első konzultáció a II. kerületi szalonban.",
     url: "/",
     image: "/assets/icons/og-image.jpg",
     jsonld: [businessLd, { "@context": "https://schema.org", "@type": "WebSite", name: "In My Style", url: SITE.url + "/", inLanguage: "hu-HU" }, faqLd],
@@ -975,7 +977,7 @@ ${faqSection()}
 ${contactSection()}`;
   return page({
     title: `${c.title} – In My Style, Budapest`,
-    description: `${c.intro} Budapesti szalon: 1027 Budapest, Kapás utca 45/B`.slice(0, 300),
+    description: `${c.intro} Szalonunk: Budapest II. kerület, Kapás utca 45/B.`.slice(0, 300),
     url: catUrl(c),
     image: `/assets/photos/${c.heroPhoto}`,
     jsonld: [breadcrumbLd(crumbs), {
@@ -1047,7 +1049,7 @@ ${related.length ? `<section class="section" aria-labelledby="hasonlo-cim">
 ${contactSection()}`;
   return page({
     title: `${p.name} – ${c.name} | In My Style`,
-    description: `${p.description} ${p.price ? `Ár: ${p.price}.` : "Ár egyeztetés alapján."} In My Style szalon, 1027 Budapest, Kapás utca 45/B`,
+    description: `${p.description} ${p.price ? `Ár: ${p.price}.` : "Ár egyeztetés alapján."} In My Style szalon: Budapest II. kerület, Kapás utca 45/B.`,
     url: prodUrl(p),
     image: `/assets/photos/${p.photos[0]}`,
     jsonld: [breadcrumbLd(crumbs), productLd],
