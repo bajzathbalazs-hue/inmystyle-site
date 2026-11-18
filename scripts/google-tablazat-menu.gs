@@ -11,7 +11,7 @@ var PROPS = PropertiesService.getScriptProperties();
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   ui.createMenu("Weboldal")
-    .addItem("📷 Fotó feltöltése a kijelölt termékhez", "openUploader")
+    .addItem("📷 Fotó feltöltése a kijelölt sorhoz", "openUploader")
     .addItem("✔️ Ellenőrzés", "checkOnly")
     .addSeparator()
     .addItem("🚀 Weboldal frissítése", "publish")
@@ -43,6 +43,23 @@ function setBuildHook() {
 /* ---------- segédfüggvények ---------- */
 function book() { return SpreadsheetApp.openById(SHEET_ID); }
 function productSheet() { var sh = book().getSheetByName("Termékek"); if (!sh) throw new Error("Nem találom a Termékek lapot."); return sh; }
+function guestSheet() {
+  var ss = book(), sh = ss.getSheetByName("Vendégfotók");
+  if (!sh) {
+    sh = ss.insertSheet("Vendégfotók");
+    sh.getRange(1, 1, 1, 4).setValues([["Megjelenik", "Fotó", "Felirat (nem kötelező)", "Előnézet"]]).setFontWeight("bold");
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+/* Vendégfotók lap: A = Megjelenik (jelölőnégyzet), B = fotó (drive:… vagy fájlnév), C = felirat */
+function readGuests() {
+  var sh = book().getSheetByName("Vendégfotók");
+  if (!sh || sh.getLastRow() < 2) return [];
+  return sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues()
+    .filter(function (r) { return r[0] === true && String(r[1]).trim(); })
+    .map(function (r) { return { photo: String(r[1]).split(",")[0].trim(), caption: String(r[2]).trim() }; });
+}
 function slugify(s) { return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60); }
 function json(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
 
@@ -50,6 +67,7 @@ function json(o) { return ContentService.createTextOutput(JSON.stringify(o)).set
 function doGet(e) {
   var mode = (e && e.parameter && e.parameter.mode) || "products";
   if (mode === "products") { var r = readProducts(); return json({ ok: true, products: r.products, errors: r.errors, at: new Date().toISOString() }); }
+  if (mode === "guests") return json({ ok: true, guests: readGuests() });
   if (mode === "photo") {
     var id = String(e.parameter.id || "");
     var file = DriveApp.getFileById(id);
@@ -76,35 +94,45 @@ function doPost(e) {
 function openUploader() {
   var sh = SpreadsheetApp.getActiveSheet(), ui = SpreadsheetApp.getUi();
   var row = sh.getActiveRange() ? sh.getActiveRange().getRow() : 0;
-  if (sh.getName() !== "Termékek" || row < 2) { ui.alert("Előbb kattints a Termékek lapon annak a terméknek a sorára, amelyikhez a fotót töltöd fel."); return; }
+  if (sh.getName() === "Vendégfotók") {
+    if (row < 2) { ui.alert("Kattints a Vendégfotók lapon egy üres sorra, és utána válaszd újra ezt a menüpontot."); return; }
+    ui.showSidebar(HtmlService.createHtmlOutput(uploaderHtml(row, "Vendégfotó", "guest")).setTitle("Vendégfotó feltöltése"));
+    return;
+  }
+  if (sh.getName() !== "Termékek" || row < 2) { ui.alert("Előbb kattints a Termékek lapon annak a terméknek a sorára (vagy a Vendégfotók lapon egy sorra), amelyikhez a fotót töltöd fel."); return; }
   var name = sh.getRange(row, COL.name).getValue();
   if (!name) { ui.alert("Ebben a sorban még nincs terméknév. Előbb írd be a termék nevét."); return; }
-  ui.showSidebar(HtmlService.createHtmlOutput(uploaderHtml(row, String(name))).setTitle("Fotó feltöltése"));
+  ui.showSidebar(HtmlService.createHtmlOutput(uploaderHtml(row, String(name), "product")).setTitle("Fotó feltöltése"));
 }
 
-function uploaderHtml(row, name) {
+function uploaderHtml(row, name, kind) {
   var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   return '<!doctype html><html><head><base target="_top"><style>' +
     'body{font-family:Arial,sans-serif;font-size:14px;color:#1b1d1f;margin:14px}h3{margin:0 0 4px;font-size:16px}p{color:#5b6567;margin:0 0 14px;line-height:1.45}' +
     '.drop{display:block;border:2px dashed #b9c6c8;border-radius:12px;padding:22px 12px;text-align:center;cursor:pointer;background:#f6f8f8}.drop:hover{border-color:#1b1d1f}' +
     'input{display:none}.list{margin-top:14px;display:grid;gap:8px}.item{display:flex;gap:10px;align-items:center;font-size:13px}.item img{width:48px;height:60px;object-fit:cover;border-radius:6px;background:#eee}' +
     '.ok{color:#2e7d32}.err{color:#b8325a}.btn{margin-top:16px;width:100%;padding:10px;border:0;border-radius:999px;background:#1b1d1f;color:#fff;font-size:14px;cursor:pointer}' +
-    '</style></head><body><h3>' + esc(name) + '</h3><p>' + row + '. sor. Válaszd ki a fotókat. Az első fotó lesz a fő kép. A képeket feltöltés előtt automatikusan kicsinyítjük.</p>' +
+    '</style></head><body><h3>' + esc(name) + '</h3><p>' + row + '. sor. ' + (kind === "guest" ? 'Válassz ki egy vagy több fotót: mindegyik külön sorba kerül, és azonnal megjelenik az oldalon a következő frissítéskor.' : 'Válaszd ki a fotókat. Az első fotó lesz a fő kép.') + ' A képeket feltöltés előtt automatikusan kicsinyítjük.</p>' +
     '<label class="drop">📷 Fotók kiválasztása<input id="f" type="file" accept="image/*" multiple></label><div class="list" id="l"></div>' +
     '<button class="btn" onclick="google.script.host.close()">Kész</button>' +
-    '<script>var ROW=' + row + ';' +
+    '<script>var ROW=' + row + ',KIND="' + kind + '";' +
     'function resize(file){return new Promise(function(ok,bad){var r=new FileReader();r.onload=function(){var img=new Image();img.onload=function(){var m=1600,w=img.width,h=img.height,s=Math.min(1,m/Math.max(w,h));var c=document.createElement("canvas");c.width=Math.round(w*s);c.height=Math.round(h*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",0.85));};img.onerror=function(){bad(new Error("A kép nem olvasható. iPhone-fotónál a Fotók appban válaszd a Megosztás → Mentés fájlba lehetőséget JPG-ként."));};img.src=r.result;};r.readAsDataURL(file);});}' +
     'document.getElementById("f").addEventListener("change",async function(e){var files=[].slice.call(e.target.files);for(var i=0;i<files.length;i++){var it=document.createElement("div");it.className="item";it.innerHTML="<img><span>Feltöltés…</span>";document.getElementById("l").appendChild(it);' +
-    'try{var d=await resize(files[i]);it.querySelector("img").src=d;await new Promise(function(ok,bad){google.script.run.withSuccessHandler(ok).withFailureHandler(bad).uploadPhoto(ROW,d);});it.querySelector("span").className="ok";it.querySelector("span").textContent="Feltöltve ✓";}' +
+    'try{var d=await resize(files[i]);it.querySelector("img").src=d;await new Promise(function(ok,bad){google.script.run.withSuccessHandler(ok).withFailureHandler(bad).uploadPhoto(ROW,d,KIND);if(KIND==="guest")ROW++;});it.querySelector("span").className="ok";it.querySelector("span").textContent="Feltöltve ✓";}' +
     'catch(err){it.querySelector("span").className="err";it.querySelector("span").textContent="Hiba: "+(err.message||err);}}e.target.value="";});' +
     '</script></body></html>';
 }
 
-function uploadPhoto(row, dataUrl) {
-  var sh = productSheet();
-  var name = sh.getRange(row, COL.name).getValue();
-  var slug = sh.getRange(row, COL.slug).getValue() || slugify(name);
-  if (!sh.getRange(row, COL.slug).getValue()) sh.getRange(row, COL.slug).setValue(slug);
+function uploadPhoto(row, dataUrl, kind) {
+  var guest = kind === "guest";
+  var sh = guest ? guestSheet() : productSheet();
+  var slug;
+  if (guest) slug = "vendegfoto";
+  else {
+    var name = sh.getRange(row, COL.name).getValue();
+    slug = sh.getRange(row, COL.slug).getValue() || slugify(name);
+    if (!sh.getRange(row, COL.slug).getValue()) sh.getRange(row, COL.slug).setValue(slug);
+  }
   var file = slug + "-" + Utilities.formatDate(new Date(), "Europe/Budapest", "yyyyMMdd-HHmmss") + ".jpg";
   var b64 = String(dataUrl).split(",")[1];
   var id;
@@ -123,6 +151,7 @@ function uploadPhoto(row, dataUrl) {
     if (!out.ok) throw new Error("A feltöltés nem sikerült (" + out.error + ").");
     id = out.id;
   }
+  if (guest) { sh.getRange(row, 1).setValue(true); sh.getRange(row, 2).setValue("drive:" + id); return id; }
   var cell = sh.getRange(row, COL.photos), cur = String(cell.getValue() || "").trim();
   cell.setValue(cur ? cur + ", drive:" + id : "drive:" + id);
   return id;

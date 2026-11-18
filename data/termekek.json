@@ -1,5 +1,286 @@
 [
   {
+    "slug": "fodros-puplin-ing-feher",
+    "category": "ing",
+    "name": "Fodros puplin ing, fehér",
+    "type": "import",
+    "photos": [
+      "fodros-puplin-ing-feher.jpg"
+    ],
+    "price": "32 900 Ft",
+    "description": "Karcsúsított fehér ing finom fodros díszítéssel, rugalmas pamut puplinból. Készleten S méretben, egyedi méretre is elkészítjük.",
+    "specs": {
+      "Anyag": "Pamut elasztikus puplin",
+      "Szín": "Fehér",
+      "Méret": "S, vagy egyedi méretre"
+    },
+    "badge": "Készleten: 1 db"
+  },
+  {
+    "slug": "fodros-puplin-ing-vilagoskek-csikos",
+    "category": "ing",
+    "name": "Fodros puplin ing, világoskék csíkos",
+    "type": "import",
+    "photos": [
+      "fodros-puplin-ing-vilagoskek-csikos.jpg"
+    ],
+    "price": "34 900 Ft",
+    "description": "Világoskék csíkos ing fodros gallérral és fehér mandzsettával. Méretre szabva is megrendelhető.",
+    "specs": {
+      "Anyag": "Pamut elasztikus puplin",
+      "Szín": "Világoskék csíkos",
+      "Méret": "M"
+    },
+    "badge": "Jelenleg elfogyott, rendelhető"
+  },
+  {
+    "slug": "kis-zsabos-csikos-ing",
+    "category": "ing",
+    "name": "Kis zsabós csíkos ing",
+    "type": "import",
+    "photos": [
+      "kis-zsabos-csikos-ing.jpg"
+    ],
+    "price": "34 900 Ft",
+    "description": "Királykék-fehér csíkos ing fehér zsabóval és kontrasztos fehér mandzsettával. Méretre szabva is megrendelhető.",
+    "specs": {
+      "Szín": "Királykék-fehér csíkos",
+      "Méret": "L"
+    },
+    "badge": "Készleten: 1 db",
+    "featured": true
+  },
+  {
+    "slug": "nagy-zsabos-ing-navy",
+    "category": "ing",
+    "name": "Nagy zsabós ing",
+    "type": "import",
+    "photos": [
+      "nagy-zsabos-ing-navy.jpg"
+    ],
+    "price": "34 900 Ft",
+    "description": "Navy kék ing látványos, nagy zsabóval: elegáns darab irodába és alkalmakra. Méretre szabva is megrendelhető.",
+    "specs": {
+      "Szín": "Navy kék",
+      "Méret": "L"
+    },
+    "badge": "Készleten: 1 db"
+  },
+  {
+    "slug": "szatenselyem-ing-pink",
+    "category": "ing",
+    "name": "Szaténselyem ing, pink",
+    "type": "import",
+    "photos": [
+      "szatenselyem-ing-pink.jpg"
+    ],
+    "price": "32 900 Ft → 23 030 Ft",
+    "description": "Fényes pink szaténselyem ing mellzsebbel. Most 30% kedvezménnyel.",
+    "specs": {
+      "Anyag": "Szaténselyem",
+      "Szín": "Pink",
+      "Méret": "M"
+    },
+    "badge": "Akció −30%",
+    "sale": true
+  },
+  {
+    "slug": "emily-ing",
+    "category": "ing",
+    "name": "Emily ing",
+    "type": "import",
+    "photos": [
+      "emily-ing-feher.jpg"
+    ],
+    "price": "34 900 Ft",
+    "description": "Fehér, karcsúsított Emily ing rugalmas pamut puplinból, álló gallérral. Méretre szabva is megrendelhető.",
+    "specs": {
+      "Anyag": "Pamut elasztikus puplin",
+      "Szín": "Fehér",
+      "Méret": "M"
+    },
+    "badge": "Jelenleg elfogyott, rendelhető"
+  },
+  {
+    "slug": "klasszikus-szukitett-ing",
+    "category": "ing",
+    "name": "Klasszikus szűkített ing",
+    "type": "import",
+    "photos": [
+      "klasszikus-szukitett-ing-fekete.jpg"
+    ],
+    "price": "32 900 Ft → 23 030 Ft",
+    "description": "Klasszikus, szűkített fazonú ing fekete és narancs színben. Most 30% kedvezménnyel.",
+    "specs": {
+      "Szín": "Fekete, narancs",
+      "Méret": "S"
+    },
+    "badge": "Akció −30%",
+    "sale": true
+  },
+  {
+    "slug": "klasszikus-ing-hasitott-ujjal",
+    "category": "ing",
+    "name": "Klasszikus ing hasított ujjal",
+    "type": "import",
+    "photos": [
+      "feher-ing-hasitott-ujj-utcan.jpg",
+      "feher-ing-hasitott-ujj-falnal.jpg",
+      "feher-ing-hasitott-ujj-mandzsetta.jpg",
+      "feher-ing-hasitott-ujj-reszlet.jpg"
+    ],
+    "price": "34 900 Ft",
+    "description": "Fehér klasszikus ing hasított ujjal: a mandzsetta nyitott, finom részlete teszi különlegessé. Méretre szabva is megrendelhető.",
+    "specs": {
+      "Szín": "Fehér",
+      "Méret": "M"
+    },
+    "badge": "Készleten: 1 db"
+  },
+  {
+    "slug": "western-boss-szovet-ingruha",
+    "category": "ing-ruha",
+    "name": "WESTERN Boss szövet ingruha",
+    "type": "import",
+    "photos": [
+      "western-boss-szovet-ingruha.jpg"
+    ],
+    "price": "44 900 Ft",
+    "description": "Ingruha rugalmas Boss szövetből, kontrasztos paszpóllal és megkötős övvel. Bézs színben készleten, szürke, kék, fekete és fungo színben rendelhető.",
+    "specs": {
+      "Anyag": "Elasztikus szövet",
+      "Szín": "Bézs; választható: szürke, kék, fekete, fungo",
+      "Méret": "M"
+    },
+    "badge": "Készleten: 1 db"
+  },
+  {
+    "slug": "kevin-ingruha",
+    "category": "ing-ruha",
+    "name": "KEVIN ingruha",
+    "type": "import",
+    "photos": [
+      "kevin-ingruha-navy-kek-csikos.jpg"
+    ],
+    "price": "44 500 Ft → 31 150 Ft",
+    "description": "Navy kék ingruha csíkos betéttel és megkötős övvel. Két változatban: kék csíkos és piros csíkos betéttel. Most 30% kedvezménnyel.",
+    "specs": {
+      "Szín": "Navy kék – kék csíkos; navy kék – piros csíkos",
+      "Méret": "M"
+    },
+    "badge": "Akció −30%",
+    "sale": true
+  },
+  {
+    "slug": "zippes-szovet-ruha",
+    "category": "ing-ruha",
+    "name": "Zippes szövet ruha",
+    "type": "egyedi",
+    "photos": [
+      "zippes-szovet-ruha-szinek.jpg"
+    ],
+    "price": "44 900 Ft",
+    "description": "Cipzáras, megkötős derekú szövet ruha, amely rendelésre, a te méretedre készül. A szín választható.",
+    "specs": {
+      "Anyag": "Boss szövet",
+      "Szín": "Választható",
+      "Méret": "Egyedi méretre"
+    },
+    "badge": "Csak rendelésre"
+  },
+  {
+    "slug": "szaten-unnepi-ingruha",
+    "category": "unnepi-kollekcio",
+    "name": "Szatén ünnepi ingruha",
+    "type": "import",
+    "photos": [
+      "szaten-unnepi-ingruha.jpg",
+      "szaten-unnepi-ingruha-reszlet.jpg"
+    ],
+    "price": "44 900 Ft",
+    "description": "Égkék zsorzsett szatén ingruha puffos ujjal, ékszergombokkal és megkötős övvel: az ünnepi kollekció egyik darabja.",
+    "specs": {
+      "Anyag": "Zsorzsett szatén",
+      "Szín": "Égkék",
+      "Méret": "M"
+    },
+    "badge": "Készleten: 1 db",
+    "featured": true
+  },
+  {
+    "slug": "ruha-harang-ujjal",
+    "category": "unnepi-kollekcio",
+    "name": "Ruha harang ujjal",
+    "type": "import",
+    "photos": [
+      "ruha-harang-ujjal-navy.jpg"
+    ],
+    "price": "42 500 Ft",
+    "description": "Navy kék, testhez simuló ruha harangujjal, Barbi szövetből. Más színben is rendelhető.",
+    "specs": {
+      "Anyag": "Barbi szövet",
+      "Szín": "Navy; választható",
+      "Méret": "M"
+    },
+    "badge": "Készleten: 1 db"
+  },
+  {
+    "slug": "navy-pottyos-maxi-szoknya",
+    "category": "szoknyak",
+    "name": "Navy pöttyös maxi szoknya",
+    "type": "import",
+    "photos": [
+      "navy-pottyos-maxi-szoknya.jpg"
+    ],
+    "price": "32 500 Ft",
+    "description": "Navy-fehér pöttyös maxi szoknya megkötős övvel, Barbi szövetből. Méretre szabva is megrendelhető.",
+    "specs": {
+      "Anyag": "Barbi szövet",
+      "Szín": "Navy-fehér",
+      "Méret": "M"
+    },
+    "badge": "Készleten: 1 db"
+  },
+  {
+    "slug": "strasszos-ing",
+    "category": "limitalt-darabok",
+    "name": "Strasszos ing",
+    "type": "import",
+    "photos": [
+      "strasszos-ing-fekete.jpg",
+      "strasszos-ing-barna.jpg"
+    ],
+    "price": "24 900 Ft",
+    "description": "Csillogó, strasszos szaténselyem ing fekete és barna színben. Limitált darab, csak néhány méretben.",
+    "specs": {
+      "Anyag": "Szaténselyem",
+      "Szín": "Fekete (M/L); barna (S/M, M/L)",
+      "Méret": "S/M, M/L"
+    },
+    "badge": "Limitált: 3 db",
+    "featured": true
+  },
+  {
+    "slug": "zsebes-kabatka",
+    "category": "kabatok",
+    "name": "Zsebes kabátka",
+    "type": "import",
+    "photos": [
+      "zsebes-kabatka-barna.jpg",
+      "zsebes-kabatka-bezs.jpg"
+    ],
+    "price": "16 900 Ft → 15 210 Ft",
+    "description": "Rövid, aszimmetrikus gallérú kabátka nagy zsebbel, barna és bézs színben, egy méretben. Most 10% kedvezménnyel.",
+    "specs": {
+      "Anyag": "Kabátszövet",
+      "Szín": "Barna, bézs",
+      "Méret": "Egy méret"
+    },
+    "badge": "Akció −10%",
+    "featured": true,
+    "sale": true
+  },
+  {
     "slug": "megkotos-dereku-blezer",
     "category": "blezer",
     "name": "Megkötős derekú blézer",
@@ -17,8 +298,7 @@
       "Fazon": "Kétsoros, karcsúsított, megkötős övvel",
       "Szín": "A képen fehér, vajszín és teveszín",
       "Méret": "Egyedi méretre szabva"
-    },
-    "featured": true
+    }
   },
   {
     "slug": "megkotos-dereku-ing",
@@ -36,8 +316,7 @@
       "Fazon": "Elöl megkötős, karcsúsított",
       "Szín": "A képen fehér, vajszín és világoskék",
       "Méret": "Egyedi méretre szabva"
-    },
-    "featured": true
+    }
   },
   {
     "slug": "vilagoskek-ketsoros-blezer",
@@ -53,8 +332,7 @@
       "Fazon": "Kétsoros, karcsúsított",
       "Szín": "Világoskék, arany gombokkal",
       "Méret": "Egyedi méretre szabva"
-    },
-    "featured": true
+    }
   },
   {
     "slug": "piros-ketsoros-blezer",
@@ -199,8 +477,7 @@
       "Fazon": "Midi ingruha, megkötős, zsebes",
       "Szín": "Rózsaszín-fehér csíkos",
       "Méret": "Egyedi méretre szabva"
-    },
-    "featured": true
+    }
   },
   {
     "slug": "feher-megkotos-ingruha",
@@ -231,25 +508,6 @@
     "specs": {
       "Fazon": "Egyenes szabású, rövid ujjú",
       "Szín": "Sötétkék",
-      "Méret": "Egyedi méretre szabva"
-    }
-  },
-  {
-    "slug": "feher-ing-hasitott-ujjal",
-    "category": "ing",
-    "name": "Fehér ing hasított ujjal",
-    "type": "egyedi",
-    "photos": [
-      "feher-ing-hasitott-ujj-utcan.jpg",
-      "feher-ing-hasitott-ujj-falnal.jpg",
-      "feher-ing-hasitott-ujj-mandzsetta.jpg",
-      "feher-ing-hasitott-ujj-reszlet.jpg"
-    ],
-    "price": "",
-    "description": "Átlapolt elejű fehér ing hosszan hasított ujjal és gombos mandzsettával: a klasszikus ing játékos, nőies változata.",
-    "specs": {
-      "Fazon": "Átlapolt elejű, hasított ujjú",
-      "Szín": "Fehér",
       "Méret": "Egyedi méretre szabva"
     }
   },
@@ -407,17 +665,6 @@
     "description": "Élénk pink alkalmi ruha — kiárusításban, amíg a készlet tart.",
     "badge": "Kiárusítás",
     "sale": true
-  },
-  {
-    "slug": "unnepi-kollekcio-darab",
-    "category": "aktualis-ruhak",
-    "name": "Ünnepi kollekció darab",
-    "type": "egyedi",
-    "photos": [
-      "6es6MykWWyAqSyt10cTe4pX4k.png"
-    ],
-    "price": "",
-    "description": "Az aktuális ünnepi kollekció egyik kedvenc darabja."
   },
   {
     "slug": "bordzseki",

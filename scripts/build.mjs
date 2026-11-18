@@ -39,6 +39,30 @@ if (SHEET_API) {
   } catch (e) { console.warn("Figyelmeztetés: a táblázat nem érhető el (" + e.message + "), a tárolóban lévő termékadatokkal építek."); }
 }
 
+/* Vendégfotók: a táblázat „Vendégfotók” lapja, ha elérhető; különben a data/vendegfotok.json. */
+let RAW_GUESTS = fs.existsSync(path.join(ROOT, "data/vendegfotok.json")) ? JSON.parse(fs.readFileSync(path.join(ROOT, "data/vendegfotok.json"), "utf8")) : [];
+if (SHEET_API) {
+  try {
+    const d = await fetchJson(SHEET_API + "?mode=guests");
+    if (!d.ok || !Array.isArray(d.guests)) throw new Error("hibás válasz");
+    const out = [];
+    for (const g of d.guests) {
+      let ph = String(g.photo || "").trim();
+      if (ph.startsWith("drive:")) {
+        const id = ph.slice(6).replace(/[^A-Za-z0-9_-]/g, ""), file = `drive-${id}.jpg`, dst = path.join(ROOT, "assets/photos", file);
+        if (!fs.existsSync(dst)) {
+          try { const f = await fetchJson(`${SHEET_API}?mode=photo&id=${encodeURIComponent(id)}`); if (f.ok) fs.writeFileSync(dst, Buffer.from(f.b64, "base64")); else throw new Error(f.error); }
+          catch (e) { console.warn(`Figyelmeztetés: a(z) ${id} vendégfotó nem tölthető le (${e.message})`); continue; }
+        }
+        ph = file;
+      }
+      if (ph) out.push({ photo: ph, caption: String(g.caption || "").trim() });
+    }
+    if (out.length) RAW_GUESTS = out;
+    console.log(`Vendégfotók a táblázatból: ${out.length} db`);
+  } catch (e) { console.warn("Figyelmeztetés: a vendégfotók nem érhetők el a táblázatból (" + e.message + ")."); }
+}
+
 /* Fotók előkészítése: a táblázatból feltöltött új képekből webp és átméretezett JPEG készül.
    A hiányzó fotójú termékek kimaradnak (figyelmeztetéssel), így egy elírás nem állítja le az oldalt. */
 const PHOTO_DIR = path.join(ROOT, "assets/photos");
@@ -62,6 +86,9 @@ for (const p of RAW_PRODUCTS) {
   if (!ok.length) { console.warn(`Figyelmeztetés: „${p.name}” fotó nélkül maradt, ezért most nem jelenik meg.`); continue; }
   PRODUCTS.push({ ...p, photos: ok });
 }
+
+const GUESTS = [];
+for (const g of RAW_GUESTS) if (await preparePhoto(g.photo)) GUESTS.push(g); else console.warn(`Figyelmeztetés: hiányzó vendégfotó (${g.photo})`);
 
 const SITE = {
   url: "https://inmystyle.hu",
@@ -361,7 +388,7 @@ function productCard(p, { showCat = true, filterable = false } = {}) {
   <div class="product-card-body">
     ${showCat && c ? `<span class="product-card-cat">${esc(c.name)}</span>` : ""}
     <h3><a href="${prodUrl(p)}">${esc(p.name)}</a></h3>
-    ${p.price ? `<span class="product-card-price">${esc(p.price)}</span>` : '<span class="product-card-price is-quote">Ár egyeztetés alapján</span>'}
+    ${p.price ? `<span class="product-card-price">${priceHtml(p.price, "span", priceParts(p.price).old ? "price-now" : "")}</span>` : '<span class="product-card-price is-quote">Ár egyeztetés alapján</span>'}
   </div>
 </article>`;
 }
@@ -600,6 +627,7 @@ const HELP = [
     cta: ["Kapcsolat", "/#kapcsolat"] },
 ];
 const CAT_SYN = {
+  "unnepi-kollekcio": ["ünnepi", "karácsonyi", "karácsony", "szilveszter", "xmas", "ünnep"], "limitalt-darabok": ["limitált", "limitált darab", "belga", "kis széria"],
   "ing": ["ing", "ingek", "inget", "ingem", "blúz", "blúzok", "blúzt", "felső"], "ing-ruha": ["ingruha", "ingruhák", "ingruhát", "ing ruha"],
   "blezer": ["blézer", "blézerek", "blézert", "zakó", "zakók", "kosztüm", "kiskabát"], "nadragok": ["nadrág", "nadrágok", "nadrágot", "pantalló", "szövetnadrág"],
   "szoknyak": ["szoknya", "szoknyák", "szoknyát", "ceruzaszoknya"], "mellenyek": ["mellény", "mellények", "mellényt"],
@@ -632,7 +660,7 @@ function helpData() {
   return {
     faq: HELP.map((h) => ({ id: h.id, q: h.q, a: h.a, k: h.k.map(norm), cta: h.cta || null, small: !!h.small })),
     cats: CATEGORIES.map((c) => ({ id: c.slug, n: c.name, u: catUrl(c), k: [...new Set([...words(c.name), ...(CAT_SYN[c.slug] || []).map(norm)])] })),
-    prods: PRODUCTS.map((p) => { const c = catBySlug[p.category]; return { s: p.slug, n: p.name, u: prodUrl(p), c: p.category, cn: c ? c.name : "", p: p.price || "", img: thumb(p.photos[0]), k: [...new Set(words(p.name))] }; }),
+    prods: PRODUCTS.map((p) => { const c = catBySlug[p.category]; return { s: p.slug, n: p.name, u: prodUrl(p), c: p.category, cn: c ? c.name : "", p: priceParts(p.price).now, img: thumb(p.photos[0]), k: [...new Set(words(p.name))] }; }),
     pages: HELP_PAGES.map(([n, u, k]) => ({ n, u, k })),
   };
 }
@@ -769,12 +797,12 @@ function homePage() {
     </div>
     <div class="services">
       <article class="service reveal">
-        <div class="service-media">${pic("7QEfZIBCOvWiBL8ZPmcs1Mi8.jpg", "Egyedi méretre készült sötétkék fodros blúz")}</div>
-        <div class="service-body"><span class="num">01</span><h3 class="h3">Egyedi méretre készülő ruhák</h3><p>Közösen választott anyagból, a te alkatodra szabva — a mindennapokra és a különleges alkalmakra.</p><a class="link-arrow" href="#egyedi">Részletek</a></div>
+        <div class="service-media">${pic("6es6MykWWyAqSyt10cTe4pX4k.png", "Rózsaszín csíkos ingruhák az aktuális kollekcióból")}</div>
+        <div class="service-body"><span class="num">01</span><h3 class="h3">Aktuális kollekció</h3><p>Válogatott, kis szériás darabok, hetente frissülő kínálattal. Azonnal megvásárolhatod, vagy megrendelheted őket a te méretedre szabva.</p><a class="link-arrow" href="/kollekcio/">Kollekció</a></div>
       </article>
       <article class="service reveal">
-        <div class="service-media">${pic("6es6MykWWyAqSyt10cTe4pX4k.png", "Rózsaszín csíkos ingruhák az aktuális kollekcióból")}</div>
-        <div class="service-body"><span class="num">02</span><h3 class="h3">Aktuális kollekció</h3><p>Válogatott, kis szériás darabok, hetente frissülő kínálattal. Azonnal megvásárolhatod vagy megrendelheted őket.</p><a class="link-arrow" href="#kollekcio">Kollekció</a></div>
+        <div class="service-media">${pic("7QEfZIBCOvWiBL8ZPmcs1Mi8.jpg", "Egyedi méretre készült sötétkék fodros blúz")}</div>
+        <div class="service-body"><span class="num">02</span><h3 class="h3">Egyedi megrendelések</h3><p>Saját elképzelés vagy fotó alapján, hozott vagy általunk ajánlott anyagból, közös tervezéssel, az alkatodra szabva: a mindennapokra és különleges alkalmakra.</p><a class="link-arrow" href="#egyedi">Részletek</a></div>
       </article>
       <article class="service reveal">
         <div class="service-media">${pic("5bFqnTfSOc9hMkRM7WxmDFQFQjs.jpg", "Varrókellékek az In My Style szalonban")}</div>
@@ -803,6 +831,7 @@ function homePage() {
   </div>
 </section>
 
+${limitedSection()}
 <section class="section" id="egyedi" aria-labelledby="egyedi-cim">
   <div class="container split">
     <div class="split-media reveal">${pic("oykK1W4tn84ILiycFjGjKvkFjU.jpg", "Egyedi méretre készült fehér ing")}</div>
@@ -880,6 +909,8 @@ ${configuratorTeaser()}
     <div class="testimonials">${reviews.map(([n, t]) => `<figure class="testimonial reveal"><div class="testimonial-stars" aria-label="5 csillag">${I.star.repeat(5)}</div><blockquote>„${esc(t)}”</blockquote><figcaption>${esc(n)}</figcaption></figure>`).join("")}</div>
   </div>
 </section>
+
+${guestSection()}
 
 ${facebookSection()}
 
@@ -989,9 +1020,12 @@ ${contactSection()}`;
 }
 
 function priceNumber(price) {
-  const n = String(price || "").replace(/[^\d]/g, "");
+  const n = String(price || "").split("→").pop().replace(/[^\d]/g, "");
   return n ? Number(n) : null;
 }
+/* Akciós ár: a táblázatban „32 900 Ft → 23 030 Ft” alakban; az eredeti ár áthúzva jelenik meg. */
+function priceParts(price) { const t = String(price || "").split("→").map((x) => x.trim()).filter(Boolean); return t.length > 1 ? { old: t[0], now: t[t.length - 1] } : { now: t[0] || "" }; }
+function priceHtml(price, tag = "span", cls = "") { const q = priceParts(price); return (q.old ? `<s class="price-old">${esc(q.old)}</s> ` : "") + `<${tag}${cls ? ` class="${cls}"` : ""}>${esc(q.now)}</${tag}>`; }
 
 function productPage(p) {
   const c = catBySlug[p.category];
@@ -1022,7 +1056,7 @@ function productPage(p) {
         <div class="badges">${badges.join("")}</div>
         <h1 id="termek-cim" data-view-item="${esc(p.name)}" data-item-category="${esc(c.name)}">${esc(p.name)}</h1>
         <p class="lead">${esc(p.description)}</p>
-        <div class="pd-price"><span>Ár</span>${p.price ? `<b>${esc(p.price)}</b>` : '<b class="is-quote">Egyeztetés alapján</b>'}</div>
+        <div class="pd-price"><span>Ár</span>${p.price ? priceHtml(p.price, "b") : '<b class="is-quote">Egyeztetés alapján</b>'}</div>
         ${specs.length ? `<dl class="pd-specs">${specs.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}<div><dt>Átfutás</dt><dd>${p.type === "egyedi" ? "Jellemzően 1–2 hét" : "Azonnal elvihető"}</dd></div></dl>` : `<dl class="pd-specs"><div><dt>Kategória</dt><dd>${esc(c.name)}</dd></div><div><dt>Átfutás</dt><dd>${p.type === "egyedi" ? "Jellemzően 1–2 hét" : "Azonnal elvihető"}</dd></div></dl>`}
         <div class="pd-actions">
           <a class="btn btn-dark" href="#ajanlatkeres">Ajánlatot kérek erre a darabra</a>
@@ -1049,7 +1083,7 @@ ${related.length ? `<section class="section" aria-labelledby="hasonlo-cim">
 ${contactSection()}`;
   return page({
     title: `${p.name} – ${c.name} | In My Style`,
-    description: `${p.description} ${p.price ? `Ár: ${p.price}.` : "Ár egyeztetés alapján."} In My Style szalon: Budapest II. kerület, Kapás utca 45/B.`,
+    description: `${p.description} ${p.price ? `Ár: ${priceParts(p.price).now}.` : "Ár egyeztetés alapján."} In My Style szalon: Budapest II. kerület, Kapás utca 45/B.`,
     url: prodUrl(p),
     image: `/assets/photos/${p.photos[0]}`,
     jsonld: [breadcrumbLd(crumbs), productLd],
@@ -1093,7 +1127,7 @@ function colorTags(p) {
   const t = (p.name + " " + ((p.specs && p.specs["Szín"]) || "")).toLowerCase();
   return COLOR_RULES.filter(([, re]) => re.test(t)).map(([n]) => n);
 }
-const priceNum = (p) => { const n = Number(String(p.price || "").replace(/\D/g, "")); return n || ""; };
+const priceNum = (p) => priceNumber(p.price) || "";
 
 function collectionPage() {
   const crumbs = [["Főoldal", "/"], ["Kollekció", "/kollekcio/"]];
@@ -1245,13 +1279,15 @@ const LOOKBOOK = [
   ["NF5aKztD4zvcFCh6rvT2ToqpNUo.jpg", "Mélykék öves blézerruha", "/kategoria/blezer/"],
   ["megkotos-ing-kek-viselve.jpg", "Megkötős derekú ing", "/termek/megkotos-dereku-ing/"],
   ["PqalPo2E1o6IkCRlDFZGPw2KVeU.jpeg", "Napfényes sárga nyáron", "/kategoria/blezer/"],
-  ["feher-ing-hasitott-ujj-utcan.jpg", "Fehér ing hasított ujjal", "/termek/feher-ing-hasitott-ujjal/"],
+  ["feher-ing-hasitott-ujj-utcan.jpg", "Fehér ing hasított ujjal", "/termek/klasszikus-ing-hasitott-ujjal/"],
   ["FuzmlZu4JwbOrfbz9kuZ30Q7XMM.jpg", "Szabott sötétkék nadrágkosztüm", "/kategoria/nadragok/"],
   ["upWGtveMvi615CIZmXjEm2wyQ4.jpg", "Fehér ing szürke nadrággal", "/kategoria/ing/"],
 ];
 function lookbookPage() {
   const crumbs = [["Főoldal", "/"], ["Lookbook", "/lookbook/"]];
-  const items = LOOKBOOK.filter(([f]) => fs.existsSync(path.join(ROOT, "assets/photos", f)));
+  const live = new Set(PRODUCTS.map(prodUrl));
+  /* ha egy termék kikerül a táblázatból, a lookbook-kép a kollekcióra mutat, nem egy nem létező oldalra */
+  const items = LOOKBOOK.filter(([f]) => fs.existsSync(path.join(ROOT, "assets/photos", f))).map(([f, t, u]) => [f, t, u.startsWith("/termek/") && !live.has(u) ? "/kollekcio/" : u]);
   const body = `
 <section class="lookbook" aria-labelledby="lb-cim" data-lookbook>
   <div class="lb-head container">${breadcrumbHtml(crumbs)}<h1 id="lb-cim">Lookbook</h1><p class="lead">Sportos elegancia, kényelem és nőiesség – válogatás az In My Style darabjaiból.</p></div>
@@ -1265,6 +1301,40 @@ ${contactSection()}`;
 }
 
 /* --- Facebook-posztok a főoldalon --- */
+/* Limitált darabok: a táblázatban a „Limitált darabok” kategóriába tett termékek kerülnek ide. */
+function limitedSection() {
+  const c = catBySlug["limitalt-darabok"], items = PRODUCTS.filter((p) => p.category === "limitalt-darabok");
+  if (!c || !items.length) return "";
+  return `<section class="section limited" id="limitalt" aria-labelledby="limitalt-cim">
+  <div class="container">
+    <div class="section-head-row">
+      <div class="section-head">
+        <div class="eyebrow">Limitált darabok</div>
+        <h2 class="h2" id="limitalt-cim">Csak néhány darab, amíg a készlet tart</h2>
+        <p class="lead">${esc(c.intro)}</p>
+      </div>
+      <a class="link-arrow" href="${catUrl(c)}">Összes limitált darab</a>
+    </div>
+    <div class="product-grid">${items.slice(0, 4).map((p) => productCard(p)).join("")}</div>
+  </div>
+</section>`;
+}
+
+/* Vendégfotók: a táblázat „Vendégfotók” lapjáról (vagy a data/vendegfotok.json fájlból). */
+function guestSection() {
+  if (!GUESTS.length) return "";
+  return `<section class="section-sm guests" id="vendegfotok" aria-labelledby="vendeg-cim">
+  <div class="container">
+    <div class="section-head center">
+      <div class="eyebrow">Vendégfotók</div>
+      <h2 class="h2" id="vendeg-cim">Vendégeink az In My Style ruháikban</h2>
+      <p class="lead">Közös pillanatok a szalonból, és fotók, amelyeket vendégeink küldtek nekünk.</p>
+    </div>
+    <div class="guest-grid">${GUESTS.map((g, i) => `<figure class="guest reveal"><a href="/assets/photos/${g.photo}" data-guest="${i}">${pic(g.photo, g.caption || "Vendégünk In My Style ruhában", { sizes: "(max-width: 700px) 50vw, 25vw" })}</a>${g.caption ? `<figcaption>${esc(g.caption)}</figcaption>` : ""}</figure>`).join("")}</div>
+  </div>
+</section>`;
+}
+
 function facebookSection() {
   const src = `https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(SITE.facebook)}&tabs=timeline&width=500&height=640&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&locale=hu_HU`;
   return `<section class="section bg-soft" id="facebook" aria-labelledby="fb-cim">
@@ -1361,7 +1431,7 @@ const redirects = [
   ...CATEGORIES.filter((c) => c.legacy && c.legacy !== c.slug).map((c) => `/kategoria/${c.legacy}/ /kategoria/${c.slug}/ 301`),
   ...CATEGORIES.filter((c) => c.legacy && c.legacy !== c.slug).map((c) => `/kategoria/${c.legacy} /kategoria/${c.slug}/ 301`),
 ];
-redirects.push("/kategoria/kituzok/ /#kollekcio 301", "/kategoria/kituzok /#kollekcio 301", "/kategoria/kituzo/ /#kollekcio 301", "/termek/estelyi-overal/ /termek/elegans-overal/ 301");
+redirects.push("/kategoria/kituzok/ /#kollekcio 301", "/kategoria/kituzok /#kollekcio 301", "/kategoria/kituzo/ /#kollekcio 301", "/termek/estelyi-overal/ /termek/elegans-overal/ 301", "/termek/feher-ing-hasitott-ujjal/ /termek/klasszikus-ing-hasitott-ujjal/ 301", "/termek/unnepi-kollekcio-darab/ /kategoria/unnepi-kollekcio/ 301");
 write("_redirects", redirects.join("\n") + "\n");
 write("js/help-data.json", HELP_JSON);
 
