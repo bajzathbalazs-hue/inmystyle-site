@@ -60,6 +60,12 @@ function readGuests() {
     .filter(function (r) { return r[0] === true && String(r[1]).trim(); })
     .map(function (r) { return { photo: String(r[1]).split(",")[0].trim(), caption: String(r[2]).trim() }; });
 }
+/* A kategória-lista a Kategóriák lap teljes A oszlopát figyeli, így új kategória is választható. */
+function fixCategoryRule() {
+  var cs = book().getSheetByName("Kategóriák"), sh = productSheet();
+  var rule = SpreadsheetApp.newDataValidation().requireValueInRange(cs.getRange("A2:A"), true).setAllowInvalid(false).setHelpText("Válassz kategóriát a listából.").build();
+  sh.getRange(2, COL.cat, sh.getMaxRows() - 1, 1).setDataValidation(rule);
+}
 function slugify(s) { return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60); }
 function json(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
 
