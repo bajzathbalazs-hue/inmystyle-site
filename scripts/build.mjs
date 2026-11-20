@@ -63,6 +63,30 @@ if (SHEET_API) {
   } catch (e) { console.warn("Figyelmeztetés: a vendégfotók nem érhetők el a táblázatból (" + e.message + ")."); }
 }
 
+/* Oldalképek: a weboldal nem termékhez tartozó képei (nyitókép, szolgáltatások, kategóriák, galéria, lookbook …)
+   „helyekre” (slot) vannak bontva. A táblázat „Oldalképek” lapján bármelyik hely képe lecserélhető; üres cella = eredeti kép. */
+let RAW_SWAP = {};
+if (SHEET_API) {
+  try {
+    const d = await fetchJson(SHEET_API + "?mode=siteimages");
+    if (!d.ok || !Array.isArray(d.images)) throw new Error("hibás válasz");
+    for (const im of d.images) {
+      let ph = String(im.photo || "").trim(), key = String(im.key || "").trim();
+      if (!ph || !key) continue;
+      if (ph.startsWith("drive:")) {
+        const id = ph.slice(6).replace(/[^A-Za-z0-9_-]/g, ""), file = `drive-${id}.jpg`, dst = path.join(ROOT, "assets/photos", file);
+        if (!fs.existsSync(dst)) {
+          try { const f = await fetchJson(`${SHEET_API}?mode=photo&id=${encodeURIComponent(id)}`); if (f.ok) fs.writeFileSync(dst, Buffer.from(f.b64, "base64")); else throw new Error(f.error); }
+          catch (e) { console.warn(`Figyelmeztetés: a(z) ${id} oldalkép nem tölthető le (${e.message})`); continue; }
+        }
+        ph = file;
+      }
+      RAW_SWAP[key] = ph;
+    }
+    console.log(`Lecserélt oldalképek a táblázatból: ${Object.keys(RAW_SWAP).length} db`);
+  } catch (e) { console.warn("Figyelmeztetés: az oldalképek nem érhetők el a táblázatból (" + e.message + ")."); }
+}
+
 /* Fotók előkészítése: a táblázatból feltöltött új képekből webp és átméretezett JPEG készül.
    A hiányzó fotójú termékek kimaradnak (figyelmeztetéssel), így egy elírás nem állítja le az oldalt. */
 const PHOTO_DIR = path.join(ROOT, "assets/photos");
@@ -86,6 +110,13 @@ for (const p of RAW_PRODUCTS) {
   if (!ok.length) { console.warn(`Figyelmeztetés: „${p.name}” fotó nélkül maradt, ezért most nem jelenik meg.`); continue; }
   PRODUCTS.push({ ...p, photos: ok });
 }
+
+const SWAP = {};
+for (const [k, f] of Object.entries(RAW_SWAP)) if (await preparePhoto(f)) SWAP[k] = f; else console.warn(`Figyelmeztetés: hiányzó oldalkép (${f})`);
+const SLOTS = {};
+/* slot(kulcs, eredeti fájl, hely leírása) → a megjelenítendő fájl (a lecserélt, ha van) */
+function slot(key, file, place) { if (!SLOTS[key]) SLOTS[key] = { key, file, place }; return SWAP[key] || file; }
+const catHero = (c) => slot("kat-" + c.slug, c.heroPhoto, `${c.name} – kategória fejléce és csempéje (főoldal, kategóriaoldal, ruhatervező)`);
 
 const GUESTS = [];
 for (const g of RAW_GUESTS) if (await preparePhoto(g.photo)) GUESTS.push(g); else console.warn(`Figyelmeztetés: hiányzó vendégfotó (${g.photo})`);
@@ -395,7 +426,7 @@ function productCard(p, { showCat = true, filterable = false } = {}) {
 
 function categoryTile(c) {
   const n = PRODUCTS.filter((p) => p.category === c.slug).length;
-  return `<a class="cat-tile reveal" href="${catUrl(c)}">${pic(c.heroPhoto, "")}
+  return `<a class="cat-tile reveal" href="${catUrl(c)}">${pic(catHero(c), "")}
   <span class="cat-tile-arrow">${I.arrow}</span>
   <span class="cat-tile-body"><b>${esc(c.name)}</b><span>${esc(c.tagline)}</span></span>
 </a>`;
@@ -715,7 +746,7 @@ const businessLd = {
   currenciesAccepted: "HUF",
   knowsLanguage: "hu",
   url: SITE.url + "/",
-  image: SITE.url + "/assets/photos/hero-szilvia-2.jpg",
+  image: SITE.url + "/assets/photos/" + slot("fooldal-nyitokep", "hero-szilvia-2.jpg", "Főoldal – nyitókép (legfelül, teljes szélességben)"),
   logo: SITE.url + "/assets/logo/in-my-style-logo.png",
   telephone: "+36203202996",
   email: SITE.email,
@@ -757,7 +788,7 @@ function homePage() {
 
   const body = `
 <section class="hero" aria-labelledby="hero-cim">
-  <div class="hero-media">${pic("hero-szilvia-2.jpg", "Mitterer Szilvia, az In My Style alapítója, saját tervezésű sötétkék kosztümben", { eager: true })}</div>
+  <div class="hero-media">${pic(slot("fooldal-nyitokep", "hero-szilvia-2.jpg", "Főoldal – nyitókép (legfelül, teljes szélességben)"), "Mitterer Szilvia, az In My Style alapítója, saját tervezésű sötétkék kosztümben", { eager: true })}</div>
   <div class="container">
     <div class="hero-inner">
       <div class="eyebrow">Budapest II. kerület · Kapás utca 45/B</div>
@@ -797,15 +828,15 @@ function homePage() {
     </div>
     <div class="services">
       <article class="service reveal">
-        <div class="service-media">${pic("6es6MykWWyAqSyt10cTe4pX4k.png", "Rózsaszín csíkos ingruhák az aktuális kollekcióból")}</div>
+        <div class="service-media">${pic(slot("fooldal-szolg-1", "6es6MykWWyAqSyt10cTe4pX4k.png", "Főoldal – Szolgáltatások 01: Aktuális kollekció"), "Rózsaszín csíkos ingruhák az aktuális kollekcióból")}</div>
         <div class="service-body"><span class="num">01</span><h3 class="h3">Aktuális kollekció</h3><p>Válogatott, kis szériás darabok, hetente frissülő kínálattal. Azonnal megvásárolhatod, vagy megrendelheted őket a te méretedre szabva.</p><a class="link-arrow" href="/kollekcio/">Kollekció</a></div>
       </article>
       <article class="service reveal">
-        <div class="service-media">${pic("7QEfZIBCOvWiBL8ZPmcs1Mi8.jpg", "Egyedi méretre készült sötétkék fodros blúz")}</div>
+        <div class="service-media">${pic(slot("fooldal-szolg-2", "7QEfZIBCOvWiBL8ZPmcs1Mi8.jpg", "Főoldal – Szolgáltatások 02: Egyedi megrendelések"), "Egyedi méretre készült sötétkék fodros blúz")}</div>
         <div class="service-body"><span class="num">02</span><h3 class="h3">Egyedi megrendelések</h3><p>Saját elképzelés vagy fotó alapján, hozott vagy általunk ajánlott anyagból, közös tervezéssel, az alkatodra szabva: a mindennapokra és különleges alkalmakra.</p><a class="link-arrow" href="#egyedi">Részletek</a></div>
       </article>
       <article class="service reveal">
-        <div class="service-media">${pic("5bFqnTfSOc9hMkRM7WxmDFQFQjs.jpg", "Varrókellékek az In My Style szalonban")}</div>
+        <div class="service-media">${pic(slot("fooldal-szolg-3", "5bFqnTfSOc9hMkRM7WxmDFQFQjs.jpg", "Főoldal – Szolgáltatások 03: Igazítás és javítás"), "Varrókellékek az In My Style szalonban")}</div>
         <div class="service-body"><span class="num">03</span><h3 class="h3">Igazítás és javítás</h3><p>A kedvenc darabjaid is megérdemlik a törődést: megjavítjuk és méretre igazítjuk őket.</p><a class="link-arrow" href="#igazitas">Részletek</a></div>
       </article>
     </div>
@@ -834,7 +865,7 @@ function homePage() {
 ${limitedSection()}
 <section class="section" id="egyedi" aria-labelledby="egyedi-cim">
   <div class="container split">
-    <div class="split-media reveal">${pic("oykK1W4tn84ILiycFjGjKvkFjU.jpg", "Egyedi méretre készült fehér ing")}</div>
+    <div class="split-media reveal">${pic(slot("fooldal-egyedi", "oykK1W4tn84ILiycFjGjKvkFjU.jpg", "Főoldal – „Egyedi ruhák minden alkalomra” rész"), "Egyedi méretre készült fehér ing")}</div>
     <div class="split-body">
       <div class="eyebrow">Testre szabva</div>
       <h2 class="h2" id="egyedi-cim">Egyedi ruhák minden alkalomra</h2>
@@ -876,13 +907,13 @@ ${configuratorTeaser()}
       </ul>
       <a class="btn btn-outline" href="#idopont">Időpontot foglalok</a>
     </div>
-    <div class="split-media reveal">${pic("ZHXenMDNxDUohhIi2cLGZ0mYT4.jpg", "Ruhaigazítás próbán az In My Style szalonban")}</div>
+    <div class="split-media reveal">${pic(slot("fooldal-igazitas", "ZHXenMDNxDUohhIi2cLGZ0mYT4.jpg", "Főoldal – „Igazítás és javítás” rész"), "Ruhaigazítás próbán az In My Style szalonban")}</div>
   </div>
 </section>
 
 <section class="section bg-ink" id="rolunk" aria-labelledby="rolunk-cim">
   <div class="container split">
-    <div class="split-media reveal">${pic("npAcJL2BvKL0vi51wMBNg1Ozks.png", "Az In My Style szalon a II. kerületi Kapás utcában")}</div>
+    <div class="split-media reveal">${pic(slot("fooldal-rolunk", "npAcJL2BvKL0vi51wMBNg1Ozks.png", "Főoldal – Rólunk (sötét sáv)"), "Az In My Style szalon a II. kerületi Kapás utcában")}</div>
     <div class="split-body">
       <div class="eyebrow" style="color:#a9c6e2">Rólunk</div>
       <h2 class="h2" id="rolunk-cim">Valódi nőknek, valódi nőktől</h2>
@@ -920,14 +951,14 @@ ${facebookSection()}
       <div class="section-head"><div class="eyebrow">Galéria</div><h2 class="h2" id="galeria-cim">Sportos elegancia minden részletben</h2></div>
       <a class="link-arrow" href="/lookbook/">Lookbook megnyitása</a>
     </div>
-    <div class="gallery">${gallery.map((g) => `<figure class="reveal">${pic(g, "In My Style ruha — inspiráció")}</figure>`).join("")}</div>
+    <div class="gallery">${gallery.map((g, i) => `<figure class="reveal">${pic(slot(`fooldal-galeria-${i + 1}`, g, `Főoldal – Galéria ${i + 1}. kép`), "In My Style ruha — inspiráció")}</figure>`).join("")}</div>
   </div>
 </section>
 
 <section class="section" id="ajandekutalvany" aria-label="Ajándékkártya és díjmentes konzultáció">
   <div class="container offers">
     <article class="offer reveal">
-      <div class="offer-media">${pic("8Itt096HFQA0HT3NX6dYMC0PHcM.jpg", "In My Style ajándékkártya")}</div>
+      <div class="offer-media">${pic(slot("fooldal-ajandekkartya", "8Itt096HFQA0HT3NX6dYMC0PHcM.jpg", "Főoldal – Ajándékkártya"), "In My Style ajándékkártya")}</div>
       <div class="offer-body">
         <div class="eyebrow">Meglepetés</div>
         <h2 class="h3">Ajándékkártya</h2>
@@ -937,7 +968,7 @@ ${facebookSection()}
       </div>
     </article>
     <article class="offer offer-dark reveal">
-      <div class="offer-media">${pic("feher-megkotos-ingruha-szalon.jpg", "Az In My Style szalon belső tere")}</div>
+      <div class="offer-media">${pic(slot("fooldal-konzultacio", "feher-megkotos-ingruha-szalon.jpg", "Főoldal – Díjmentes első konzultáció"), "Az In My Style szalon belső tere")}</div>
       <div class="offer-body">
         <div class="eyebrow">Első lépés</div>
         <h2 class="h3">Díjmentes első konzultáció</h2>
@@ -972,7 +1003,7 @@ function categoryPage(c) {
   const siblings = CATEGORIES.filter((x) => x.group === c.group);
   const body = `
 <section class="page-hero" aria-labelledby="kat-cim">
-  <div class="page-hero-media">${pic(c.heroPhoto, "", { eager: true })}</div>
+  <div class="page-hero-media">${pic(catHero(c), "", { eager: true })}</div>
   <div class="container">
     ${breadcrumbHtml(crumbs)}
     <div class="eyebrow">${esc(c.tagline)}</div>
@@ -994,7 +1025,7 @@ ${c.gallery && c.gallery.length ? `
 <section class="section bg-tint" aria-labelledby="ref-cim">
   <div class="container">
     <div class="section-head"><div class="eyebrow">Referenciák</div><h2 class="h2" id="ref-cim">Ilyeneket készítettünk már</h2><p class="lead">Néhány korábbi, egyedi méretre készült darabunk — inspirációnak.</p></div>
-    <div class="product-grid scroll-row">${c.gallery.map((g) => `<figure class="product-card-media reveal" style="margin:0">${pic(g, `${c.name} – In My Style referencia`)}</figure>`).join("")}</div>
+    <div class="product-grid scroll-row">${c.gallery.map((g, i) => `<figure class="product-card-media reveal" style="margin:0">${pic(slot(`kat-${c.slug}-ref-${i + 1}`, g, `${c.name} – kategóriaoldal, Referenciák ${i + 1}. kép`), `${c.name} – In My Style referencia`)}</figure>`).join("")}</div>
   </div>
 </section>` : ""}
 ${quoteSection({ subject: `Kategória: ${c.name}`, title: `Kérj ajánlatot — ${c.name}`, lead: `Kérj visszahívást, vagy add meg előre a méreteidet és az elképzelésedet, és felkészülten várunk a konzultáción.` })}
@@ -1010,7 +1041,7 @@ ${contactSection()}`;
     title: `${c.title} – In My Style, Budapest`,
     description: `${c.intro} Szalonunk: Budapest II. kerület, Kapás utca 45/B.`.slice(0, 300),
     url: catUrl(c),
-    image: `/assets/photos/${c.heroPhoto}`,
+    image: `/assets/photos/${catHero(c)}`,
     jsonld: [breadcrumbLd(crumbs), {
       "@context": "https://schema.org", "@type": "CollectionPage", name: c.title, url: SITE.url + catUrl(c),
       mainEntity: { "@type": "ItemList", itemListElement: items.map((p, i) => ({ "@type": "ListItem", position: i + 1, url: SITE.url + prodUrl(p), name: p.name })) },
@@ -1227,7 +1258,7 @@ function configuratorTeaser() {
 }
 function designerPage() {
   const crumbs = [["Főoldal", "/"], ["Tervezd meg a ruhád", "/tervezd-meg/"]];
-  const catPhoto = (slug) => (catBySlug[slug] || {}).heroPhoto;
+  const catPhoto = (slug) => (catBySlug[slug] ? catHero(catBySlug[slug]) : "");
   const radio = (name, val, inner, cls = "dopt") => `<label class="${cls}"><input type="radio" name="${name}" value="${esc(val)}" required>${inner}</label>`;
   const step = (n, title, hint, inner) => `<fieldset class="dstep" data-step="${n}"><legend><span class="dnum">${n}/6</span>${title}</legend>${hint ? `<p class="muted">${hint}</p>` : ""}${inner}</fieldset>`;
   const body = `
@@ -1292,7 +1323,7 @@ function lookbookPage() {
 <section class="lookbook" aria-labelledby="lb-cim" data-lookbook>
   <div class="lb-head container">${breadcrumbHtml(crumbs)}<h1 id="lb-cim">Lookbook</h1><p class="lead">Sportos elegancia, kényelem és nőiesség – válogatás az In My Style darabjaiból.</p></div>
   <div class="lb-track" data-lb-track tabindex="0" aria-label="Lookbook képek, lapozható">
-    ${items.map(([f, cap, url], i) => `<figure class="lb-slide" aria-label="${i + 1} / ${items.length}">${pic(f, cap, { eager: i < 2 })}<figcaption><span>${String(i + 1).padStart(2, "0")}</span><b>${esc(cap)}</b><a href="${url}">Megnézem →</a></figcaption></figure>`).join("")}
+    ${items.map(([f, cap, url], i) => `<figure class="lb-slide" aria-label="${i + 1} / ${items.length}">${pic(slot(`lookbook-${i + 1}`, f, `Lookbook – ${i + 1}. kép: ${cap}`), cap, { eager: i < 2 })}<figcaption><span>${String(i + 1).padStart(2, "0")}</span><b>${esc(cap)}</b><a href="${url}">Megnézem →</a></figcaption></figure>`).join("")}
   </div>
   <div class="lb-nav container"><button type="button" class="icon-link" data-lb-prev aria-label="Előző kép">←</button><output data-lb-count>1 / ${items.length}</output><button type="button" class="icon-link" data-lb-next aria-label="Következő kép">→</button><a class="btn btn-dark" href="/tervezd-meg/">Ilyet szeretnék</a></div>
 </section>
@@ -1434,6 +1465,8 @@ const redirects = [
 redirects.push("/kategoria/kituzok/ /#kollekcio 301", "/kategoria/kituzok /#kollekcio 301", "/kategoria/kituzo/ /#kollekcio 301", "/termek/estelyi-overal/ /termek/elegans-overal/ 301", "/termek/feher-ing-hasitott-ujjal/ /termek/klasszikus-ing-hasitott-ujjal/ 301", "/termek/unnepi-kollekcio-darab/ /kategoria/unnepi-kollekcio/ 301");
 write("_redirects", redirects.join("\n") + "\n");
 write("js/help-data.json", HELP_JSON);
+/* Az Oldalképek lap ebből a listából tudja, milyen képhelyek vannak az oldalon. */
+write("oldalkepek.json", JSON.stringify(Object.values(SLOTS), null, 1));
 
 // csak a ténylegesen használt fotók kerülnek ki
 const used = new Set();

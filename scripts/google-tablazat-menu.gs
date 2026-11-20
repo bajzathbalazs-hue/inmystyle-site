@@ -54,6 +54,23 @@ function guestSheet() {
   }
   return sh;
 }
+/* Oldalképek lap: A = Hol található, B = Kulcs (ne módosítsd), C = Eredeti kép, D = Új kép (drive:… vagy fájlnév; üres = eredeti), E = Előnézet */
+function siteSheet() {
+  var ss = book(), sh = ss.getSheetByName("Oldalképek");
+  if (!sh) {
+    sh = ss.insertSheet("Oldalképek");
+    sh.getRange(1, 1, 1, 5).setValues([["Hol található", "Kulcs (ne módosítsd)", "Eredeti kép", "Új kép (üres = eredeti)", "Előnézet"]]).setFontWeight("bold").setBackground("#1b1d1f").setFontColor("#ffffff");
+    sh.setFrozenRows(1); sh.setColumnWidth(1, 380); sh.setColumnWidth(2, 170); sh.setColumnWidth(3, 230); sh.setColumnWidth(4, 230); sh.setColumnWidth(5, 110);
+  }
+  return sh;
+}
+function readSiteImages() {
+  var sh = book().getSheetByName("Oldalképek");
+  if (!sh || sh.getLastRow() < 2) return [];
+  return sh.getRange(2, 1, sh.getLastRow() - 1, 4).getValues()
+    .filter(function (r) { return String(r[1]).trim() && String(r[3]).trim(); })
+    .map(function (r) { return { key: String(r[1]).trim(), photo: String(r[3]).split(",")[0].trim() }; });
+}
 /* Vendégfotók lap: A = Megjelenik (jelölőnégyzet), B = fotó (drive:… vagy fájlnév), C = felirat */
 function readGuests() {
   var sh = book().getSheetByName("Vendégfotók");
@@ -76,6 +93,7 @@ function doGet(e) {
   var mode = (e && e.parameter && e.parameter.mode) || "products";
   if (mode === "products") { var r = readProducts(); return json({ ok: true, products: r.products, errors: r.errors, at: new Date().toISOString() }); }
   if (mode === "guests") return json({ ok: true, guests: readGuests() });
+  if (mode === "siteimages") return json({ ok: true, images: readSiteImages() });
   if (mode === "photo") {
     var id = String(e.parameter.id || "");
     var file = DriveApp.getFileById(id);
@@ -132,10 +150,11 @@ function uploaderHtml(row, name, kind) {
 }
 
 function uploadPhoto(row, dataUrl, kind) {
-  var guest = kind === "guest";
-  var sh = guest ? guestSheet() : productSheet();
+  var guest = kind === "guest", site = kind === "site";
+  var sh = guest ? guestSheet() : site ? siteSheet() : productSheet();
   var slug;
   if (guest) slug = "vendegfoto";
+  else if (site) slug = "oldalkep-" + String(sh.getRange(row, 2).getValue() || "kep");
   else {
     var name = sh.getRange(row, COL.name).getValue();
     slug = sh.getRange(row, COL.slug).getValue() || slugify(name);
@@ -160,6 +179,7 @@ function uploadPhoto(row, dataUrl, kind) {
     id = out.id;
   }
   if (guest) { sh.getRange(row, 1).setValue(true); sh.getRange(row, 2).setValue("drive:" + id); return id; }
+  if (site) { sh.getRange(row, 4).setValue("drive:" + id); return id; }
   var cell = sh.getRange(row, COL.photos), cur = String(cell.getValue() || "").trim();
   cell.setValue(cur ? cur + ", drive:" + id : "drive:" + id);
   return id;
