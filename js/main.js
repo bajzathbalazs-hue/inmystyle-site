@@ -168,17 +168,55 @@
     } else lazyEmbeds.forEach(load);
   }
 
-  /* Calendly: a naptár csak kattintásra töltődik be (gyorsabb oldal) */
+  /* Calendly: a szkript csak akkor töltődik be, amikor szükség van rá (gyorsabb oldal) */
+  const CAL_JS = "https://assets.calendly.com/assets/external/widget.js";
+  const CAL_CSS = "https://assets.calendly.com/assets/external/widget.css";
+  let calLoading = null;
+  const loadCalendly = () => {
+    if (window.Calendly) return Promise.resolve(window.Calendly);
+    if (calLoading) return calLoading;
+    if (!document.querySelector('link[href="' + CAL_CSS + '"]')) {
+      const l = document.createElement("link"); l.rel = "stylesheet"; l.href = CAL_CSS; document.head.appendChild(l);
+    }
+    calLoading = new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = CAL_JS; s.async = true;
+      s.onload = () => (window.Calendly ? resolve(window.Calendly) : reject());
+      s.onerror = () => { calLoading = null; reject(); };
+      document.body.appendChild(s);
+    });
+    return calLoading;
+  };
+  const calUrl = (base) => base.split("?")[0] + "?hide_gdpr_banner=1&locale=hu";
+
+  /* Beágyazott naptár a foglalási szakaszban: kattintásra jelenik meg */
   $$("[data-calendly-load]").forEach((btn) => btn.addEventListener("click", () => {
     const box = btn.closest("[data-calendly]");
     const widget = document.createElement("div");
-    widget.className = "calendly-inline-widget";
-    widget.dataset.url = box.dataset.calendly + "?hide_gdpr_banner=1&locale=hu";
+    widget.className = "calendly-embed";
+    widget.dataset.url = calUrl(box.dataset.calendly);
     box.replaceWith(widget);
-    const s = document.createElement("script");
-    s.src = "https://assets.calendly.com/assets/external/widget.js";
-    s.async = true;
-    document.body.appendChild(s);
+    loadCalendly().then((C) => {
+      C.initInlineWidget({ url: widget.dataset.url, parentElement: widget });
+    }).catch(() => { window.location.href = widget.dataset.url; });
+  }));
+
+  /* Mobil sáv „Időpont” gombja: azonnal teljes képernyős foglalóablakot nyit */
+  $$("[data-calendly-popup]").forEach((a) => a.addEventListener("click", (e) => {
+    e.preventDefault();
+    const url = calUrl(a.getAttribute("href"));
+    a.classList.add("is-loading");
+    let done = false;
+    const fallback = setTimeout(() => { if (!done) { done = true; a.classList.remove("is-loading"); window.location.href = url; } }, 6000);
+    loadCalendly().then((C) => {
+      if (done) return;
+      done = true; clearTimeout(fallback); a.classList.remove("is-loading");
+      C.initPopupWidget({ url });
+    }).catch(() => {
+      if (done) return;
+      done = true; clearTimeout(fallback); a.classList.remove("is-loading");
+      window.location.href = url;
+    });
   }));
   /* ============ Mérés: GA4 + Meta pixel, csak hozzájárulás után ============ */
   const CFG = window.IMS || {};
@@ -233,7 +271,7 @@
     else if (href.startsWith("mailto:")) track("email_click", { location: where });
     else if (href.includes("google.com/maps")) track("directions_click", { location: where });
     else if (/instagram\.com|facebook\.com/.test(href)) track("social_click", { network: href.includes("instagram") ? "instagram" : "facebook", location: where });
-    else if (a.hasAttribute("data-calendly-load")) track("booking_open", { location: where });
+    else if (a.hasAttribute("data-calendly-load") || a.hasAttribute("data-calendly-popup")) track("booking_open", { location: where });
     else if (href.endsWith("#ajanlatkeres")) track("quote_cta_click", { location: where });
   });
   /* Calendly: sikeres foglalás */
