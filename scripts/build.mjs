@@ -126,7 +126,7 @@ const SITE = {
   name: "In My Style",
   phone: "+36 20 320 2996",
   phoneHref: "tel:+36203202996",
-  email: "hello@inmystyle.hu",
+  email: "inmystyle.hu@gmail.com",
   street: "Kapás utca 45/B",
   city: "Budapest",
   zip: "1027",
