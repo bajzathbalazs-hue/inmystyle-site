@@ -92,7 +92,7 @@ function cmsHtml() {
 var CMS_CSS = [
   ':root{--ink:#16181a;--muted:#6b7375;--line:#e6eaeb;--soft:#f5f7f7;--accent:#4d81b3;--rose:#b8325a;--ok:#2e7d32}',
   '*{box-sizing:border-box}body{margin:0;font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:#fff;height:100vh;display:flex;flex-direction:column}',
-  '.top{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:10px 14px;display:flex;gap:8px;align-items:center;flex-wrap:nowrap}',
+  '.top{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:10px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}',
   '.tabs{display:flex;gap:4px;background:var(--soft);padding:3px;border-radius:9px}.tabs button{border:0;background:none;padding:6px 12px;border-radius:7px;font-weight:600;cursor:pointer;color:var(--muted)}.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}',
   'input,select,textarea{font:inherit;color:inherit}.search{border:1px solid var(--line);border-radius:8px;padding:7px 10px;width:190px;min-width:120px}.top select{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:#fff}',
   '.sp{flex:1}.status{color:var(--muted);font-size:12px;white-space:nowrap;text-align:right}.status.ok{color:var(--ok)}.status.err{color:var(--rose)}',
