@@ -539,9 +539,10 @@ p { margin: 0; }
 }
 /* Calendly felugró ablak telefonon: teljes képernyő, jól olvasható */
 .calendly-overlay { z-index: 1000 !important; }
+body:has(.calendly-overlay) .mobile-cta, body:has(.calendly-overlay) .help { display: none !important; }
 @media (max-width: 760px) {
-  .calendly-overlay .calendly-popup { inset: 0 !important; top: 0 !important; left: 0 !important; transform: none !important; width: 100% !important; height: 100% !important; max-width: none !important; max-height: none !important; min-width: 0 !important; border-radius: 0 !important; }
-  .calendly-overlay .calendly-popup-close { top: 14px !important; right: 14px !important; width: 36px !important; height: 36px !important; background-color: rgba(20,30,36,.85) !important; background-size: 14px !important; background-position: center !important; border-radius: 50% !important; z-index: 2 !important; }
+  html body .calendly-overlay .calendly-popup { top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; max-width: none !important; max-height: none !important; min-width: 0 !important; min-height: 0 !important; transform: none !important; border-radius: 0 !important; }
+  html body .calendly-overlay .calendly-popup-close { top: 12px !important; left: 12px !important; right: auto !important; width: 38px !important; height: 38px !important; background-color: rgba(20,30,36,.85) !important; background-size: 14px !important; background-position: center !important; background-repeat: no-repeat !important; border-radius: 50% !important; z-index: 3 !important; }
 }
 .mobile-cta .btn.is-loading { opacity: .7; pointer-events: none; }
 .calendly-placeholder { min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 24px; background: var(--soft-3); border-radius: var(--radius); }
