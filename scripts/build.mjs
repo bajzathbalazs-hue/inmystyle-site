@@ -388,7 +388,7 @@ function footer() {
     </div>
   </div>
 </footer>
-<div class="mobile-cta" data-mobile-cta><a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a><a class="btn btn-dark" href="/#idopont">${I.calendar}Időpont</a></div>
+<div class="mobile-cta" data-mobile-cta><a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a><a class="btn btn-dark" href="${SITE.calendly}?hide_gdpr_banner=1&amp;locale=hu" data-calendly-popup target="_blank" rel="noopener">${I.calendar}Időpont</a></div>
 ${helpWidget()}
 ${TRACKING ? consentBanner() : ""}
 <script src="/js/main.js?v=${JS_V}" defer></script>`;
