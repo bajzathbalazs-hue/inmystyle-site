@@ -11,6 +11,8 @@ var PROPS = PropertiesService.getScriptProperties();
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   ui.createMenu("Weboldal")
+    .addItem("🗂️ Termékkezelő megnyitása", "openCms")
+    .addSeparator()
     .addItem("📷 Fotó feltöltése a kijelölt sorhoz", "openUploader")
     .addItem("✔️ Ellenőrzés", "checkOnly")
     .addSeparator()
