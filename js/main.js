@@ -327,10 +327,13 @@
       const faq = DATA.faq.map((f) => ({ f, s: scoreItem(f.k, toks, raw) })).filter((x) => x.s > 0.5).sort((a, b) => b.s - a.s);
       const cats = DATA.cats.map((c) => ({ c, s: scoreItem(c.k, toks, raw) })).filter((x) => x.s > 0.5).sort((a, b) => b.s - a.s);
       /* termék: a név szavainak legalább fele egyezzen, vagy egy jellegzetes szó (pl. szín + típus) */
-      const prods = DATA.prods.map((p) => { const s = scoreItem(p.k.filter((k) => k.length > 2), toks, raw); return { p, s }; }).filter((x) => x.s >= 1.6).sort((a, b) => b.s - a.s);
+      /* egyszavas terméknévnél (pl. „Bőrdzseki”) elég az az egy, legalább 5 betűs szó */
+      const prods = DATA.prods.map((p) => { const kk = p.k.filter((k) => k.length > 2); const s = scoreItem(kk, toks, raw); const need = kk.length === 1 && kk[0].length >= 5 ? 0.8 : 1.6; return { p, s, ok: s >= need }; }).filter((x) => x.ok).sort((a, b) => b.s - a.s);
       if (prods.length) { const top = prods[0].s; for (let k = prods.length - 1; k > 0; k--) if (prods[k].s < top * 0.75) prods.splice(k, 1); }
       const pages = DATA.pages.map((g) => ({ g, s: scoreItem(g.k, toks, raw) })).filter((x) => x.s > 0.5).sort((a, b) => b.s - a.s);
-      const topCat = cats[0] && cats[0].c;
+      /* navigációs kérésnél a pontosabban egyező oldal („kollekció”, „akciós”) megelőzi a kategóriát */
+      const pageFirst = wantsNav && pages.length && (!cats.length || pages[0].s >= cats[0].s);
+      const topCat = !pageFirst && cats[0] && cats[0].c;
       const priceQ = faq.length && faq[0].f.id === "arak";
       const SERVICE = ["igazitas", "estelyi", "ferfi", "ajandek", "fizetes", "kapcsolat", "tavoli", "alkat", "stilus"];
       const serviceFirst = faq.length && SERVICE.includes(faq[0].f.id) && !wantsNav;
@@ -373,7 +376,8 @@
         let html = escH(f.a) + (f.cta ? link(f.cta[0], f.cta[1]) : "");
         const others = faq.slice(1, 3).filter((x) => x.s >= faq[0].s * 0.7 && !x.f.small).map((x) => x.f);
         if (others.length) html += `<span class="help-more">Ez is érdekelhet:</span>` + suggest(others);
-        if (wantsNav && f.cta && !/^https?:/.test(f.cta[1]) && pages.length === 0) { bot(escH(f.a)); go(f.cta[1], f.cta[0]); return f.id; }
+        if (wantsNav && f.cta && !/^https?:/.test(f.cta[1])) { bot(escH(f.a)); go(f.cta[1], f.cta[0]); return f.id; }
+        if (wantsNav && pages.length) { bot(escH(f.a)); go(pages[0].g.u, pages[0].g.n); return f.id; }
         bot(html); return f.id;
       }
       /* 4) oldal */

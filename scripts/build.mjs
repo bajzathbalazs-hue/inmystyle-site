@@ -690,7 +690,8 @@ function helpData() {
   const thumb = (f) => { const w = f.replace(/\.(jpe?g|png)$/i, ".webp"); return "/assets/photos/" + (w !== f && fs.existsSync(path.join(ROOT, "assets/photos", w)) ? w : f); };
   return {
     faq: HELP.map((h) => ({ id: h.id, q: h.q, a: h.a, k: h.k.map(norm), cta: h.cta || null, small: !!h.small })),
-    cats: CATEGORIES.map((c) => ({ id: c.slug, n: c.name, u: catUrl(c), k: [...new Set([...words(c.name), ...(CAT_SYN[c.slug] || []).map(norm)])] })),
+    /* a kategórianév általános szavai („darabok”, „kollekció”) önmagukban ne vigyenek kategóriába */
+    cats: CATEGORIES.map((c) => ({ id: c.slug, n: c.name, u: catUrl(c), k: [...new Set([...words(c.name).filter((w) => !["darab", "darabok", "kollekcio"].includes(w)), ...(CAT_SYN[c.slug] || []).map(norm)])] })),
     prods: PRODUCTS.map((p) => { const c = catBySlug[p.category]; return { s: p.slug, n: p.name, u: prodUrl(p), c: p.category, cn: c ? c.name : "", p: priceParts(p.price).now, img: thumb(p.photos[0]), k: [...new Set(words(p.name))] }; }),
     pages: HELP_PAGES.map(([n, u, k]) => ({ n, u, k })),
   };
