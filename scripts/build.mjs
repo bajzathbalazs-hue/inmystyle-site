@@ -1120,7 +1120,7 @@ function productPage(p) {
     </div>
   </div>
 </section>
-${lim ? quoteSection({ subject: `Limitált darab: ${p.name}`, title: `Érdeklődés — ${p.name}`, lead: "Kérj visszahívást, és amíg a készlet tart, félretesszük neked ezt a darabot.", simple: true }) : quoteSection({ subject: `Termék: ${p.name} (${c.name})`, title: `Ajánlatkérés — ${p.name}`, lead: "Kérj visszahívást, vagy add meg előre a méreteidet — a kért darabot már előkészítve várjuk." })}
+${lim ? quoteSection({ subject: `Limitált darab: ${p.name}`, title: `Érdeklődés — ${p.name}`, lead: "Kérj visszahívást, és amíg a készlet tart, félretesszük neked ezt a darabot.", simple: true }) : quoteSection({ subject: `Termék: ${p.name} (${c.name})`, title: `Ajánlatkérés — ${p.name}`, lead: "Kérj visszahívást, vagy add meg előre a méreteidet — a kért darabot egyeztetés után elkészítjük." })}
 ${related.length ? `<section class="section" aria-labelledby="hasonlo-cim">
   <div class="container">
     <div class="section-head-row"><div class="section-head"><div class="eyebrow">Neked ajánljuk</div><h2 class="h2" id="hasonlo-cim">Hasonló darabok</h2></div><a class="link-arrow" href="${catUrl(c)}">Összes: ${esc(c.name)}</a></div>
