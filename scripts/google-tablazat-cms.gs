@@ -8,6 +8,10 @@ function openCms() {
   SpreadsheetApp.getUi().showModalDialog(html, "In My Style – Termékkezelő");
 }
 
+/* A Termékek lap Google-„táblázat” (Table), típusos oszlopokkal: oda nem lehet jelölőnégyzetet beszúrni (már az).
+   Ezért a jelölőnégyzet-beszúrás csak kísérlet; ha a Google elutasítja, az érték ettől még elmentődik. */
+function ensureCheckbox(range) { try { range.insertCheckboxes(); } catch (e) {} return range; }
+
 var CMS_KEYS = { show: COL.show, name: COL.name, cat: COL.cat, type: COL.type, price: COL.price, desc: COL.desc, anyag: COL.anyag, fazon: COL.fazon, szin: COL.szin, meret: COL.meret, badge: COL.badge, featured: COL.featured, sale: COL.sale, photos: COL.photos, slug: COL.slug };
 
 function cmsLoad() {
@@ -34,7 +38,7 @@ function cmsUpdate(row, key, value) {
   var col = CMS_KEYS[key];
   if (!col || row < 2) throw new Error("Ismeretlen mező.");
   var sh = productSheet();
-  if (key === "show" || key === "featured" || key === "sale") { sh.getRange(row, col).insertCheckboxes(); value = value === true; }
+  if (key === "show" || key === "featured" || key === "sale") { ensureCheckbox(sh.getRange(row, col)); value = value === true; }
   if (key === "photos") value = (value || []).join(", ");
   sh.getRange(row, col).setValue(value);
   return true;
@@ -45,8 +49,8 @@ function cmsAdd() {
   var photos = sh.getRange(2, COL.photos, sh.getMaxRows() - 1, 1).getValues();
   for (var i = 0; i < names.length; i++) if (!String(names[i][0]).trim() && !String(photos[i][0]).trim()) { row = i + 2; break; }
   if (!row) { sh.insertRowsAfter(sh.getMaxRows(), 20); row = sh.getMaxRows() - 19; }
-  sh.getRange(row, COL.show).insertCheckboxes().setValue(false);
-  sh.getRange(row, COL.featured, 1, 2).insertCheckboxes();
+  ensureCheckbox(sh.getRange(row, COL.show)).setValue(false);
+  ensureCheckbox(sh.getRange(row, COL.featured, 1, 2)).setValues([[false, false]]);
   sh.getRange(row, COL.name).setValue("Új termék");
   sh.getRange(row, COL.type).setValue("Kész darab");
   return row;
@@ -61,9 +65,9 @@ function cmsGuestAddRow() {
 
 function cmsGuestUpdate(row, key, value) {
   var g = guestSheet();
-  if (key === "show") g.getRange(row, 1).insertCheckboxes().setValue(value === true);
+  if (key === "show") ensureCheckbox(g.getRange(row, 1)).setValue(value === true);
   else if (key === "caption") g.getRange(row, 3).setValue(value);
-  else if (key === "remove") { g.getRange(row, 1).insertCheckboxes().setValue(false); g.getRange(row, 2, 1, 2).clearContent(); }
+  else if (key === "remove") { ensureCheckbox(g.getRange(row, 1)).setValue(false); g.getRange(row, 2, 1, 2).clearContent(); }
   return true;
 }
 
@@ -116,7 +120,7 @@ function cmsPublish() {
   var res = UrlFetchApp.fetch(hook + "?trigger_title=" + encodeURIComponent("Termékkezelőből frissítve"), { method: "post", muteHttpExceptions: true });
   if (res.getResponseCode() >= 300) return { ok: false, msg: "A frissítés indítása nem sikerült (" + res.getResponseCode() + ")." };
   logEvent("Weboldal frissítése a termékkezelőből: " + r.products.length + " termék");
-  return { ok: true, msg: "A frissítés elindult: " + r.products.length + " termék. Körülbelül 2–3 perc múlva látod az oldalon." };
+  return { ok: true, msg: "A frissítés elindult: " + r.products.length + " termék. Körülbelül 2–3 perc múlva látod az oldalon." + (r.warnings.length ? "\n\nFigyelem:\n• " + r.warnings.join("\n• ") : "") };
 }
 
 function cmsHtml() {
@@ -208,7 +212,7 @@ var CMS_JS = [
   ' var d=e.target.getAttribute("data-del");if(d!==null){r.photos.splice(+d,1);call("cmsUpdate",[r.row,"photos",r.photos]);refreshRow(r);return}',
   ' if(e.target.classList.contains("add")){fileTarget={kind:"p",r:r};$("fi").click()}});',
   '$("fi").addEventListener("change",function(e){var f=[].slice.call(e.target.files);e.target.value="";if(!fileTarget)return;if(fileTarget.kind==="p")uploadTo(fileTarget.r,f);else if(fileTarget.kind==="s")uploadSite(fileTarget.s,f[0]);else uploadGuests(f)});',
-  'function resize(file){return new Promise(function(ok,bad){if(!/^image\\//.test(file.type)&&!/\\.(jpe?g|png|webp|heic)$/i.test(file.name)){bad(new Error("Ez nem kép: "+file.name));return}var rd=new FileReader();rd.onload=function(){var img=new Image();img.onload=function(){var m=1600,w=img.width,h=img.height,s=Math.min(1,m/Math.max(w,h));var c=document.createElement("canvas");c.width=Math.round(w*s);c.height=Math.round(h*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",0.85))};img.onerror=function(){bad(new Error("A kép nem olvasható ("+file.name+"). iPhone-fotónál mentsd JPG-ként."))};img.src=rd.result};rd.readAsDataURL(file)})}',
+  'function resize(file){return new Promise(function(ok,bad){if(!/^image\\//.test(file.type)&&!/\\.(jpe?g|png|webp|heic)$/i.test(file.name)){bad(new Error("Ez nem kép: "+file.name));return}var rd=new FileReader();rd.onload=function(){var img=new Image();img.onload=function(){var m=1600,w=img.width,h=img.height,s=Math.min(1,m/Math.max(w,h));var c=document.createElement("canvas");c.width=Math.round(w*s);c.height=Math.round(h*s);var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",0.85))};img.onerror=function(){bad(new Error("A kép nem olvasható ("+file.name+"). iPhone-fotónál mentsd JPG-ként."))};img.src=rd.result};rd.readAsDataURL(file)})}',
   'function uploadTo(r,files){files.reduce(function(p,f){return p.then(function(){return resize(f).then(function(data){r.photos.push("…");var i=r.photos.length-1;refreshRow(r);markUploading(r);return new Promise(function(ok){busy(1);google.script.run.withSuccessHandler(function(id){busy(-1);r.photos[i]="drive:"+id;if(!r.slug)r.slug="";refreshRow(r);ok()}).withFailureHandler(function(e){busy(-1);r.photos.splice(i,1);refreshRow(r);status("Hiba: "+(e.message||e),"err");ok()}).uploadPhoto(r.row,data,"product")})}).catch(function(e){status(e.message,"err")})})},Promise.resolve())}',
   'function markUploading(r){var tr=document.querySelector("tr[data-row=\\""+r.row+"\\"]");if(!tr)return;var t=tr.querySelectorAll(".th");if(t.length)t[t.length-1].classList.add("up")}',
   'var dragSrc=null;',
