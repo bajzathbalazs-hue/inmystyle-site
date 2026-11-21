@@ -7,6 +7,9 @@ var SITE = "https://inmystyle.netlify.app";
 var RAW = "https://raw.githubusercontent.com/bajzathbalazs-hue/inmystyle-site/main/assets/photos/";
 var COL = { show: 1, preview: 2, name: 3, cat: 4, type: 5, price: 6, desc: 7, anyag: 8, fazon: 9, szin: 10, meret: 11, badge: 12, featured: 13, sale: 14, photos: 15, slug: 16 };
 var PROPS = PropertiesService.getScriptProperties();
+/* A közzétett webalkalmazás (/exec) címe: a nem tulajdonos szerkesztők (pl. Szilvia) ezen keresztül töltenek fel fotót.
+   A ScriptApp.getService().getUrl() a /dev címet adhatja vissza, amely bejelentkezést kér – ezért rögzítjük. */
+var WEBAPP_EXEC = "https://script.google.com/macros/s/AKfycbwPHcrouKtKkaZpOlyh6HZHtcikW8svsNcM5uOCaFCnq0P3ax_xUNDyx5tzYdCl-u3OqA/exec";
 
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
@@ -142,7 +145,7 @@ function uploaderHtml(row, name, kind) {
     '<label class="drop">📷 Fotók kiválasztása<input id="f" type="file" accept="image/*" multiple></label><div class="list" id="l"></div>' +
     '<button class="btn" onclick="google.script.host.close()">Kész</button>' +
     '<script>var ROW=' + row + ',KIND="' + kind + '";' +
-    'function resize(file){return new Promise(function(ok,bad){var r=new FileReader();r.onload=function(){var img=new Image();img.onload=function(){var m=1600,w=img.width,h=img.height,s=Math.min(1,m/Math.max(w,h));var c=document.createElement("canvas");c.width=Math.round(w*s);c.height=Math.round(h*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",0.85));};img.onerror=function(){bad(new Error("A kép nem olvasható. iPhone-fotónál a Fotók appban válaszd a Megosztás → Mentés fájlba lehetőséget JPG-ként."));};img.src=r.result;};r.readAsDataURL(file);});}' +
+    'function resize(file){return new Promise(function(ok,bad){var r=new FileReader();r.onload=function(){var img=new Image();img.onload=function(){var m=1600,w=img.width,h=img.height,s=Math.min(1,m/Math.max(w,h));var c=document.createElement("canvas");c.width=Math.round(w*s);c.height=Math.round(h*s);var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",0.85));};img.onerror=function(){bad(new Error("A kép nem olvasható. iPhone-fotónál a Fotók appban válaszd a Megosztás → Mentés fájlba lehetőséget JPG-ként."));};img.src=r.result;};r.readAsDataURL(file);});}' +
     'document.getElementById("f").addEventListener("change",async function(e){var files=[].slice.call(e.target.files);for(var i=0;i<files.length;i++){var it=document.createElement("div");it.className="item";it.innerHTML="<img><span>Feltöltés…</span>";document.getElementById("l").appendChild(it);' +
     'try{var d=await resize(files[i]);it.querySelector("img").src=d;await new Promise(function(ok,bad){google.script.run.withSuccessHandler(ok).withFailureHandler(bad).uploadPhoto(ROW,d,KIND);if(KIND==="guest")ROW++;});it.querySelector("span").className="ok";it.querySelector("span").textContent="Feltöltve ✓";}' +
     'catch(err){it.querySelector("span").className="err";it.querySelector("span").textContent="Hiba: "+(err.message||err);}}e.target.value="";});' +
@@ -171,10 +174,11 @@ function uploadPhoto(row, dataUrl, kind) {
     id = f.getId();
   } else {
     // más szerkesztő (pl. Szilvia) a webalkalmazáson keresztül ment a tulajdonos mappájába
-    var url = PROPS.getProperty("WEBAPP_URL") || ScriptApp.getService().getUrl();
-    if (!url) throw new Error("A fotófeltöltés még nincs beállítva. Szólj Balázsnak.");
+    var url = PROPS.getProperty("WEBAPP_URL") || WEBAPP_EXEC;
     var res = UrlFetchApp.fetch(url, { method: "post", contentType: "application/json", payload: JSON.stringify({ key: PROPS.getProperty("UPLOAD_KEY"), name: file, b64: b64 }), muteHttpExceptions: true, followRedirects: true });
-    var out = JSON.parse(res.getContentText());
+    var out;
+    try { out = JSON.parse(res.getContentText()); }
+    catch (err) { throw new Error("A feltöltés nem sikerült: a fotótároló nem válaszolt megfelelően (" + res.getResponseCode() + "). Próbáld újra pár perc múlva, vagy szólj Balázsnak."); }
     if (!out.ok) throw new Error("A feltöltés nem sikerült (" + out.error + ").");
     id = out.id;
   }
@@ -200,17 +204,17 @@ function readProducts() {
     var miss = [];
     if (!name) miss.push("név");
     var catName = String(v[COL.cat - 1]).trim(), cat = cats[catName];
-    if (!catName) miss.push("kategória"); else if (!cat) errors.push(row + ". sor: ismeretlen kategória („" + catName + "”).");
+    if (!catName) miss.push("kategória"); else if (!cat) miss.push("érvényes kategória („" + catName + "” nem szerepel a Kategóriák lapon)");
     var type = String(v[COL.type - 1]).trim();
     if (!type) miss.push("típus");
     var desc = String(v[COL.desc - 1]).trim();
     if (!desc) miss.push("leírás");
     var photos = String(v[COL.photos - 1]).split(",").map(function (s) { return s.trim(); }).filter(String);
     if (!photos.length) miss.push("fotó");
-    if (miss.length) { errors.push(row + ". sor (" + (name || "névtelen") + "): hiányzik: " + miss.join(", ") + "."); return; }
+    if (miss.length) { warnings.push(row + ". sor (" + (name || "névtelen") + ") most nem kerül ki az oldalra, mert hiányzik: " + miss.join(", ") + "."); return; }
     var slug = String(v[COL.slug - 1]).trim() || slugify(name);
     if (!String(v[COL.slug - 1]).trim()) fixes.push([row, slug]);
-    if (slugs[slug]) errors.push(row + ". sor: a webcím („" + slug + "”) már szerepel a " + slugs[slug] + ". sorban. Adj meg másik nevet vagy webcímet.");
+    if (slugs[slug]) { warnings.push(row + ". sor (" + name + ") most nem kerül ki az oldalra: a webcíme („" + slug + "”) már szerepel a " + slugs[slug] + ". sorban. Adj neki másik nevet."); return; }
     slugs[slug] = row;
     var price = String(v[COL.price - 1]).trim();
     if (/^\d[\d\s.]*$/.test(price)) price = String(Number(price.replace(/\D/g, ""))).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " Ft";
@@ -223,6 +227,7 @@ function readProducts() {
     if (v[COL.sale - 1] === true) p.sale = true;
     out.push(p);
   });
+  if (!out.length) errors.push("Egyetlen megjeleníthető termék sincs – így nem frissítem az oldalt.");
   if (featured > 4) warnings.push("A főoldalon csak az első 4 kiemelt termék jelenik meg (most " + featured + " van bepipálva).");
   if (featured === 0) warnings.push("Nincs főoldalon kiemelt termék, ezért a főoldal kollekció-része üres lesz.");
   return { products: out, errors: errors, warnings: warnings, fixes: fixes };
