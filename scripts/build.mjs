@@ -121,6 +121,9 @@ const catHero = (c) => slot("kat-" + c.slug, c.heroPhoto, `${c.name} – kategó
 const GUESTS = [];
 for (const g of RAW_GUESTS) if (await preparePhoto(g.photo)) GUESTS.push(g); else console.warn(`Figyelmeztetés: hiányzó vendégfotó (${g.photo})`);
 
+/* Ünnepi ajándékkártya-sáv a nyitókép alatt: az ünnepek után false-ra állítva eltűnik. */
+const HOLIDAY_GIFT = true;
+
 const SITE = {
   url: "https://inmystyle.hu",
   name: "In My Style",
@@ -265,7 +268,8 @@ function header(active = "") {
   return `<a class="skip-link" href="#tartalom">Ugrás a tartalomra</a>
 <div class="topbar">
   <div class="container">
-    <span>${I.clock}Nyitva: ${SITE.hoursShort}</span>
+    ${HOLIDAY_GIFT ? `<a class="topbar-gift" href="/#ajandekkartya">Ajándékkártya az ünnepekre →</a>` : ""}
+    <span${HOLIDAY_GIFT ? ' class="topbar-hide-m"' : ""}>${I.clock}Nyitva: ${SITE.hoursShort}</span>
     <span class="topbar-hide-m">${I.pin}Budapest II. kerület, Kapás utca 45/B</span>
     <a class="topbar-hide-m" href="${SITE.phoneHref}">${SITE.phone}</a>
   </div>
@@ -808,6 +812,19 @@ function homePage() {
   <a class="scroll-cue" href="#szolgaltatasok" aria-label="Tovább a tartalomhoz"></a>
 </section>
 
+${HOLIDAY_GIFT ? `<section class="gift-band" id="ajandekkartya" aria-labelledby="ajandek-cim">
+  <div class="container gift-inner">
+    <div class="gift-media">${pic(slot("fooldal-unnepi-ajandekkartya", "8Itt096HFQA0HT3NX6dYMC0PHcM.jpg", "Főoldal – Ünnepi ajándékkártya sáv (közvetlenül a nyitókép alatt)"), "In My Style ajándékkártya")}</div>
+    <div class="gift-body">
+      <div class="eyebrow">Ünnepi ajándékötlet</div>
+      <h2 class="h2" id="ajandek-cim">Ajándékozz stílust az ünnepekre</h2>
+      <p>Lepd meg szeretteidet egy In My Style ajándékkártyával: szabadon választható összeggel, bármelyik szolgáltatásunkra beváltható.</p>
+      <div class="chips"><span class="chip">Szabadon választható összeg</span><span class="chip">6 hónapig érvényes</span><span class="chip">Postán is elküldjük</span></div>
+      <div class="gift-actions"><a class="btn btn-light" href="#ajanlatkeres">Ajándékkártyát kérek</a><a class="btn btn-outline-light" href="${SITE.phoneHref}">${I.phone}Hívás</a></div>
+    </div>
+  </div>
+</section>
+` : ""}
 <section class="trust" aria-label="Miért az In My Style?">
   <div class="container">
     <div class="trust-item">${I.ruler}<div><b>Pontos méretvétel</b><span>személyesen, a szalonban</span></div></div>
@@ -840,7 +857,26 @@ function homePage() {
         <div class="service-body"><span class="num">03</span><h3 class="h3">Igazítás és javítás</h3><p>A kedvenc darabjaid is megérdemlik a törődést: megjavítjuk és méretre igazítjuk őket.</p><a class="link-arrow" href="#igazitas">Részletek</a></div>
       </article>
     </div>
-    <div class="extras"><span>További szolgáltatások:</span><span class="chip">Stílustanácsadás</span><span class="chip">Ruhatár-összeállítás</span><span class="chip">Kedvenc ruha lemásolása</span><span class="chip">Ajándékkártya</span></div>
+    <div class="extras"><span>További szolgáltatások:</span><a class="chip chip-hot" href="#ajandekkartya">Ajándékkártya</a><a class="chip" href="#szulinap">Szülinap az In My Style-ban</a><span class="chip">Kapszulagardrób</span><span class="chip">Stílustanácsadás, stílus-coaching</span><span class="chip">Workshopszervezés</span><span class="chip">Pop-up: profilunkba illő márkák bemutatkozása</span><span class="chip">Kedvenc hozott ruha utánkészítése</span></div>
+  </div>
+</section>
+
+<section class="section-sm" id="szulinap" aria-labelledby="szulinap-cim">
+  <div class="container bday">
+    <div class="bday-media reveal">${pic(slot("fooldal-szulinap", "vendeg-lila-kopenyes-ruha-szalon.jpg", "Főoldal – Születésnapi élmény az In My Style-ban"), "Szilvia és vendége az In My Style szalonban")}</div>
+    <div class="bday-body">
+      <div class="eyebrow">Szülinap az In My Style-ban</div>
+      <h2 class="h2" id="szulinap-cim">Születésnapi élmény az In My Style-ban</h2>
+      <p class="lead">Tedd felejthetetlenné a szülinapod, vagy ajándékozz stílusos ünneplést az In My Style-ban!</p>
+      <ul class="checklist">
+        <li>VIP tagság kedvezményekkel</li>
+        <li>Ünnepi dekor és hangulat, mini catering</li>
+        <li>Személyre szabott ruhák</li>
+        <li>Tanácsadás, coaching</li>
+        <li>Egyedi programok igény szerint</li>
+      </ul>
+      <div class="gift-actions"><a class="btn btn-dark" href="#ajanlatkeres">Érdeklődöm</a><a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a></div>
+    </div>
   </div>
 </section>
 
@@ -1018,7 +1054,7 @@ function categoryPage(c) {
       <div class="section-head"><div class="eyebrow">Most elérhető</div><h2 class="h2" id="darabok-cim">${esc(c.name)} — jelenleg elérhető darabok</h2></div>
       <a class="link-arrow" href="#ajanlatkeres">Egyedit szeretnék</a>
     </div>
-    <div class="product-grid">${items.length ? items.map((p) => productCard(p, { showCat: false })).join("") : `<div class="empty-state"><p>Hamarosan új darabok érkeznek ebbe a kategóriába. Egyedi méretre azonban most is elkészítjük a neked tetsző modellt!</p><a class="btn btn-dark" href="#ajanlatkeres">Ajánlatot kérek</a></div>`}</div>
+    <div class="product-grid">${items.length ? items.map((p) => productCard(p, { showCat: false })).join("") : `<div class="empty-state"><p>Hamarosan új darabok érkeznek ebbe a kategóriába.</p><a class="btn btn-dark" href="#ajanlatkeres">Ajánlatot kérek</a></div>`}</div>
   </div>
 </section>
 ${c.gallery && c.gallery.length ? `
