@@ -967,7 +967,8 @@ function breadcrumbHtml(items) {
 
 /* ---------------- pages ---------------- */
 function homePage() {
-  const featured = PRODUCTS.filter((p) => p.featured).slice(0, 4);
+  /* Főoldali kiemeltek: elöl a táblázatban kiemelt darabok, utánuk a többi termék, összesen legfeljebb 12, oldalra lapozható sorban. */
+  const featured = PRODUCTS.filter((p) => p.featured).concat(PRODUCTS.filter((p) => !p.featured && !/elfogy/i.test(p.badge || ""))).slice(0, 12);
   const steps = [
     [I.chat, "Konzultáció", "Elmondod az elképzelésed, megmutatod, ami inspirál."],
     [I.swatch, "Anyagválasztás", "Közösen kiválasztjuk a hozzád illő anyagot és színt."],
@@ -1066,7 +1067,8 @@ ${HOLIDAY_GIFT ? `<section class="gift-band" id="ajandekkartya" aria-labelledby=
       </div>
       <a class="link-arrow" href="/kollekcio/">Teljes kollekció</a>
     </div>
-    <div class="product-grid">${featured.map((p) => productCard(p)).join("")}</div>
+    <div class="h-scroll" tabindex="0" aria-label="Kiemelt darabok, oldalra lapozható">${featured.map((p) => productCard(p)).join("")}</div>
+    <div class="h-scroll-nav"><button type="button" class="icon-link" aria-label="Előző darabok" onclick="this.parentNode.previousElementSibling.scrollBy({left:-this.parentNode.previousElementSibling.clientWidth*.8,behavior:'smooth'})">←</button><button type="button" class="icon-link" aria-label="További darabok" onclick="this.parentNode.previousElementSibling.scrollBy({left:this.parentNode.previousElementSibling.clientWidth*.8,behavior:'smooth'})">→</button></div>
     <div style="margin-top:clamp(56px,7vw,88px)">
       <div class="section-head"><div class="eyebrow">Termékkategóriák</div><h2 class="h2">Válogass kedvedre</h2></div>
       ${categoryGroups()}
