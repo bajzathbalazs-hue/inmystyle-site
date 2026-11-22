@@ -883,3 +883,12 @@ a.chip:hover { filter: brightness(.95); }
 @media (max-width: 860px) { .gift-inner, .bday { grid-template-columns: 1fr; } }
 .topbar a.topbar-gift { background: #fff; color: var(--ink); border-radius: 999px; padding: 3px 12px; font-weight: 700; }
 .topbar a.topbar-gift:hover { text-decoration: none; background: var(--accent-tint); }
+
+/* Szolgáltatásoldalak */
+.process-3 { grid-template-columns: repeat(3, 1fr); max-width: 900px; margin-inline: auto !important; }
+.process-3::before { left: 17%; right: 17%; }
+a.service-media { display: block; }
+.services-all { row-gap: 32px; }
+@media (max-width: 700px) { .process-3 { grid-template-columns: 1fr; row-gap: 32px; } }
+.split-media.svc-media { aspect-ratio: auto; max-height: 640px; }
+.split-media.svc-media img { height: auto; max-height: 640px; object-fit: cover; object-position: 50% 15%; }
