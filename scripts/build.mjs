@@ -34,6 +34,17 @@ if (SHEET_API) {
       }
       p.photos = names;
     }
+    /* Webcímek javítása: az „Új termék” gombbal felvett, majd átnevezett termékek „uj-termek” címe a nevükből készül újra,
+       az ismétlődő címek pedig sorszámot kapnak — így egy elírás sosem állítja le az oldal frissítését. */
+    const slugify = (t) => String(t).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const used = new Set();
+    for (const p of d.products) {
+      let sl = String(p.slug || "").trim();
+      if (!sl || (/^uj-termek(-\d+)?$/.test(sl) && slugify(p.name) !== "uj-termek")) sl = slugify(p.name) || "termek";
+      let u = sl, n = 2; while (used.has(u)) u = `${sl}-${n++}`;
+      if (u !== p.slug) console.warn(`Figyelmeztetés: „${p.name}” webcíme: /termek/${u}/ (a táblázatban: „${p.slug || "üres"}”)`);
+      p.slug = u; used.add(u);
+    }
     RAW_PRODUCTS = d.products;
     console.log(`Termékek a táblázatból: ${RAW_PRODUCTS.length} db`);
   } catch (e) { console.warn("Figyelmeztetés: a táblázat nem érhető el (" + e.message + "), a tárolóban lévő termékadatokkal építek."); }
