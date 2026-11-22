@@ -366,7 +366,7 @@ function header(active = "") {
     <a href="/tervezd-meg/">Tervezd meg a ruhád</a>
     <a href="/lookbook/">Lookbook</a>
     <a href="/kedvencek/">Kedvenceim</a>
-    <a href="/#szolgaltatasok">Szolgáltatások</a>
+    <a href="/szolgaltatasok/">Szolgáltatások</a>
     <a href="/akcio/">Akció</a>
     <a href="/#rolunk">Rólunk</a>
     <a href="/#velemenyek">Vélemények</a>
@@ -426,7 +426,7 @@ function footer() {
       <div>
         <h3>Szalon</h3>
         <ul class="footer-links">
-          <li><a href="/#szolgaltatasok">Szolgáltatások</a></li>
+          <li><a href="/szolgaltatasok/">Szolgáltatások</a></li>
           <li><a href="/#folyamat">Így készül a ruhád</a></li>
           <li><a href="/akcio/">Akció</a></li>
           <li><a href="/#ajandekutalvany">Ajándékutalvány</a></li>
@@ -673,6 +673,133 @@ function quoteSection({ id = "ajanlatkeres", subject = "", title = "Kérj ajánl
 }
 
 
+/* ================= Szolgáltatások: gyűjtőoldal és külön oldal szolgáltatásonként (SEO) =================
+   Új szolgáltatás: vegyél fel egy új elemet a SERVICES listába. A képe automatikusan megjelenik a termékkezelő
+   „Oldalképek” fülén (kulcsa: szolg-<slug>), ott bármikor lecserélhető. */
+const SERVICES = [
+  { slug: "egyedi-ruhakeszites", name: "Egyedi ruhakészítés", chip: "Egyedi megrendelések", eyebrow: "Testre szabva", core: true,
+    photo: "NF5aKztD4zvcFCh6rvT2ToqpNUo.jpg", alt: "Mitterer Szilvia saját tervezésű, méretre készült sötétkék kosztümben",
+    title: "Egyedi, méretre szabott női ruha készítése Budapesten – In My Style",
+    desc: "Méretre szabott női ing, blézer, nadrág és alkalmi ruha készítése Budán, a II. kerületben: közös tervezéssel és próbával, jellemzően 1–2 hét alatt.",
+    h1: "Egyedi, méretre szabott női ruhák",
+    lead: "A mindennapok is megérdemlik a személyre szabott tökéletességet: az alkatodra, a te ízlésed szerint készítjük el a kívánt darabot.",
+    short: "Saját elképzelés vagy fotó alapján, hozott vagy általunk ajánlott anyagból, az alkatodra szabva.",
+    body: ["Egyedi méretre, közös anyagválasztással, az alkatodnak megfelelően készítjük el a kívánt modellt — legyen szó egy tökéletes fehér ingről, egy szabott nadrágról, egy blézerről vagy egy alkalmi ruháról.", "Hozhatsz inspirációs fotót, saját anyagot vagy egy kedvenc darabot is: ezekből közösen alakítjuk ki a végleges modellt. A kész ruhát felpróbálod, és ha szükséges, finomítunk rajta."],
+    points: ["Díjmentes, körülbelül 30 perces első konzultáció", "Inspirációs fotó vagy hozott anyag alapján is", "Pontos méretvétel a szalonban", "Próbával és finomhangolással", "Jellemzően 1–2 hét alatt elkészül"],
+    steps: [["Konzultáció", "Elmondod az elképzelésed, és megmutatod, ami inspirál."], ["Anyag és méret", "Közösen választunk anyagot és színt, majd pontos méretet veszünk."], ["Próba és átvétel", "Felpróbálod a kész darabot, és ha kell, finomhangoljuk."]],
+    faq: [["Mennyi idő alatt készül el egy egyedi ruha?", "Az egyedi darabok átfutási ideje jellemzően 1–2 hét, a modelltől és az anyagtól függően."], ["Mennyibe kerül egy egyedi ruha?", "Az ár a modelltől és az anyagtól függ, ezért a pontos árat a díjmentes első konzultáción adjuk meg."], ["Hozhatok saját anyagot?", "Igen, saját anyagból is szívesen dolgozunk. Hozd magaddal a konzultációra, és megnézzük, mire a legalkalmasabb."]],
+    cta: "Ajánlatot kérek", keys: ["egyedi", "meretre", "szabott", "ruhakeszites", "varratas", "varrat"] },
+  { slug: "ruhaigazitas-javitas", name: "Igazítás és javítás", chip: "Igazítás és javítás", eyebrow: "Törődés", core: true,
+    photo: "ZHXenMDNxDUohhIi2cLGZ0mYT4.jpg", alt: "Ruhaigazítás próbán az In My Style szalonban",
+    title: "Ruhaigazítás és ruhajavítás Budán, a II. kerületben – In My Style",
+    desc: "Ruhaigazítás és javítás a II. kerületi Kapás utcában: méretre igazítás 3 500 Ft-tól, jellemzően 1–3 nap alatt. Hozd be a ruhát, és helyben megbeszéljük a teendőket.",
+    h1: "Ruhaigazítás és javítás",
+    lead: "Még a legfinomabb darabok is megérdemlik a törődést. Ha elszakadt, megjavítjuk; ha szükséges, méretre igazítjuk.",
+    short: "A kedvenc darabjaid is megérdemlik a törődést: megjavítjuk és méretre igazítjuk őket.",
+    body: ["Egy jól álló ruhát kár a szekrényben hagyni csak azért, mert bő lett, szűk lett, vagy megsérült. Hozd be a szalonba, felpróbálod, és helyben megbeszéljük, mit érdemes rajta alakítani.", "Nemcsak a nálunk készült darabokat vállaljuk: a máshol vásárolt ruháidat is szívesen a méretedre igazítjuk."],
+    points: ["Igazítás 3 500 Ft-tól", "Jellemzően 1–3 nap alatt elkészül", "Próba és egyeztetés a szalonban", "Máshol vásárolt ruhákat is vállalunk"],
+    steps: [["Behozod a ruhát", "Időpontra vagy nyitvatartási időben vár a szalon a Kapás utcában."], ["Próba és egyeztetés", "Felpróbálod, megjelöljük az igazítást, és megbeszéljük az árat."], ["Átvétel", "Jellemzően 1–3 nap múlva átveheted a kész darabot."]],
+    faq: [["Mennyibe kerül az igazítás?", "Az igazítás 3 500 Ft-tól indul; a pontos árat a ruha és a feladat ismeretében, a szalonban mondjuk meg."], ["Mennyi idő alatt készül el?", "Az igazítások és javítások jellemzően 1–3 nap alatt elkészülnek."], ["Kell időpontot foglalnom?", "Nyitvatartási időben időpont nélkül is behozhatod a ruhát, de ha biztosra szeretnél menni, foglalj időpontot online vagy telefonon."]],
+    cta: "Időpontot foglalok", ctaHref: "/#idopont", keys: ["igazitas", "igazit", "javitas", "javit", "felhajtas", "szukites", "alakitas"] },
+  { slug: "ajandekkartya", name: "Ajándékkártya", chip: "Ajándékkártya", hot: true, eyebrow: "Meglepetés",
+    photo: "8Itt096HFQA0HT3NX6dYMC0PHcM.jpg", alt: "In My Style ajándékkártya",
+    title: "Ajándékkártya nőknek – In My Style, Budapest",
+    desc: "In My Style ajándékkártya szabadon választható összeggel: bármelyik szolgáltatásunkra beváltható, 6 hónapig érvényes, és postán is elküldjük.",
+    h1: "In My Style ajándékkártya",
+    lead: "Lepd meg az ünnepeltet egy élménnyel: az ajándékkártya szabadon választható összegű, és bármelyik szolgáltatásunkra beváltható.",
+    short: "Szabadon választható összegű ajándékkártya, amely bármelyik szolgáltatásunkra beváltható.",
+    body: ["Az ajándékkártyával a megajándékozott maga dönti el, mire vágyik: egy rá szabott ruhára, egy darabra a kollekcióból, vagy éppen stílustanácsadásra.", "Beváltható többek között privát shoppingra, egyéni ruhatervezésre és ruharendelésre, kapszulagardrób kialakítására, stylisttal közös vásárlásra és stíluscoachingra is."],
+    points: ["Szabadon választható összeg", "Bármelyik szolgáltatásunkra beváltható", "6 hónapig érvényes", "A szalonban, telefonon vagy e-mailben rendelhető", "Postán is elküldjük"],
+    steps: [["Megrendeled", "A szalonban, telefonon vagy e-mailben, a kívánt összeggel."], ["Átveszed vagy elküldjük", "Személyesen átveheted, vagy postán elküldjük."], ["Az ünnepelt beváltja", "Időpontot foglal, és kiválasztja, mire szeretné felhasználni."]],
+    faq: [["Meddig érvényes az ajándékkártya?", "Az ajándékkártya a kiállítástól számított 6 hónapig váltható be."], ["Mekkora összegről szólhat?", "Az összeget te határozod meg: az ajándékkártya szabadon választható összegű."], ["Mire váltható be?", "Bármelyik szolgáltatásunkra: egyedi ruhára, a kollekció darabjaira, igazításra vagy stílustanácsadásra is."]],
+    cta: "Ajándékkártyát kérek", keys: ["ajandekkartya", "ajandekutalvany", "utalvany", "ajandek"] },
+  { slug: "szulinap", name: "Szülinap az In My Style-ban", chip: "Szülinap az In My Style-ban", eyebrow: "Ünneplés a szalonban",
+    photo: "s0kyJSUrJ3nebAMkxarE4o4a4.jpg", alt: "Születésnapi ünneplés tortával az In My Style szalonban",
+    title: "Születésnapi élmény nőknek Budapesten – Szülinap az In My Style-ban",
+    desc: "Ünnepeld a születésnapod stílusosan az In My Style szalonban: ünnepi dekor, mini catering, személyre szabott ruhák, tanácsadás és egyedi programok igény szerint.",
+    h1: "Születésnapi élmény az In My Style-ban",
+    lead: "Tedd felejthetetlenné a szülinapod, vagy ajándékozz stílusos ünneplést az In My Style-ban!",
+    short: "Stílusos születésnapi ünneplés a szalonban, barátnőkkel, ünnepi hangulatban.",
+    body: ["Hozd el a barátnőidet, és ünnepeljetek a szalonban: ünnepi dekorral és mini cateringgel készülünk, közben pedig ruhákat próbálhattok, és stílustanácsokat is kaptok.", "A programot veled együtt állítjuk össze, így az alkalom valóban az ünnepeltről szól. Ajándéknak is különleges választás."],
+    points: ["VIP tagság kedvezményekkel", "Ünnepi dekor és hangulat, mini catering", "Személyre szabott ruhák", "Tanácsadás, coaching", "Egyedi programok igény szerint"],
+    steps: [["Egyeztetünk", "Megbeszéljük az időpontot, a létszámot és az elképzeléseidet."], ["Összeállítjuk a programot", "Az ünnepelt ízléséhez igazítjuk a dekort és a programot."], ["Ünnepeltek", "A szalon azon az alkalmon csak a tiétek."]],
+    faq: [["Ajándékba is adható?", "Igen, a születésnapi élmény ajándékként is megrendelhető, akár ajándékkártyával együtt."], ["Mennyibe kerül?", "Az ár a létszámtól és a kért programtól függ, ezért egyeztetés után adunk személyre szabott ajánlatot."], ["Hogyan foglalhatok?", "Kérj visszahívást az oldal alján, vagy hívj minket, és egyeztetünk időpontot."]],
+    cta: "Érdeklődöm", keys: ["szulinap", "szuletesnap", "szulinapi", "szuletesnapi", "unneples", "buli"] },
+  { slug: "kapszulagardrob", name: "Kapszulagardrób", chip: "Kapszulagardrób", eyebrow: "Kevesebb, de jobb",
+    photo: "framer-kapszulagardrob-workshop.jpg", remote: "https://framerusercontent.com/images/dDYDXKqf8vWHSHrUCLBiPKPN70.jpg", fallback: "feher-megkotos-ingruha-szalon.jpg", alt: "Kapszulagardrób: rendezett gardrób és stílustanácsadás",
+    title: "Kapszulagardrób kialakítása Budapesten – In My Style",
+    desc: "Kapszulagardrób kialakítása személyre szabottan: egymással jól variálható, az alkatodhoz és az életviteledhez illő darabok, igény szerint méretre rendelve.",
+    h1: "Kapszulagardrób kialakítása",
+    lead: "Kevesebb, de egymással jól variálható darab: olyan ruhatár, amelyből reggelente könnyű választani.",
+    short: "Egymással jól variálható, hozzád illő darabokból álló ruhatár összeállítása.",
+    body: ["A kapszulagardrób néhány gondosan összeválogatott, egymáshoz illő darabból áll, amelyekből sokféle öltözet állítható össze — a hétköznapokra és az alkalmakra egyaránt.", "Közösen átnézzük, mire van szükséged, milyen színek és fazonok állnak jól neked, majd összeállítjuk a ruhatárad alapjait. A hiányzó darabokat a kollekcióból választhatod ki, vagy méretre is megrendelheted."],
+    points: ["Az alkatodhoz és az életviteledhez igazítva", "Egymással jól variálható színek és fazonok", "Darabok a kollekcióból vagy méretre rendelve", "Ajándékkártyával is igénybe vehető"],
+    steps: [["Beszélgetés", "Megismerjük a stílusodat, a mindennapjaidat és azt, amire vágysz."], ["Összeállítás", "Kiválasztjuk a ruhatárad alapdarabjait és a hozzájuk illő színeket."], ["Megvalósítás", "A hiányzó darabokat a kollekcióból vagy méretre készítve kapod meg."]],
+    faq: [["Mi az a kapszulagardrób?", "Kevés, de jól kombinálható ruhadarabból álló ruhatár, amelyből sokféle öltözet állítható össze."], ["Mennyibe kerül?", "Az ár attól függ, mennyi és milyen darabra van szükséged, ezért egyeztetés után adunk személyre szabott ajánlatot."], ["Csoportosan is foglalkoztok vele?", "Igen, alkalmanként kapszulagardrób-építő workshopot is tartunk; az aktuális időpontokról a Facebook-oldalunkon adunk hírt."]],
+    cta: "Érdeklődöm", keys: ["kapszulagardrob", "kapszula", "gardrob", "ruhatar"] },
+  { slug: "stilustanacsadas", name: "Stílustanácsadás, stíluscoaching", chip: "Stílustanácsadás, stílus-coaching", eyebrow: "Találd meg a saját stílusod",
+    photo: "WQtmGfSVqR8hXQLZOI29RINwPU.jpg", alt: "Mitterer Szilvia és vendége az In My Style szalonban",
+    title: "Stílustanácsadás és stíluscoaching nőknek Budapesten – In My Style",
+    desc: "Személyes stílustanácsadás és stíluscoaching Budán: megtaláljuk a hozzád illő színeket és fazonokat. Privát shopping és vásárlás stylisttal is.",
+    h1: "Stílustanácsadás és stíluscoaching",
+    lead: "Segítünk megtalálni azokat a színeket és fazonokat, amelyekben igazán önmagad lehetsz.",
+    short: "Személyes tanácsadás az alkatodhoz és az egyéniségedhez illő színekről és fazonokról.",
+    body: ["A jó stílus nem a trendekről szól, hanem arról, hogy a ruháid illenek hozzád: az alkatodhoz, a munkádhoz és az egyéniségedhez. Egy személyes beszélgetésen végigvesszük, mi áll jól neked, és mit érdemes elkerülnöd.", "Kérheted privát shoppingként is a szalonban, vagy stylisttal közös vásárlásként. Sportos elegancia, kényelem és nőiesség — valódi nőknek, valódi nőktől."],
+    points: ["Személyes, kötetlen beszélgetés a szalonban", "Hozzád illő színek és fazonok", "Privát shopping és vásárlás stylisttal", "Ajándékkártyával is igénybe vehető"],
+    steps: [["Időpontot foglalsz", "Online, telefonon vagy üzenetben."], ["Személyes tanácsadás", "Megnézzük, mely színek, fazonok és anyagok emelik ki az adottságaidat."], ["Kézzelfogható eredmény", "Tudni fogod, mit keress, és mit hagyj a boltban."]],
+    faq: [["Kinek ajánljátok?", "Mindenkinek, aki bizonytalan abban, mi áll jól neki, vagy megújítaná a megjelenését."], ["Mennyibe kerül?", "Az ár a kért szolgáltatástól függ, ezért egyeztetés után adunk személyre szabott ajánlatot. Az első, körülbelül 30 perces konzultáció díjmentes."], ["Adható ajándékba?", "Igen, a stílustanácsadás ajándékkártyával is igénybe vehető."]],
+    cta: "Érdeklődöm", keys: ["stilustanacsadas", "stilus", "tanacsadas", "coaching", "stiluscoaching", "stylist", "privat", "shopping"] },
+  { slug: "workshop", name: "Workshopszervezés", chip: "Workshopszervezés", eyebrow: "Közösségi élmény",
+    photo: "npAcJL2BvKL0vi51wMBNg1Ozks.png", alt: "Az In My Style szalon belső tere a II. kerületi Kapás utcában",
+    title: "Stílus- és kapszulagardrób-workshop Budapesten – In My Style",
+    desc: "Stílus- és kapszulagardrób-építő workshopok az In My Style szalonban: baráti társaságoknak, közösségeknek és csapatoknak, egyeztetett időpontban és programmal.",
+    h1: "Workshopok a szalonban",
+    lead: "Stílusról, színekről és ruhatárépítésről — jó társaságban, kötetlen hangulatban.",
+    short: "Stílus- és kapszulagardrób-építő workshopok baráti társaságoknak és közösségeknek.",
+    body: ["Workshopjainkon közösen járjuk körül, hogyan építhető fel egy jól működő ruhatár, és ki milyen színekben, fazonokban érzi jól magát. Tartottunk már nőnapi kapszulagardrób-építő workshopot is.", "A témát, az időpontot és a programot előre egyeztetjük, így baráti társaságnak, közösségnek vagy munkahelyi csapatnak is személyre szabott alkalmat tudunk szervezni."],
+    points: ["Stílus- és kapszulagardrób-témák", "Egyeztetett időpont és program", "Baráti társaságoknak, közösségeknek, csapatoknak", "A szalon hangulatos terében, a II. kerületben"],
+    steps: [["Megkeresel minket", "Elmondod, milyen alkalomra és kiknek szervezed."], ["Közös tervezés", "Egyeztetjük a témát, az időpontot és a programot."], ["Workshop", "Kötetlen, tartalmas alkalom a szalonban."]],
+    faq: [["Hányan vehetünk részt?", "A létszámot a szalon adottságaihoz igazítjuk; a részleteket egyeztetéskor beszéljük meg."], ["Mennyibe kerül?", "Az ár a létszámtól és a programtól függ, ezért egyeztetés után adunk személyre szabott ajánlatot."], ["Hol találom a nyílt alkalmakat?", "A meghirdetett workshopokról a Facebook-oldalunkon adunk hírt."]],
+    cta: "Érdeklődöm", keys: ["workshop", "workshopszervezes", "eloadas", "csapatepito", "nonap"] },
+  { slug: "pop-up", name: "Pop-up: márkák bemutatkozása", chip: "Pop-up: profilunkba illő márkák bemutatkozása", eyebrow: "Együttműködés",
+    photo: "iNWNifDODcXnW2dA6cTeYSwOmWc.jpg", alt: "Mitterer Szilvia saját tervezésű kék szettben",
+    title: "Pop-up megjelenés hazai márkáknak Budán – In My Style",
+    desc: "Pop-up lehetőség a profilunkba illő márkáknak az In My Style II. kerületi szalonjában: mutatkozz be vásárlóinknak egyeztetett időpontban.",
+    h1: "Pop-up: profilunkba illő márkák bemutatkozása",
+    lead: "Helyet adunk azoknak a márkáknak, amelyek illenek az In My Style világához, és amelyeket szívesen ajánlunk a vendégeinknek.",
+    short: "Bemutatkozási lehetőség a szalonban a profilunkba illő márkáknak.",
+    body: ["Vendégeink az igényes, nőies, egyedi dolgokat keresik — ezért szívesen látunk olyan kiegészítő-, ékszer-, táska- vagy szépségmárkákat, amelyek jól kiegészítik a kínálatunkat.", "A pop-up megjelenés részleteit — az időpontot, az időtartamot és a feltételeket — minden esetben személyesen egyeztetjük. Rendezvényeken, divatbemutatókon magunk is rendszeresen megjelenünk pop-up store-ral."],
+    points: ["Az In My Style profiljába illő márkáknak", "Bemutatkozás a szalon vendégkörének", "Egyeztetett időpont és feltételek", "Budán, a II. kerületben"],
+    steps: [["Bemutatkozol", "Írd meg vagy mondd el, mivel foglalkozol, és mit mutatnál be."], ["Egyeztetünk", "Megbeszéljük, illik-e a profilunkba, és mikor, milyen formában valósulhat meg."], ["Pop-up a szalonban", "A megbeszélt időpontban bemutatkozol a vendégeinknek."]],
+    faq: [["Milyen márkák jelentkezhetnek?", "Olyanok, amelyek minőségben és stílusban illenek az In My Style-hoz, és kiegészítik a kínálatunkat."], ["Mik a feltételek?", "A feltételeket márkánként, személyes egyeztetés alapján határozzuk meg."], ["Hogyan jelentkezhetek?", "Kérj visszahívást az oldal alján, vagy írj nekünk e-mailben."]],
+    cta: "Jelentkezem", keys: ["popup", "pop", "marka", "markak", "bemutatkozas", "egyuttmukodes"] },
+  { slug: "ruha-utankeszites", name: "Kedvenc ruha utánkészítése", chip: "Kedvenc hozott ruha utánkészítése", eyebrow: "A kedvenced újra",
+    photo: "gAkLhMVLrb8Lomuc2uiJ202qjcY.jpg", alt: "Méretre készült fehér alkalmi ruha",
+    title: "Kedvenc ruha lemásolása, utánkészítése Budapesten – In My Style",
+    desc: "Hozd el a kedvenc ruhádat, és elkészítjük a mását a te méretedre: új anyagból, új színben, az eredeti jól bevált szabásával. Budán, a II. kerületben.",
+    h1: "Kedvenc ruhád utánkészítése",
+    lead: "Van egy darab, amely tökéletesen áll, de már megkopott, vagy más színben is szeretnéd? Elkészítjük a mását.",
+    short: "A jól bevált kedvenc darabod mását elkészítjük új anyagból, a te méretedre.",
+    body: ["Hozd el a kedvenc ruhádat: a szabását alapul véve, a te méretedre készítjük el újra — akár más anyagból, más színben vagy apró változtatásokkal, például más ujjhosszal vagy gallérral.", "Az anyagot közösen választjuk ki, a kész darabot pedig felpróbálod, és ha szükséges, finomítunk rajta."],
+    points: ["A hozott ruha szabása alapján", "Új anyagból, választott színben", "Kérésre apró változtatásokkal", "Próbával és finomhangolással", "Jellemzően 1–2 hét alatt elkészül"],
+    steps: [["Elhozod a kedvencedet", "Megnézzük a szabását, és megbeszéljük, mit változtatnál rajta."], ["Anyagválasztás és méretvétel", "Közösen választunk anyagot, és pontos méretet veszünk."], ["Próba és átvétel", "Felpróbálod az elkészült darabot, és ha kell, finomhangoljuk."]],
+    faq: [["Bármilyen ruhát le tudtok másolni?", "A legtöbb darabot igen; a konzultáción megnézzük a ruhát, és megmondjuk, mi valósítható meg."], ["Megsérül közben az eredeti ruha?", "Nem, az eredeti darabot nem bontjuk szét: a szabását mintaként használjuk."], ["Mennyibe kerül?", "Az ár a modelltől és az anyagtól függ, ezért a pontos árat a díjmentes első konzultáción adjuk meg."]],
+    cta: "Ajánlatot kérek", keys: ["utankeszites", "lemasolas", "lemasol", "masolat", "kedvenc", "hozott"] },
+];
+const serviceUrl = (s) => `/szolgaltatasok/${s.slug}/`;
+/* A Framer-oldalról átvett fotó: ha még nincs a tárolóban, a build letölti; ha nem sikerül, a tartalék kép jelenik meg. */
+for (const s of SERVICES) {
+  if (s.remote && !fs.existsSync(path.join(PHOTO_DIR, s.photo))) {
+    try { const r = await fetch(s.remote); if (!r.ok) throw new Error("HTTP " + r.status); fs.writeFileSync(path.join(PHOTO_DIR, s.photo), Buffer.from(await r.arrayBuffer())); }
+    catch (e) { console.warn(`Figyelmeztetés: a(z) ${s.photo} nem tölthető le (${e.message}), a tartalék képet használom.`); }
+  }
+  if (!fs.existsSync(path.join(PHOTO_DIR, s.photo)) && s.fallback) s.photo = s.fallback;
+  await preparePhoto(s.photo);
+}
+const servicePhoto = (s) => slot(`szolg-${s.slug}`, s.photo, `Szolgáltatások – ${s.name} (saját oldal és a Szolgáltatások gyűjtőoldal)`);
+const serviceChips = (current) => `<div class="extras"><span>${current ? "További szolgáltatások:" : "További szolgáltatások:"}</span>${SERVICES.filter((s) => s !== current && (current || !s.core)).map((s) => `<a class="chip${s.hot && !current ? " chip-hot" : ""}" href="${serviceUrl(s)}">${esc(s.chip)}</a>`).join("")}</div>`;
+
+
 /* ---------------- súgó (automatikus válaszok) és sütisáv ---------------- */
 const HELP = [
   { id: "udvozles", q: "Szia!", k: ["szia", "hello", "hali", "jo napot", "jonapot", "udv", "csokolom", "hey", "hi"], small: true,
@@ -736,6 +863,8 @@ const CAT_SYN = {
   "sajat-markas-taskak": ["vászontáska", "vászontáskák"], "taskak": ["táska", "táskák", "táskát", "kézitáska", "retikül"],
 };
 const HELP_PAGES = [
+  ["Szolgáltatások", "/szolgaltatasok/", ["szolgaltatas", "szolgaltatasok", "szolgaltatasaink"]],
+  ...SERVICES.map((sv) => [sv.name, serviceUrl(sv), sv.keys]),
   ["Kollekció", "/kollekcio/", ["kollekcio", "termekek", "kinalat", "katalogus", "vasarol", "vasarlas", "shop", "webshop", "osszes"]],
   ["Tervezd meg a ruhád", "/tervezd-meg/", ["tervez", "tervezes", "ruhatervezo", "megtervez", "osszeallit", "konfigur"]],
   ["Lookbook", "/lookbook/", ["lookbook", "inspiracio", "galeria", "kepek", "fotok"]],
@@ -915,14 +1044,15 @@ ${HOLIDAY_GIFT ? `<section class="gift-band" id="ajandekkartya" aria-labelledby=
       </article>
       <article class="service reveal">
         <div class="service-media">${pic(slot("fooldal-szolg-2", "7QEfZIBCOvWiBL8ZPmcs1Mi8.jpg", "Főoldal – Szolgáltatások 02: Egyedi megrendelések"), "Egyedi méretre készült sötétkék fodros blúz", { sizes: "(max-width: 700px) 100vw, 33vw" })}</div>
-        <div class="service-body"><span class="num">02</span><h3 class="h3">Egyedi megrendelések</h3><p>Saját elképzelés vagy fotó alapján, hozott vagy általunk ajánlott anyagból, közös tervezéssel, az alkatodra szabva: a mindennapokra és különleges alkalmakra.</p><a class="link-arrow" href="#egyedi">Részletek</a></div>
+        <div class="service-body"><span class="num">02</span><h3 class="h3">Egyedi megrendelések</h3><p>Saját elképzelés vagy fotó alapján, hozott vagy általunk ajánlott anyagból, közös tervezéssel, az alkatodra szabva: a mindennapokra és különleges alkalmakra.</p><a class="link-arrow" href="/szolgaltatasok/egyedi-ruhakeszites/">Részletek</a></div>
       </article>
       <article class="service reveal">
         <div class="service-media">${pic(slot("fooldal-szolg-3", "5bFqnTfSOc9hMkRM7WxmDFQFQjs.jpg", "Főoldal – Szolgáltatások 03: Igazítás és javítás"), "Varrókellékek az In My Style szalonban", { sizes: "(max-width: 700px) 100vw, 33vw" })}</div>
-        <div class="service-body"><span class="num">03</span><h3 class="h3">Igazítás és javítás</h3><p>A kedvenc darabjaid is megérdemlik a törődést: megjavítjuk és méretre igazítjuk őket.</p><a class="link-arrow" href="#igazitas">Részletek</a></div>
+        <div class="service-body"><span class="num">03</span><h3 class="h3">Igazítás és javítás</h3><p>A kedvenc darabjaid is megérdemlik a törődést: megjavítjuk és méretre igazítjuk őket.</p><a class="link-arrow" href="/szolgaltatasok/ruhaigazitas-javitas/">Részletek</a></div>
       </article>
     </div>
-    <div class="extras"><span>További szolgáltatások:</span><a class="chip chip-hot" href="#ajandekkartya">Ajándékkártya</a><a class="chip" href="#szulinap">Szülinap az In My Style-ban</a><span class="chip">Kapszulagardrób</span><span class="chip">Stílustanácsadás, stílus-coaching</span><span class="chip">Workshopszervezés</span><span class="chip">Pop-up: profilunkba illő márkák bemutatkozása</span><span class="chip">Kedvenc hozott ruha utánkészítése</span></div>
+    ${serviceChips()}
+    <p style="margin-top:18px"><a class="link-arrow" href="/szolgaltatasok/">Összes szolgáltatás részletesen</a></p>
   </div>
 </section>
 
@@ -1051,7 +1181,7 @@ ${facebookSection()}
         <li>Tanácsadás, coaching</li>
         <li>Egyedi programok igény szerint</li>
       </ul>
-      <div class="gift-actions"><a class="btn btn-dark" href="#ajanlatkeres">Érdeklődöm</a><a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a></div>
+      <div class="gift-actions"><a class="btn btn-dark" href="#ajanlatkeres">Érdeklődöm</a><a class="btn btn-outline" href="/szolgaltatasok/szulinap/">Részletek</a></div>
     </div>
   </div>
 </section>
@@ -1250,6 +1380,94 @@ ${contactSection()}`;
   });
 }
 
+
+
+function servicePage(s) {
+  const crumbs = [["Főoldal", "/"], ["Szolgáltatások", "/szolgaltatasok/"], [s.name, serviceUrl(s)]];
+  const ctaHref = s.ctaHref || "#ajanlatkeres";
+  const body = `
+<section class="page-hero page-hero-plain" aria-labelledby="szolg-cim">
+  <div class="container">
+    ${breadcrumbHtml(crumbs)}
+    <div class="eyebrow">${esc(s.eyebrow)}</div>
+    <h1 id="szolg-cim">${esc(s.h1)}</h1>
+    <p class="lead">${esc(s.lead)}</p>
+  </div>
+</section>
+<section class="section" aria-label="${esc(s.name)}">
+  <div class="container split">
+    <div class="split-media svc-media reveal">${pic(servicePhoto(s), s.alt, { eager: true })}</div>
+    <div class="split-body">
+      <h2 class="h2">Miről szól?</h2>
+      ${s.body.map((t) => `<p>${esc(t)}</p>`).join("\n      ")}
+      <ul class="checklist">${s.points.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+      <div class="gift-actions" style="margin-top:28px"><a class="btn btn-dark" style="margin-top:0" href="${ctaHref}">${esc(s.cta)}</a><a class="btn btn-outline" style="margin-top:0" href="${SITE.phoneHref}">${I.phone}Hívás</a></div>
+    </div>
+  </div>
+</section>
+<section class="section bg-tint" aria-labelledby="menete-cim">
+  <div class="container">
+    <div class="section-head center">
+      <div class="eyebrow">A folyamat</div>
+      <h2 class="h2" id="menete-cim">Hogyan zajlik?</h2>
+    </div>
+    <ol class="process process-3" style="list-style:none;margin:0;padding:0">${s.steps.map(([t, d], i) => `<li class="step reveal"><div class="step-icon">${[I.chat, I.swatch, I.check][i]}</div><div class="step-num">${String(i + 1).padStart(2, "0")}</div><h3>${esc(t)}</h3><p>${esc(d)}</p></li>`).join("")}</ol>
+  </div>
+</section>
+<section class="section" aria-labelledby="szolg-gyik-cim">
+  <div class="container faq-layout">
+    <div class="section-head">
+      <div class="eyebrow">Gyakori kérdések</div>
+      <h2 class="h2" id="szolg-gyik-cim">${esc(s.name)}: amit érdemes tudni</h2>
+      <p class="lead">Nem találod a választ? Hívj minket bátran a <a class="link-arrow" href="${SITE.phoneHref}">${SITE.phone}</a> számon.</p>
+    </div>
+    <div class="faq-list">${s.faq.map(([q, a], i) => `<details${i === 0 ? " open" : ""}><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>
+  </div>
+</section>
+<section class="section-sm" aria-label="További szolgáltatások"><div class="container">${serviceChips(s)}<p style="margin-top:18px"><a class="link-arrow" href="/szolgaltatasok/">Összes szolgáltatás</a></p></div></section>
+${quoteSection({ subject: `Szolgáltatás: ${s.name}`, title: `Érdeklődés — ${s.name}`, lead: "Kérj visszahívást, és egyeztetjük a részleteket.", simple: !s.core || s.slug !== "egyedi-ruhakeszites" })}
+${contactSection()}`;
+  return page({
+    title: s.title, description: s.desc, url: serviceUrl(s), image: `/assets/photos/${servicePhoto(s)}`, active: "szolgaltatasok",
+    jsonld: [breadcrumbLd(crumbs),
+      { "@context": "https://schema.org", "@type": "Service", name: s.h1, serviceType: s.name, description: s.desc, url: SITE.url + serviceUrl(s), areaServed: { "@type": "City", name: "Budapest" }, provider: { "@type": "ClothingStore", name: "In My Style", url: SITE.url, telephone: SITE.phone } },
+      { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: s.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) }],
+    body,
+  });
+}
+
+function servicesHubPage() {
+  const crumbs = [["Főoldal", "/"], ["Szolgáltatások", "/szolgaltatasok/"]];
+  const body = `
+<section class="page-hero page-hero-plain" aria-labelledby="szolgok-cim">
+  <div class="container">
+    ${breadcrumbHtml(crumbs)}
+    <div class="eyebrow">Szolgáltatásaink</div>
+    <h1 id="szolgok-cim">Minden, amire a ruhatáradnak szüksége van</h1>
+    <p class="lead">Egyedi, méretre szabott ruhák, igazítás és javítás, stílustanácsadás és különleges élmények — egy helyen, Budán, a II. kerületben.</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="services services-all">${SERVICES.map((s, i) => `
+      <article class="service reveal">
+        <a class="service-media" href="${serviceUrl(s)}" tabindex="-1" aria-hidden="true">${pic(servicePhoto(s), s.alt, { sizes: "(max-width: 700px) 100vw, 33vw" })}</a>
+        <div class="service-body"><span class="num">${String(i + 1).padStart(2, "0")}</span><h2 class="h3">${esc(s.name)}</h2><p>${esc(s.short)}</p><a class="link-arrow" href="${serviceUrl(s)}">Részletek</a></div>
+      </article>`).join("")}
+    </div>
+    <p style="margin-top:36px">A kész darabokat az <a class="link-arrow" href="/kollekcio/">aktuális kollekcióban</a> találod.</p>
+  </div>
+</section>
+${quoteSection({ subject: "Szolgáltatások", title: "Kérdésed van? Kérj visszahívást!", lead: "Írd meg, miben segíthetünk, és hamarosan jelentkezünk.", simple: true })}
+${contactSection()}`;
+  return page({
+    title: "Szolgáltatások – egyedi ruhakészítés, igazítás, stílustanácsadás | In My Style",
+    description: "Az In My Style szolgáltatásai Budán: méretre szabott női ruhák, ruhaigazítás, kapszulagardrób, stílustanácsadás, workshopok, születésnapi élmény és ajándékkártya.",
+    url: "/szolgaltatasok/", active: "szolgaltatasok",
+    jsonld: [breadcrumbLd(crumbs), { "@context": "https://schema.org", "@type": "ItemList", name: "In My Style szolgáltatások", itemListElement: SERVICES.map((s, i) => ({ "@type": "ListItem", position: i + 1, name: s.name, url: SITE.url + serviceUrl(s) })) }],
+    body,
+  });
+}
 
 /* ================= Új oldalak: kollekció (szűrés, keresés), kedvencek, ruhatervező, lookbook ================= */
 const COLOR_RULES = [
@@ -1539,6 +1757,8 @@ write("index.html", homePage());
 CATEGORIES.forEach((c) => write(`kategoria/${c.slug}/index.html`, categoryPage(c)));
 PRODUCTS.forEach((p) => write(`termek/${p.slug}/index.html`, productPage(p)));
 write("akcio/index.html", salePage());
+write("szolgaltatasok/index.html", servicesHubPage());
+for (const sv of SERVICES) write(`szolgaltatasok/${sv.slug}/index.html`, servicePage(sv));
 write("kollekcio/index.html", collectionPage());
 write("kedvencek/index.html", favoritesPage());
 write("tervezd-meg/index.html", designerPage());
@@ -1549,7 +1769,7 @@ write("404.html", noticePage({ url: "/404.html", title: "Az oldal nem találhat�
 
 // sitemap + robots + átirányítások
 const today = new Date().toISOString().slice(0, 10);
-const urls = ["/", "/kollekcio/", "/tervezd-meg/", "/lookbook/", "/akcio/", "/adatkezelesi-tajekoztato/", ...CATEGORIES.map(catUrl), ...PRODUCTS.map(prodUrl)];
+const urls = ["/", "/kollekcio/", "/tervezd-meg/", "/lookbook/", "/akcio/", "/szolgaltatasok/", ...SERVICES.map(serviceUrl), "/adatkezelesi-tajekoztato/", ...CATEGORIES.map(catUrl), ...PRODUCTS.map(prodUrl)];
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${SITE.url}${u}</loc><lastmod>${today}</lastmod></url>`).join("\n")}\n</urlset>\n`);
 write("robots.txt", `User-agent: *\nAllow: /\nDisallow: /koszonjuk/\n\nSitemap: ${SITE.url}/sitemap.xml\n`);
 const redirects = [
