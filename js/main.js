@@ -168,17 +168,55 @@
     } else lazyEmbeds.forEach(load);
   }
 
-  /* Calendly: a naptár csak kattintásra töltődik be (gyorsabb oldal) */
+  /* Calendly: a szkript csak akkor töltődik be, amikor szükség van rá (gyorsabb oldal) */
+  const CAL_JS = "https://assets.calendly.com/assets/external/widget.js";
+  const CAL_CSS = "https://assets.calendly.com/assets/external/widget.css";
+  let calLoading = null;
+  const loadCalendly = () => {
+    if (window.Calendly) return Promise.resolve(window.Calendly);
+    if (calLoading) return calLoading;
+    if (!document.querySelector('link[href="' + CAL_CSS + '"]')) {
+      const l = document.createElement("link"); l.rel = "stylesheet"; l.href = CAL_CSS; document.head.appendChild(l);
+    }
+    calLoading = new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = CAL_JS; s.async = true;
+      s.onload = () => (window.Calendly ? resolve(window.Calendly) : reject());
+      s.onerror = () => { calLoading = null; reject(); };
+      document.body.appendChild(s);
+    });
+    return calLoading;
+  };
+  const calUrl = (base) => base.split("?")[0] + "?hide_gdpr_banner=1&locale=hu";
+
+  /* Beágyazott naptár a foglalási szakaszban: kattintásra jelenik meg */
   $$("[data-calendly-load]").forEach((btn) => btn.addEventListener("click", () => {
     const box = btn.closest("[data-calendly]");
     const widget = document.createElement("div");
-    widget.className = "calendly-inline-widget";
-    widget.dataset.url = box.dataset.calendly + "?hide_gdpr_banner=1&locale=hu";
+    widget.className = "calendly-embed";
+    widget.dataset.url = calUrl(box.dataset.calendly);
     box.replaceWith(widget);
-    const s = document.createElement("script");
-    s.src = "https://assets.calendly.com/assets/external/widget.js";
-    s.async = true;
-    document.body.appendChild(s);
+    loadCalendly().then((C) => {
+      C.initInlineWidget({ url: widget.dataset.url, parentElement: widget });
+    }).catch(() => { window.location.href = widget.dataset.url; });
+  }));
+
+  /* Mobil sáv „Időpont” gombja: azonnal teljes képernyős foglalóablakot nyit */
+  $$("[data-calendly-popup]").forEach((a) => a.addEventListener("click", (e) => {
+    e.preventDefault();
+    const url = calUrl(a.getAttribute("href"));
+    a.classList.add("is-loading");
+    let done = false;
+    const fallback = setTimeout(() => { if (!done) { done = true; a.classList.remove("is-loading"); window.location.href = url; } }, 6000);
+    loadCalendly().then((C) => {
+      if (done) return;
+      done = true; clearTimeout(fallback); a.classList.remove("is-loading");
+      C.initPopupWidget({ url });
+    }).catch(() => {
+      if (done) return;
+      done = true; clearTimeout(fallback); a.classList.remove("is-loading");
+      window.location.href = url;
+    });
   }));
   /* ============ Mérés: GA4 + Meta pixel, csak hozzájárulás után ============ */
   const CFG = window.IMS || {};
@@ -233,7 +271,7 @@
     else if (href.startsWith("mailto:")) track("email_click", { location: where });
     else if (href.includes("google.com/maps")) track("directions_click", { location: where });
     else if (/instagram\.com|facebook\.com/.test(href)) track("social_click", { network: href.includes("instagram") ? "instagram" : "facebook", location: where });
-    else if (a.hasAttribute("data-calendly-load")) track("booking_open", { location: where });
+    else if (a.hasAttribute("data-calendly-load") || a.hasAttribute("data-calendly-popup")) track("booking_open", { location: where });
     else if (href.endsWith("#ajanlatkeres")) track("quote_cta_click", { location: where });
   });
   /* Calendly: sikeres foglalás */
@@ -289,10 +327,13 @@
       const faq = DATA.faq.map((f) => ({ f, s: scoreItem(f.k, toks, raw) })).filter((x) => x.s > 0.5).sort((a, b) => b.s - a.s);
       const cats = DATA.cats.map((c) => ({ c, s: scoreItem(c.k, toks, raw) })).filter((x) => x.s > 0.5).sort((a, b) => b.s - a.s);
       /* termék: a név szavainak legalább fele egyezzen, vagy egy jellegzetes szó (pl. szín + típus) */
-      const prods = DATA.prods.map((p) => { const s = scoreItem(p.k.filter((k) => k.length > 2), toks, raw); return { p, s }; }).filter((x) => x.s >= 1.6).sort((a, b) => b.s - a.s);
+      /* egyszavas terméknévnél (pl. „Bőrdzseki”) elég az az egy, legalább 5 betűs szó */
+      const prods = DATA.prods.map((p) => { const kk = p.k.filter((k) => k.length > 2); const s = scoreItem(kk, toks, raw); const need = kk.length === 1 && kk[0].length >= 5 ? 0.8 : 1.6; return { p, s, ok: s >= need }; }).filter((x) => x.ok).sort((a, b) => b.s - a.s);
       if (prods.length) { const top = prods[0].s; for (let k = prods.length - 1; k > 0; k--) if (prods[k].s < top * 0.75) prods.splice(k, 1); }
       const pages = DATA.pages.map((g) => ({ g, s: scoreItem(g.k, toks, raw) })).filter((x) => x.s > 0.5).sort((a, b) => b.s - a.s);
-      const topCat = cats[0] && cats[0].c;
+      /* navigációs kérésnél a pontosabban egyező oldal („kollekció”, „akciós”) megelőzi a kategóriát */
+      const pageFirst = wantsNav && pages.length && (!cats.length || pages[0].s >= cats[0].s);
+      const topCat = !pageFirst && cats[0] && cats[0].c;
       const priceQ = faq.length && faq[0].f.id === "arak";
       const SERVICE = ["igazitas", "estelyi", "ferfi", "ajandek", "fizetes", "kapcsolat", "tavoli", "alkat", "stilus"];
       const serviceFirst = faq.length && SERVICE.includes(faq[0].f.id) && !wantsNav;
@@ -335,7 +376,8 @@
         let html = escH(f.a) + (f.cta ? link(f.cta[0], f.cta[1]) : "");
         const others = faq.slice(1, 3).filter((x) => x.s >= faq[0].s * 0.7 && !x.f.small).map((x) => x.f);
         if (others.length) html += `<span class="help-more">Ez is érdekelhet:</span>` + suggest(others);
-        if (wantsNav && f.cta && !/^https?:/.test(f.cta[1]) && pages.length === 0) { bot(escH(f.a)); go(f.cta[1], f.cta[0]); return f.id; }
+        if (wantsNav && f.cta && !/^https?:/.test(f.cta[1])) { bot(escH(f.a)); go(f.cta[1], f.cta[0]); return f.id; }
+        if (wantsNav && pages.length) { bot(escH(f.a)); go(pages[0].g.u, pages[0].g.n); return f.id; }
         bot(html); return f.id;
       }
       /* 4) oldal */

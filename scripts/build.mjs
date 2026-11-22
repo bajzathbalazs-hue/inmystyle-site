@@ -92,23 +92,69 @@ if (SHEET_API) {
 const PHOTO_DIR = path.join(ROOT, "assets/photos");
 let sharp = null;
 try { sharp = require("sharp"); } catch (e) { console.warn("Figyelmeztetés: a sharp nem érhető el, a képeket nem optimalizálom."); }
+/* Kisebb változatok (480 és 900 px szélesség), hogy a böngésző mindig a megjelenítéshez illő méretet töltse le. */
+const VARIANTS = [480, 900];
+const variantName = (webp, w) => webp.replace(/\.webp$/i, `-w${w}.webp`);
+async function makeVariants(webp) {
+  const full = path.join(PHOTO_DIR, webp);
+  if (!sharp || !fs.existsSync(full)) return;
+  let meta; try { meta = await sharp(full).metadata(); } catch (e) { return; }
+  for (const w of VARIANTS) {
+    const out = path.join(PHOTO_DIR, variantName(webp, w));
+    if (meta.width > w * 1.15 && !fs.existsSync(out)) await sharp(full).resize({ width: w }).webp({ quality: 74 }).toFile(out);
+  }
+}
 async function preparePhoto(file) {
   const src = path.join(PHOTO_DIR, file);
   if (!fs.existsSync(src)) return false;
   const webp = file.replace(/\.(jpe?g|png)$/i, ".webp");
-  if (!sharp || webp === file || fs.existsSync(path.join(PHOTO_DIR, webp))) return true;
-  const img = sharp(src).rotate().resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true });
-  await img.clone().webp({ quality: 78 }).toFile(path.join(PHOTO_DIR, webp));
-  const buf = await img.clone().jpeg({ quality: 80, mozjpeg: true }).toBuffer();
-  if (/\.jpe?g$/i.test(file)) fs.writeFileSync(src, buf);
+  if (!sharp || webp === file) return true;
+  if (!fs.existsSync(path.join(PHOTO_DIR, webp))) {
+    const img = sharp(src).rotate().resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true });
+    await img.clone().webp({ quality: 78 }).toFile(path.join(PHOTO_DIR, webp));
+    const buf = await img.clone().jpeg({ quality: 80, mozjpeg: true }).toBuffer();
+    if (/\.jpe?g$/i.test(file)) fs.writeFileSync(src, buf);
+  }
+  await makeVariants(webp);
   return true;
 }
+/* Limitált darabok: mindegyikből csak az oldalon látható méretben, egy-egy példány van; más méretben nem rendelhető,
+   egyedileg nem készül. Ezért ezeknél a termékeknél minden „rád szabjuk / elkészítjük / rendelhető” jellegű szöveg kimarad. */
+const LIMITED = "limitalt-darabok";
+const isLimited = (p) => p && p.category === LIMITED;
+const MTM = /(rád szab|méretre szab|egyedi méret|méretedre|elkészítjük|elkészítünk|megrendelhető|rendelhető|rendelésre|igazítunk|választható)/i;
+function limitedClean(p) {
+  const q = { ...p, type: "import" };
+  q.description = String(p.description || "").split(/(?<=[.!?])\s+/).filter((t) => t.trim() && !MTM.test(t)).join(" ").trim();
+  if (p.specs) q.specs = Object.fromEntries(Object.entries(p.specs).map(([k, v]) => [k, String(v).replace(/[,;]?\s*(vagy|illetve)?\s*egyedi méretre( is)?/gi, "").replace(/;\s*választható:[^;]*/gi, "").trim()]).filter(([k, v]) => v && !MTM.test(v)));
+  if (p.badge && MTM.test(p.badge)) q.badge = /elfogy/i.test(p.badge) ? "Elfogyott" : "";
+  return q;
+}
+/* Akció: ha a címkében százalék szerepel (pl. „Akció −20%”), az akciós árat az eredeti árból automatikusan számoljuk
+   (10 forintra kerekítve), így elég az eredeti árat beírni. Az árban kézzel megadott „→” utáni ár ilyenkor felülíródik. */
+const fmtFt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " Ft";
+function applySale(p) {
+  const badge = String(p.badge || "");
+  const pct = /akci|kedvezm|leáraz|kiárus|[−–-]\s*\d/i.test(badge) ? (badge.match(/(\d{1,2})\s*%/) || [])[1] : undefined;
+  const first = String(p.price || "").split(/→|->|=>/)[0];
+  const base = Number(first.replace(/[^\d]/g, ""));
+  if (pct && base) {
+    const now = Math.round((base * (100 - Number(pct))) / 1000) * 10;
+    return { ...p, price: `${fmtFt(base)} → ${fmtFt(now)}`, sale: true };
+  }
+  if (/→|->|=>/.test(String(p.price || ""))) {
+    const [o, n] = String(p.price).split(/→|->|=>/).map((x) => Number(x.replace(/[^\d]/g, "")));
+    if (o && n) return { ...p, price: `${fmtFt(o)} → ${fmtFt(n)}`, sale: true };
+  }
+  return p;
+}
 const PRODUCTS = [];
-for (const p of RAW_PRODUCTS) {
+for (const p0 of RAW_PRODUCTS) {
+  const p = applySale(p0);
   const ok = [];
   for (const f of p.photos || []) if (await preparePhoto(f)) ok.push(f); else console.warn(`Figyelmeztetés: hiányzó fotó (${f}) – ${p.name}`);
   if (!ok.length) { console.warn(`Figyelmeztetés: „${p.name}” fotó nélkül maradt, ezért most nem jelenik meg.`); continue; }
-  PRODUCTS.push({ ...p, photos: ok });
+  PRODUCTS.push(p.category === LIMITED ? limitedClean({ ...p, photos: ok }) : { ...p, photos: ok });
 }
 
 const SWAP = {};
@@ -121,12 +167,15 @@ const catHero = (c) => slot("kat-" + c.slug, c.heroPhoto, `${c.name} – kategó
 const GUESTS = [];
 for (const g of RAW_GUESTS) if (await preparePhoto(g.photo)) GUESTS.push(g); else console.warn(`Figyelmeztetés: hiányzó vendégfotó (${g.photo})`);
 
+/* Minden oldalképhez (fejlécek, galéria, főoldal) is elkészülnek a webp és a kisebb változatok. */
+for (const f of fs.readdirSync(PHOTO_DIR)) if (/\.(jpe?g|png)$/i.test(f)) await preparePhoto(f);
+
 const SITE = {
   url: "https://inmystyle.hu",
   name: "In My Style",
   phone: "+36 20 320 2996",
   phoneHref: "tel:+36203202996",
-  email: "hello@inmystyle.hu",
+  email: "inmystyle.hu@gmail.com",
   street: "Kapás utca 45/B",
   city: "Budapest",
   zip: "1027",
@@ -192,7 +241,10 @@ function pic(file, alt, { eager = false, cls = "", sizes = "" } = {}) {
   const webp = file.replace(/\.(jpe?g|png)$/i, ".webp");
   const hasWebp = webp !== file && fs.existsSync(path.join(ROOT, "assets/photos", webp));
   const img = `<img src="/assets/photos/${file}" alt="${esc(alt)}" width="${w}" height="${h}"${eager ? ' fetchpriority="high"' : ' loading="lazy"'} decoding="async"${cls ? ` class="${cls}"` : ""}>`;
-  return hasWebp ? `<picture><source type="image/webp" srcset="/assets/photos/${webp}"${sizes ? ` sizes="${sizes}"` : ""}>${img}</picture>` : img;
+  if (!hasWebp) return img;
+  const set = VARIANTS.map((vw) => variantName(webp, vw)).filter((f) => fs.existsSync(path.join(ROOT, "assets/photos", f)));
+  const srcset = set.length ? set.map((f) => `/assets/photos/${f} ${f.match(/-w(\d+)\.webp$/)[1]}w`).concat(`/assets/photos/${webp} ${w}w`).join(", ") : `/assets/photos/${webp}`;
+  return `<picture><source type="image/webp" srcset="${srcset}" sizes="${sizes || "(max-width: 900px) 100vw, 50vw"}">${img}</picture>`;
 }
 
 const I = {
@@ -388,7 +440,7 @@ function footer() {
     </div>
   </div>
 </footer>
-<div class="mobile-cta" data-mobile-cta><a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a><a class="btn btn-dark" href="/#idopont">${I.calendar}Időpont</a></div>
+<div class="mobile-cta" data-mobile-cta><a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a><a class="btn btn-dark" href="${SITE.calendly}?hide_gdpr_banner=1&amp;locale=hu" data-calendly-popup target="_blank" rel="noopener">${I.calendar}Időpont</a></div>
 ${helpWidget()}
 ${TRACKING ? consentBanner() : ""}
 <script src="/js/main.js?v=${JS_V}" defer></script>`;
@@ -412,10 +464,11 @@ function productCard(p, { showCat = true, filterable = false } = {}) {
   const c = catBySlug[p.category];
   const badges = [];
   if (p.badge) badges.push(`<span class="tag ${/elfogy/i.test(p.badge) ? "tag-dark" : /kiárus|akci/i.test(p.badge) ? "tag-rose" : "tag-accent"}">${esc(p.badge)}</span>`);
+  else if (isLimited(p)) badges.push('<span class="tag">Limitált darab</span>');
   else if (p.type === "egyedi") badges.push('<span class="tag">Egyedi méretre</span>');
   const data = filterable ? ` data-cat="${p.category}" data-type="${p.type}" data-colors="${esc(colorTags(p).join("|"))}" data-name="${esc(norm(p.name + " " + (c ? c.name : "") + " " + ((p.specs && p.specs["Szín"]) || "")))}" data-price="${priceNum(p)}"${p.sale ? ' data-sale="1"' : ""}` : "";
   return `<article class="product-card reveal"${data}>
-  <div class="product-card-media">${pic(p.photos[0], p.name)}<div class="badges">${badges.join("")}</div><button type="button" class="fav-btn" data-fav="${p.slug}" aria-pressed="false" aria-label="${esc(p.name)} hozzáadása a kedvencekhez">${I.heart}</button></div>
+  <div class="product-card-media">${pic(p.photos[0], p.name, { sizes: "(max-width: 700px) 50vw, 25vw" })}<div class="badges">${badges.join("")}</div><button type="button" class="fav-btn" data-fav="${p.slug}" aria-pressed="false" aria-label="${esc(p.name)} hozzáadása a kedvencekhez">${I.heart}</button></div>
   <div class="product-card-body">
     ${showCat && c ? `<span class="product-card-cat">${esc(c.name)}</span>` : ""}
     <h3><a href="${prodUrl(p)}">${esc(p.name)}</a></h3>
@@ -426,7 +479,7 @@ function productCard(p, { showCat = true, filterable = false } = {}) {
 
 function categoryTile(c) {
   const n = PRODUCTS.filter((p) => p.category === c.slug).length;
-  return `<a class="cat-tile reveal" href="${catUrl(c)}">${pic(catHero(c), "")}
+  return `<a class="cat-tile reveal" href="${catUrl(c)}">${pic(catHero(c), "", { sizes: "(max-width: 700px) 50vw, 25vw" })}
   <span class="cat-tile-arrow">${I.arrow}</span>
   <span class="cat-tile-body"><b>${esc(c.name)}</b><span>${esc(c.tagline)}</span></span>
 </a>`;
@@ -547,7 +600,7 @@ function hidden(name) {
 const formStatus = `<div class="form-status" role="status" aria-live="polite" data-success="Köszönjük! Megkaptuk az üzenetedet, hamarosan jelentkezünk." data-error="Hiba történt a küldés során. Kérjük, próbáld újra, vagy hívj minket: ${SITE.phone}"></div>`;
 const privacyNote = `<p class="form-note">Az űrlap elküldésével elfogadod az <a href="/adatkezelesi-tajekoztato/">adatkezelési tájékoztatót</a>. Adataidat kizárólag a kapcsolatfelvételhez használjuk.</p>`;
 
-function quoteSection({ id = "ajanlatkeres", subject = "", title = "Kérj ajánlatot", lead } = {}) {
+function quoteSection({ id = "ajanlatkeres", subject = "", title = "Kérj ajánlatot", lead, simple = false } = {}) {
   const ctx = esc(subject || "Általános érdeklődés");
   const range = (key, label, min, max, val) => `<div class="range-row"><label for="r-${key}">${label}</label><output data-size-output="${key}" for="r-${key}">${val} cm</output><input id="r-${key}" type="range" name="${key}" min="${min}" max="${max}" value="${val}" data-size-input="${key}"></div>`;
   const pills = ["Pamut popelin", "Selyem", "Vászon", "Szatén", "Gyapjú-keverék"];
@@ -560,10 +613,10 @@ function quoteSection({ id = "ajanlatkeres", subject = "", title = "Kérj ajánl
       <p class="lead">${esc(lead || "Kérj gyors visszahívást, vagy add meg előre a méreteidet és az elképzelésedet — így már felkészülten várunk a konzultáción.")}</p>
     </div>
     <div class="quote-wrap" data-tabs>
-      <div class="tabs" role="tablist" aria-label="Ajánlatkérés módja">
+      ${simple ? "" : `<div class="tabs" role="tablist" aria-label="Ajánlatkérés módja">
         <button class="tab" type="button" role="tab" id="${id}-t1" aria-controls="${id}-p1" aria-selected="true">Visszahívást kérek</button>
         <button class="tab" type="button" role="tab" id="${id}-t2" aria-controls="${id}-p2" aria-selected="false" tabindex="-1">Egyedi méret és stílus</button>
-      </div>
+      </div>`}
       <div class="tab-panel" role="tabpanel" id="${id}-p1" aria-labelledby="${id}-t1">
         <form name="visszahivas" method="POST" action="/koszonjuk/" data-netlify="true" netlify-honeypot="bot-field" data-ajax-form>
           ${hidden("visszahivas")}
@@ -576,7 +629,7 @@ function quoteSection({ id = "ajanlatkeres", subject = "", title = "Kérj ajánl
           </div>
         </form>
       </div>
-      <div class="tab-panel" role="tabpanel" id="${id}-p2" aria-labelledby="${id}-t2" hidden>
+      ${simple ? "" : `<div class="tab-panel" role="tabpanel" id="${id}-p2" aria-labelledby="${id}-t2" hidden>
         <form class="size-tool" name="ajanlatkeres" method="POST" action="/koszonjuk/" data-netlify="true" netlify-honeypot="bot-field" data-ajax-form data-size-tool>
           ${hidden("ajanlatkeres")}
           <input type="hidden" name="targy" value="${ctx}">
@@ -598,7 +651,7 @@ function quoteSection({ id = "ajanlatkeres", subject = "", title = "Kérj ajánl
             <div class="form-actions">${privacyNote}<button class="btn btn-dark btn-block" type="submit">Ajánlatkérés elküldése</button>${formStatus}</div>
           </div>
         </form>
-      </div>
+      </div>`}
     </div>
   </div>
 </section>`;
@@ -690,7 +743,8 @@ function helpData() {
   const thumb = (f) => { const w = f.replace(/\.(jpe?g|png)$/i, ".webp"); return "/assets/photos/" + (w !== f && fs.existsSync(path.join(ROOT, "assets/photos", w)) ? w : f); };
   return {
     faq: HELP.map((h) => ({ id: h.id, q: h.q, a: h.a, k: h.k.map(norm), cta: h.cta || null, small: !!h.small })),
-    cats: CATEGORIES.map((c) => ({ id: c.slug, n: c.name, u: catUrl(c), k: [...new Set([...words(c.name), ...(CAT_SYN[c.slug] || []).map(norm)])] })),
+    /* a kategórianév általános szavai („darabok”, „kollekció”) önmagukban ne vigyenek kategóriába */
+    cats: CATEGORIES.map((c) => ({ id: c.slug, n: c.name, u: catUrl(c), k: [...new Set([...words(c.name).filter((w) => !["darab", "darabok", "kollekcio"].includes(w)), ...(CAT_SYN[c.slug] || []).map(norm)])] })),
     prods: PRODUCTS.map((p) => { const c = catBySlug[p.category]; return { s: p.slug, n: p.name, u: prodUrl(p), c: p.category, cn: c ? c.name : "", p: priceParts(p.price).now, img: thumb(p.photos[0]), k: [...new Set(words(p.name))] }; }),
     pages: HELP_PAGES.map(([n, u, k]) => ({ n, u, k })),
   };
@@ -828,15 +882,15 @@ function homePage() {
     </div>
     <div class="services">
       <article class="service reveal">
-        <div class="service-media">${pic(slot("fooldal-szolg-1", "6es6MykWWyAqSyt10cTe4pX4k.png", "Főoldal – Szolgáltatások 01: Aktuális kollekció"), "Rózsaszín csíkos ingruhák az aktuális kollekcióból")}</div>
+        <div class="service-media">${pic(slot("fooldal-szolg-1", "6es6MykWWyAqSyt10cTe4pX4k.png", "Főoldal – Szolgáltatások 01: Aktuális kollekció"), "Rózsaszín csíkos ingruhák az aktuális kollekcióból", { sizes: "(max-width: 700px) 100vw, 33vw" })}</div>
         <div class="service-body"><span class="num">01</span><h3 class="h3">Aktuális kollekció</h3><p>Válogatott, kis szériás darabok, hetente frissülő kínálattal. Azonnal megvásárolhatod, vagy megrendelheted őket a te méretedre szabva.</p><a class="link-arrow" href="/kollekcio/">Kollekció</a></div>
       </article>
       <article class="service reveal">
-        <div class="service-media">${pic(slot("fooldal-szolg-2", "7QEfZIBCOvWiBL8ZPmcs1Mi8.jpg", "Főoldal – Szolgáltatások 02: Egyedi megrendelések"), "Egyedi méretre készült sötétkék fodros blúz")}</div>
+        <div class="service-media">${pic(slot("fooldal-szolg-2", "7QEfZIBCOvWiBL8ZPmcs1Mi8.jpg", "Főoldal – Szolgáltatások 02: Egyedi megrendelések"), "Egyedi méretre készült sötétkék fodros blúz", { sizes: "(max-width: 700px) 100vw, 33vw" })}</div>
         <div class="service-body"><span class="num">02</span><h3 class="h3">Egyedi megrendelések</h3><p>Saját elképzelés vagy fotó alapján, hozott vagy általunk ajánlott anyagból, közös tervezéssel, az alkatodra szabva: a mindennapokra és különleges alkalmakra.</p><a class="link-arrow" href="#egyedi">Részletek</a></div>
       </article>
       <article class="service reveal">
-        <div class="service-media">${pic(slot("fooldal-szolg-3", "5bFqnTfSOc9hMkRM7WxmDFQFQjs.jpg", "Főoldal – Szolgáltatások 03: Igazítás és javítás"), "Varrókellékek az In My Style szalonban")}</div>
+        <div class="service-media">${pic(slot("fooldal-szolg-3", "5bFqnTfSOc9hMkRM7WxmDFQFQjs.jpg", "Főoldal – Szolgáltatások 03: Igazítás és javítás"), "Varrókellékek az In My Style szalonban", { sizes: "(max-width: 700px) 100vw, 33vw" })}</div>
         <div class="service-body"><span class="num">03</span><h3 class="h3">Igazítás és javítás</h3><p>A kedvenc darabjaid is megérdemlik a törődést: megjavítjuk és méretre igazítjuk őket.</p><a class="link-arrow" href="#igazitas">Részletek</a></div>
       </article>
     </div>
@@ -951,7 +1005,7 @@ ${facebookSection()}
       <div class="section-head"><div class="eyebrow">Galéria</div><h2 class="h2" id="galeria-cim">Sportos elegancia minden részletben</h2></div>
       <a class="link-arrow" href="/lookbook/">Lookbook megnyitása</a>
     </div>
-    <div class="gallery">${gallery.map((g, i) => `<figure class="reveal">${pic(slot(`fooldal-galeria-${i + 1}`, g, `Főoldal – Galéria ${i + 1}. kép`), "In My Style ruha — inspiráció")}</figure>`).join("")}</div>
+    <div class="gallery">${gallery.map((g, i) => `<figure class="reveal">${pic(slot(`fooldal-galeria-${i + 1}`, g, `Főoldal – Galéria ${i + 1}. kép`), "In My Style ruha — inspiráció", { sizes: "(max-width: 700px) 50vw, 25vw" })}</figure>`).join("")}</div>
   </div>
 </section>
 
@@ -1016,19 +1070,19 @@ function categoryPage(c) {
   <div class="container">
     <div class="section-head-row">
       <div class="section-head"><div class="eyebrow">Most elérhető</div><h2 class="h2" id="darabok-cim">${esc(c.name)} — jelenleg elérhető darabok</h2></div>
-      <a class="link-arrow" href="#ajanlatkeres">Egyedit szeretnék</a>
+      ${c.slug === LIMITED ? "" : '<a class="link-arrow" href="#ajanlatkeres">Egyedit szeretnék</a>'}
     </div>
-    <div class="product-grid">${items.length ? items.map((p) => productCard(p, { showCat: false })).join("") : `<div class="empty-state"><p>Hamarosan új darabok érkeznek ebbe a kategóriába. Egyedi méretre azonban most is elkészítjük a neked tetsző modellt!</p><a class="btn btn-dark" href="#ajanlatkeres">Ajánlatot kérek</a></div>`}</div>
+    <div class="product-grid">${items.length ? items.map((p) => productCard(p, { showCat: false })).join("") : c.slug === LIMITED ? `<div class="empty-state"><p>Jelenleg nincs limitált darab készleten. Nézz vissza hamarosan, vagy böngészd a teljes kollekciót!</p><a class="btn btn-dark" href="/kollekcio/">Kollekció</a></div>` : `<div class="empty-state"><p>Hamarosan új darabok érkeznek ebbe a kategóriába. Egyedi méretre azonban most is elkészítjük a neked tetsző modellt!</p><a class="btn btn-dark" href="#ajanlatkeres">Ajánlatot kérek</a></div>`}</div>
   </div>
 </section>
-${c.gallery && c.gallery.length ? `
+${c.slug !== LIMITED && c.gallery && c.gallery.length ? `
 <section class="section bg-tint" aria-labelledby="ref-cim">
   <div class="container">
     <div class="section-head"><div class="eyebrow">Referenciák</div><h2 class="h2" id="ref-cim">Ilyeneket készítettünk már</h2><p class="lead">Néhány korábbi, egyedi méretre készült darabunk — inspirációnak.</p></div>
-    <div class="product-grid scroll-row">${c.gallery.map((g, i) => `<figure class="product-card-media reveal" style="margin:0">${pic(slot(`kat-${c.slug}-ref-${i + 1}`, g, `${c.name} – kategóriaoldal, Referenciák ${i + 1}. kép`), `${c.name} – In My Style referencia`)}</figure>`).join("")}</div>
+    <div class="product-grid scroll-row">${c.gallery.map((g, i) => `<figure class="product-card-media reveal" style="margin:0">${pic(slot(`kat-${c.slug}-ref-${i + 1}`, g, `${c.name} – kategóriaoldal, Referenciák ${i + 1}. kép`), `${c.name} – In My Style referencia`, { sizes: "(max-width: 700px) 50vw, 25vw" })}</figure>`).join("")}</div>
   </div>
 </section>` : ""}
-${quoteSection({ subject: `Kategória: ${c.name}`, title: `Kérj ajánlatot — ${c.name}`, lead: `Kérj visszahívást, vagy add meg előre a méreteidet és az elképzelésedet, és felkészülten várunk a konzultáción.` })}
+${c.slug === LIMITED ? quoteSection({ subject: `Kategória: ${c.name}`, title: "Érdeklődés a limitált darabokról", lead: "Kérj visszahívást, és amíg a készlet tart, félretesszük neked a kiválasztott darabot.", simple: true }) : quoteSection({ subject: `Kategória: ${c.name}`, title: `Kérj ajánlatot — ${c.name}`, lead: `Kérj visszahívást, vagy add meg előre a méreteidet és az elképzelésedet, és felkészülten várunk a konzultáción.` })}
 <section class="section-sm" aria-label="További kategóriák">
   <div class="container">
     <h2 class="h3" style="margin-bottom:18px">További ${c.group === "ruhazat" ? "ruházati" : "kiegészítő"} kategóriák</h2>
@@ -1064,7 +1118,8 @@ function productPage(p) {
   const specs = Object.entries(p.specs || {});
   const related = PRODUCTS.filter((x) => x.slug !== p.slug && x.category === p.category).concat(PRODUCTS.filter((x) => x.slug !== p.slug && x.category !== p.category && x.featured)).slice(0, 4);
   const badges = [];
-  badges.push(p.type === "egyedi" ? '<span class="tag tag-soft">Egyedi méretre készül</span>' : '<span class="tag tag-soft">Kész darab</span>');
+  const lim = isLimited(p);
+  badges.push(lim ? '<span class="tag tag-soft">Limitált darab</span>' : p.type === "egyedi" ? '<span class="tag tag-soft">Egyedi méretre készül</span>' : '<span class="tag tag-soft">Kész darab</span>');
   if (p.badge) badges.push(`<span class="tag ${/elfogy/i.test(p.badge) ? "tag-dark" : /kiárus|akci/i.test(p.badge) ? "tag-rose" : "tag-accent"}">${esc(p.badge)}</span>`);
   const num = priceNumber(p.price);
   const productLd = {
@@ -1081,7 +1136,7 @@ function productPage(p) {
     <div class="pd">
       <div class="pd-gallery" data-gallery>
         <div class="pd-main">${pic(p.photos[0], p.name, { eager: true })}</div>
-        ${p.photos.length > 1 ? `<div class="pd-thumbs">${p.photos.map((f, i) => `<button type="button" data-src="/assets/photos/${f}" aria-label="${i + 1}. kép"${i === 0 ? ' aria-current="true"' : ""}>${pic(f, "")}</button>`).join("")}</div>` : ""}
+        ${p.photos.length > 1 ? `<div class="pd-thumbs">${p.photos.map((f, i) => `<button type="button" data-src="/assets/photos/${f}" aria-label="${i + 1}. kép"${i === 0 ? ' aria-current="true"' : ""}>${pic(f, "", { sizes: "120px" })}</button>`).join("")}</div>` : ""}
       </div>
       <div class="pd-info">
         <div class="badges">${badges.join("")}</div>
@@ -1090,21 +1145,22 @@ function productPage(p) {
         <div class="pd-price"><span>Ár</span>${p.price ? priceHtml(p.price, "b") : '<b class="is-quote">Egyeztetés alapján</b>'}</div>
         ${specs.length ? `<dl class="pd-specs">${specs.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}<div><dt>Átfutás</dt><dd>${p.type === "egyedi" ? "Jellemzően 1–2 hét" : "Azonnal elvihető"}</dd></div></dl>` : `<dl class="pd-specs"><div><dt>Kategória</dt><dd>${esc(c.name)}</dd></div><div><dt>Átfutás</dt><dd>${p.type === "egyedi" ? "Jellemzően 1–2 hét" : "Azonnal elvihető"}</dd></div></dl>`}
         <div class="pd-actions">
-          <a class="btn btn-dark" href="#ajanlatkeres">Ajánlatot kérek erre a darabra</a>
+          <a class="btn btn-dark" href="#ajanlatkeres">${lim ? "Érdeklődöm erről a darabról" : "Ajánlatot kérek erre a darabra"}</a>
           <a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a>
           <button type="button" class="btn btn-outline" data-fav="${p.slug}" aria-pressed="false">${I.heart}<span data-fav-label>Kedvencekhez</span></button>
           <a class="btn btn-outline" href="${SITE.messenger}" target="_blank" rel="noopener">${I.messenger}Messenger</a>
           <a class="btn btn-outline" href="${SITE.whatsapp}?text=${encodeURIComponent(`Szia! Érdekel a(z) „${p.name}” (${SITE.url}${prodUrl(p)}).`)}" target="_blank" rel="noopener">${I.whatsapp}WhatsApp</a>
         </div>
         <div class="pd-note">
-          <h2>Rád szabva</h2>
-          <p>${p.type === "egyedi" ? "Ez a darab egyedi méretre készül: a konzultáción felvesszük a méreteidet, és közösen kiválasztjuk az anyagot és a színt." : "Ez a darab kész, fix méretű termék. Ha nem a te méreted, szívesen elkészítjük egyedi méretre is, vagy igazítunk rajta."}</p>
+          ${lim ? `<h2>Limitált darab</h2>
+          <p>Ebből a darabból csak az itt látható méretben, egyetlen példányban van készlet. Más méretben vagy színben nem rendelhető, és egyedileg sem készítjük el. Ha megtetszett, érdemes mielőbb jelentkezni, és amíg a készlet tart, félretesszük neked.</p>` : `<h2>Rád szabva</h2>
+          <p>${p.type === "egyedi" ? "Ez a darab egyedi méretre készül: a konzultáción felvesszük a méreteidet, és közösen kiválasztjuk az anyagot és a színt." : "Ez a darab kész, fix méretű termék. Ha nem a te méreted, szívesen elkészítjük egyedi méretre is, vagy igazítunk rajta."}</p>`}
         </div>
       </div>
     </div>
   </div>
 </section>
-${quoteSection({ subject: `Termék: ${p.name} (${c.name})`, title: `Ajánlatkérés — ${p.name}`, lead: "Kérj visszahívást, vagy add meg előre a méreteidet — a kért darabot már előkészítve várjuk." })}
+${lim ? quoteSection({ subject: `Limitált darab: ${p.name}`, title: `Érdeklődés — ${p.name}`, lead: "Kérj visszahívást, és amíg a készlet tart, félretesszük neked ezt a darabot.", simple: true }) : quoteSection({ subject: `Termék: ${p.name} (${c.name})`, title: `Ajánlatkérés — ${p.name}`, lead: "Kérj visszahívást, vagy add meg előre a méreteidet — a kért darabot egyeztetés után elkészítjük." })}
 ${related.length ? `<section class="section" aria-labelledby="hasonlo-cim">
   <div class="container">
     <div class="section-head-row"><div class="section-head"><div class="eyebrow">Neked ajánljuk</div><h2 class="h2" id="hasonlo-cim">Hasonló darabok</h2></div><a class="link-arrow" href="${catUrl(c)}">Összes: ${esc(c.name)}</a></div>
@@ -1271,7 +1327,7 @@ function designerPage() {
     <div class="dprogress" aria-hidden="true"><span data-progress></span></div>
     <form name="ruhatervezo" method="POST" action="/koszonjuk/" data-netlify="true" netlify-honeypot="bot-field" data-ajax-form data-designer-form>
       ${hidden("ruhatervezo")}
-      ${step(1, "Milyen ruhadarabot szeretnél?", "", `<div class="dgrid dgrid-img">${DESIGNER.pieces.map(([v, n, cat]) => radio("darab", n, `${catPhoto(cat) ? pic(catPhoto(cat), "") : ""}<span>${esc(n)}</span>`, "dopt dopt-img")).join("")}</div>`)}
+      ${step(1, "Milyen ruhadarabot szeretnél?", "", `<div class="dgrid dgrid-img">${DESIGNER.pieces.map(([v, n, cat]) => radio("darab", n, `${catPhoto(cat) ? pic(catPhoto(cat), "", { sizes: "200px" }) : ""}<span>${esc(n)}</span>`, "dopt dopt-img")).join("")}</div>`)}
       ${step(2, "Milyen fazont?", "A fazonokat a konzultáción a te alkatodhoz igazítjuk.", Object.entries(DESIGNER.cuts).map(([k, list]) => `<div class="dgrid" data-cuts="${k}">${list.map((c) => radio("fazon", c, `<span>${esc(c)}</span>`)).join("")}${radio("fazon", "Még nem tudom", "<span>Még nem tudom</span>")}</div>`).join(""))}
       ${step(3, "Milyen anyagból?", "A szalonban nagy anyagválasztékból választhatsz, és hozott anyaggal is dolgozunk.", `<div class="dgrid">${DESIGNER.fabrics.map(([n, d]) => radio("anyag", n, `<span><b>${esc(n)}</b><small>${esc(d)}</small></span>`)).join("")}</div>`)}
       ${step(4, "Milyen színben?", "", `<div class="dgrid dgrid-color">${DESIGNER.colors.map(([n, c]) => radio("szin", n, `<i style="background:${c}"></i><span>${esc(n)}</span>`, "dopt dopt-color")).join("")}</div>`)}
