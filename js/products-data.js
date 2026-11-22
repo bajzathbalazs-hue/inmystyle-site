@@ -23,7 +23,7 @@
 
 const CATEGORIES = [
   { slug: "ing", legacy: "ing", name: "Ing", title: "Egyedi méretre készülő női ingek", group: "ruhazat", tagline: "Egyedi méretre", heroPhoto: "HUQkBb62ebyhvbv3Geh48NtJcqg.jpg",
-    intro: "Puha pamutpopelintől a könnyű selyemig — minden ing a te alakodra, a te ízlésedre szabva készül. Nézd meg a jelenleg elérhető darabokat, vagy kérj teljesen egyedi tervezést anyag- és színválasztással.",
+    intro: "Puha pamutpoplintól a könnyű selyemig — minden ing a te alakodra, a te ízlésedre szabva készül. Nézd meg a jelenleg elérhető darabokat, vagy kérj teljesen egyedi tervezést anyag- és színválasztással.",
     gallery: ["GedtJrI7cNP9rVgxtFwSVIMJyMA.jpeg", "HUQkBb62ebyhvbv3Geh48NtJcqg.jpg", "L45iRZ3KoxUg1DIqnmcC5FXKEiA.jpeg", "5bFqnTfSOc9hMkRM7WxmDFQFQjs.jpg"] },
   { slug: "ing-ruha", legacy: "ingruha", name: "Ing ruha", title: "Ing ruhák egyedi méretre", group: "ruhazat", tagline: "Egyedi méretre", heroPhoto: "6es6MykWWyAqSyt10cTe4pX4k.png",
     intro: "Az ing letisztultsága ruhába öntve: kényelmes, mégis kifinomult darabok, amelyek a te alkatodra készülnek — irodába és hétvégére egyaránt." },
@@ -37,7 +37,7 @@ const CATEGORIES = [
     intro: "Réteges öltözködés stílusosan. Mellényeink egyedi méretre készülnek, és egy egyszerű inget vagy ruhát is különlegessé tesznek." },
   { slug: "alkalmi-ruhak", legacy: "alkalmi", name: "Alkalmi ruhák", title: "Alkalmi ruhák egyedi méretre", group: "ruhazat", tagline: "Egyedi méretre", heroPhoto: "iNWNifDODcXnW2dA6cTeYSwOmWc.jpg",
     intro: "Esküvői vendégség, ballagás, évforduló vagy céges rendezvény: alkalmi darabjainkat közösen tervezzük meg, hogy minden részlet tökéletes legyen. Estélyi és menyasszonyi ruhát nem készítünk." },
-  { slug: "aktualis-ruhak", legacy: "aktualis", name: "Aktuális ruhák", title: "Aktuális kollekció", group: "ruhazat", tagline: "Friss darabok", heroPhoto: "WQtmGfSVqR8hXQLZOI29RINwPU.jpg",
+  { slug: "ruhak", legacy: "aktualis", aliases: ["aktualis-ruhak", "aktualis-darabok"], imgKey: "aktualis-ruhak", name: "Ruhák", title: "Női ruhák", group: "ruhazat", tagline: "Friss darabok", heroPhoto: "WQtmGfSVqR8hXQLZOI29RINwPU.jpg",
     intro: "Hetente érkeznek új darabok: a kollekció válogatott, kész ruhái korlátozott számban, fix méretben érhetők el, ezért érdemes időben jelentkezni." },
   { slug: "unnepi-kollekcio", legacy: "unnepi", name: "Ünnepi kollekció", title: "Ünnepi kollekció", group: "ruhazat", tagline: "Az ünnepekre", heroPhoto: "szaten-unnepi-ingruha.jpg",
     intro: "Ünnepi ruhák és ingruhák nemes anyagokból, karácsonyra, szilveszterre és az év végi alkalmakra. Kész darabként vagy a te méretedre szabva is elérhetők." },
@@ -47,7 +47,7 @@ const CATEGORIES = [
     intro: "Átmeneti és téli kabátok, amelyek melegen tartanak, és közben a te alakodra szabott, letisztult eleganciát nyújtják." },
   { slug: "ovek", legacy: "ov", name: "Övek", title: "Női övek", group: "kiegeszito", tagline: "Válogatott darabok", heroPhoto: "LO5To9FaturNsCvL8WmPyXIQ3SI.jpg",
     intro: "A részletek teszik teljessé a megjelenést. Válogatott öveink kiemelik a derékvonalat, és egyedi karaktert adnak az öltözéknek." },
-  { slug: "salak", legacy: "sal", name: "Sálak", title: "Sálak", group: "kiegeszito", tagline: "Egyedi méretre", heroPhoto: "XQkc4uhz1PjVInXt3ukZQ3WHETY.png",
+  { slug: "salak", legacy: "sal", name: "Sálak", title: "Sálak", group: "kiegeszito", tagline: "Válogatott darabok", heroPhoto: "XQkc4uhz1PjVInXt3ukZQ3WHETY.png",
     intro: "Puha, nemes anyagú sálak, amelyek színt és melegséget visznek a hétköznapokba." },
   { slug: "kendok", legacy: "kendo", name: "Kendők", title: "Selyemkendők és fejkendők", group: "kiegeszito", tagline: "Válogatott darabok", heroPhoto: "ospqHxfiRBYH2iCWMDnK1lJCrQ8.png",
     intro: "Selyemkendők és mintás fejkendők: apró kiegészítők, nagy hatással." },
