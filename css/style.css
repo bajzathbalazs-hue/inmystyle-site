@@ -332,7 +332,7 @@ p { margin: 0; }
 .product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 .product-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
 .product-card { position: relative; display: flex; flex-direction: column; }
-.product-card-media { position: relative; aspect-ratio: 4 / 5; border-radius: var(--radius); overflow: hidden; background: var(--soft); }
+.product-card-media { position: relative; aspect-ratio: 4 / 5; border-radius: var(--radius); overflow: hidden; background: #fff; }
 .product-card-media img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 28%; transition: transform .7s var(--ease); }
 .product-card:hover .product-card-media img { transform: scale(1.045); }
 .product-card .badges { position: absolute; top: 12px; left: 12px; display: flex; flex-wrap: wrap; gap: 6px; z-index: 1; }
@@ -582,10 +582,10 @@ body:has(.calendly-overlay) .mobile-cta, body:has(.calendly-overlay) .help { dis
 /* ---------- Product detail ---------- */
 .pd { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(32px, 5vw, 72px); align-items: start; }
 .pd-gallery { position: sticky; top: calc(var(--header-h) + 20px); }
-.pd-main { aspect-ratio: 4 / 5; border-radius: var(--radius-lg); overflow: hidden; background: var(--soft); }
+.pd-main { aspect-ratio: 4 / 5; border-radius: var(--radius-lg); overflow: hidden; background: #fff; }
 .pd-main img { width: 100%; height: 100%; object-fit: contain; }
 .pd-thumbs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-.pd-thumbs button { width: 76px; aspect-ratio: 4/5; border-radius: 10px; overflow: hidden; border: 2px solid transparent; padding: 0; cursor: pointer; background: var(--soft); opacity: .7; }
+.pd-thumbs button { width: 76px; aspect-ratio: 4/5; border-radius: 10px; overflow: hidden; border: 2px solid transparent; padding: 0; cursor: pointer; background: #fff; opacity: .7; }
 .pd-thumbs button[aria-current="true"] { border-color: var(--ink); opacity: 1; }
 .pd-thumbs img { width: 100%; height: 100%; object-fit: cover; }
 .pd-info .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
@@ -892,3 +892,18 @@ a.service-media { display: block; }
 @media (max-width: 700px) { .process-3 { grid-template-columns: 1fr; row-gap: 32px; } }
 .split-media.svc-media { aspect-ratio: auto; max-height: 640px; }
 .split-media.svc-media img { height: auto; max-height: 640px; object-fit: cover; object-position: 50% 15%; }
+
+/* Oldalra lapozható terméksor (főoldali kiemeltek) */
+.h-scroll { display: flex; gap: 24px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; padding: 4px 0 6px; outline: none; }
+.h-scroll::-webkit-scrollbar { display: none; }
+.h-scroll > * { flex: 0 0 calc((100% - 72px) / 4); min-width: 0; scroll-snap-align: start; }
+.h-scroll-nav { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.h-scroll-nav .icon-link { cursor: pointer; font-size: 18px; background: #fff; }
+@media (max-width: 1024px) { .h-scroll > * { flex-basis: calc((100% - 48px) / 2.6); } }
+@media (max-width: 640px) {
+  .h-scroll { gap: 14px; margin: 0 calc(var(--gutter) * -1); padding: 4px var(--gutter) 10px; }
+  .h-scroll > * { flex-basis: 68%; }
+  .h-scroll-nav { display: none; }
+  /* Telefonon az oldalra lapozható sorok csak vízszintesen mozdulnak, függőlegesen nem csúsznak el. */
+  .services, .testimonials, .scroll-row, .cat-grid, .lb-track, .h-scroll, .fchips, .help-chips { overflow-y: hidden; }
+}
