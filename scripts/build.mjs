@@ -926,25 +926,6 @@ ${HOLIDAY_GIFT ? `<section class="gift-band" id="ajandekkartya" aria-labelledby=
   </div>
 </section>
 
-<section class="section-sm" id="szulinap" aria-labelledby="szulinap-cim">
-  <div class="container bday">
-    <div class="bday-media reveal">${pic(slot("fooldal-szulinap", "vendeg-lila-kopenyes-ruha-szalon.jpg", "Főoldal – Születésnapi élmény az In My Style-ban"), "Szilvia és vendége az In My Style szalonban")}</div>
-    <div class="bday-body">
-      <div class="eyebrow">Szülinap az In My Style-ban</div>
-      <h2 class="h2" id="szulinap-cim">Születésnapi élmény az In My Style-ban</h2>
-      <p class="lead">Tedd felejthetetlenné a szülinapod, vagy ajándékozz stílusos ünneplést az In My Style-ban!</p>
-      <ul class="checklist">
-        <li>VIP tagság kedvezményekkel</li>
-        <li>Ünnepi dekor és hangulat, mini catering</li>
-        <li>Személyre szabott ruhák</li>
-        <li>Tanácsadás, coaching</li>
-        <li>Egyedi programok igény szerint</li>
-      </ul>
-      <div class="gift-actions"><a class="btn btn-dark" href="#ajanlatkeres">Érdeklődöm</a><a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a></div>
-    </div>
-  </div>
-</section>
-
 <section class="section bg-soft" id="kollekcio" aria-labelledby="kollekcio-cim">
   <div class="container">
     <div class="section-head-row">
@@ -1053,6 +1034,25 @@ ${facebookSection()}
       <a class="link-arrow" href="/lookbook/">Lookbook megnyitása</a>
     </div>
     <div class="gallery">${gallery.map((g, i) => `<figure class="reveal">${pic(slot(`fooldal-galeria-${i + 1}`, g, `Főoldal – Galéria ${i + 1}. kép`), "In My Style ruha — inspiráció", { sizes: "(max-width: 700px) 50vw, 25vw" })}</figure>`).join("")}</div>
+  </div>
+</section>
+
+<section class="section-sm" id="szulinap" aria-labelledby="szulinap-cim">
+  <div class="container bday">
+    <div class="bday-media reveal">${pic(slot("fooldal-szulinap", "vendeg-lila-kopenyes-ruha-szalon.jpg", "Főoldal – Születésnapi élmény az In My Style-ban"), "Szilvia és vendége az In My Style szalonban")}</div>
+    <div class="bday-body">
+      <div class="eyebrow">Szülinap az In My Style-ban</div>
+      <h2 class="h2" id="szulinap-cim">Születésnapi élmény az In My Style-ban</h2>
+      <p class="lead">Tedd felejthetetlenné a szülinapod, vagy ajándékozz stílusos ünneplést az In My Style-ban!</p>
+      <ul class="checklist">
+        <li>VIP tagság kedvezményekkel</li>
+        <li>Ünnepi dekor és hangulat, mini catering</li>
+        <li>Személyre szabott ruhák</li>
+        <li>Tanácsadás, coaching</li>
+        <li>Egyedi programok igény szerint</li>
+      </ul>
+      <div class="gift-actions"><a class="btn btn-dark" href="#ajanlatkeres">Érdeklődöm</a><a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a></div>
+    </div>
   </div>
 </section>
 
