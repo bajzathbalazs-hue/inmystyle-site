@@ -133,6 +133,11 @@ async function preparePhoto(file) {
    egyedileg nem készül. Ezért ezeknél a termékeknél minden „rád szabjuk / elkészítjük / rendelhető” jellegű szöveg kimarad. */
 const LIMITED = "limitalt-darabok";
 const isLimited = (p) => p && p.category === LIMITED;
+/* Kiegészítők (táskák, kendők, sálak, övek): kész termékek, nem készülnek egyedi méretre — ezeknél sem jelenik meg ilyen ígéret. */
+const ACCESSORY = new Set(CATEGORIES.filter((c) => c.group === "kiegeszito").map((c) => c.slug));
+const isAccessory = (p) => p && ACCESSORY.has(p.category);
+/* Átnevezett kategóriák: a táblázatban még a régi azonosítóval szereplő termékek is a helyükre kerülnek. */
+const CAT_ALIAS = Object.fromEntries(CATEGORIES.flatMap((c) => (c.aliases || []).map((a) => [a, c.slug])));
 const MTM = /(rád szab|méretre szab|egyedi méret|méretedre|elkészítjük|elkészítünk|megrendelhető|rendelhető|rendelésre|igazítunk|választható)/i;
 function limitedClean(p) {
   const q = { ...p, type: "import" };
@@ -165,7 +170,8 @@ for (const p0 of RAW_PRODUCTS) {
   const ok = [];
   for (const f of p.photos || []) if (await preparePhoto(f)) ok.push(f); else console.warn(`Figyelmeztetés: hiányzó fotó (${f}) – ${p.name}`);
   if (!ok.length) { console.warn(`Figyelmeztetés: „${p.name}” fotó nélkül maradt, ezért most nem jelenik meg.`); continue; }
-  PRODUCTS.push(p.category === LIMITED ? limitedClean({ ...p, photos: ok }) : { ...p, photos: ok });
+  const cat = CAT_ALIAS[p.category] || p.category, q = { ...p, category: cat, photos: ok };
+  PRODUCTS.push(cat === LIMITED || ACCESSORY.has(cat) ? limitedClean(q) : q);
 }
 
 const SWAP = {};
@@ -173,7 +179,7 @@ for (const [k, f] of Object.entries(RAW_SWAP)) if (await preparePhoto(f)) SWAP[k
 const SLOTS = {};
 /* slot(kulcs, eredeti fájl, hely leírása) → a megjelenítendő fájl (a lecserélt, ha van) */
 function slot(key, file, place) { if (!SLOTS[key]) SLOTS[key] = { key, file, place }; return SWAP[key] || file; }
-const catHero = (c) => slot("kat-" + c.slug, c.heroPhoto, `${c.name} – kategória fejléce és csempéje (főoldal, kategóriaoldal, ruhatervező)`);
+const catHero = (c) => slot("kat-" + (c.imgKey || c.slug), c.heroPhoto, `${c.name} – kategória fejléce és csempéje (főoldal, kategóriaoldal, ruhatervező)`);
 
 const GUESTS = [];
 for (const g of RAW_GUESTS) if (await preparePhoto(g.photo)) GUESTS.push(g); else console.warn(`Figyelmeztetés: hiányzó vendégfotó (${g.photo})`);
@@ -480,6 +486,7 @@ function productCard(p, { showCat = true, filterable = false } = {}) {
   const badges = [];
   if (p.badge) badges.push(`<span class="tag ${/elfogy/i.test(p.badge) ? "tag-dark" : /kiárus|akci/i.test(p.badge) ? "tag-rose" : "tag-accent"}">${esc(p.badge)}</span>`);
   else if (isLimited(p)) badges.push('<span class="tag">Limitált darab</span>');
+  else if (isAccessory(p)) {}
   else if (p.type === "egyedi") badges.push('<span class="tag">Egyedi méretre</span>');
   const data = filterable ? ` data-cat="${p.category}" data-type="${p.type}" data-colors="${esc(colorTags(p).join("|"))}" data-name="${esc(norm(p.name + " " + (c ? c.name : "") + " " + ((p.specs && p.specs["Szín"]) || "")))}" data-price="${priceNum(p)}"${p.sale ? ' data-sale="1"' : ""}` : "";
   return `<article class="product-card reveal"${data}>
@@ -511,7 +518,7 @@ function categoryGroups() {
 
 const FAQ = [
   ["Mennyi idő alatt készül el a ruhám?", "Az egyedi méretre készülő darabok átfutási ideje jellemzően 1–2 hét, egy igazításé 1–3 nap. Sürgős esetben felár ellenében gyorsabban is vállaljuk, ennek mértéke a megrendeléstől függ. A pontos határidőt a konzultáción egyeztetjük."],
-  ["Mennyibe kerül az első konzultáció?", "Az első, körülbelül 30 perces konzultáció és a méretvétel díjmentes."],
+  ["Mennyibe kerül a konzultáció?", "A körülbelül 30 perces konzultáció és a méretvétel díjmentes."],
   ["Kell-e előleget fizetni?", "Egyedi rendelésnél a vételár 50%-át előlegként kérjük, a fennmaradó összeget átvételkor. Fizethetsz készpénzzel, bankkártyával vagy átutalással."],
   ["Van-e méretsor az aktuális kollekcióban?", "Az aktuális kollekció darabjai korlátozott számban, fix méretben érhetők el. Üzletünkben vagy a Facebook-oldalunkon mindig látod, mi van éppen készleten."],
   ["Hozott anyagból is készítenek ruhát?", "Igen, előzetes egyeztetés után, ha az anyag kifogástalan állapotú. Hozd magaddal a konzultációra, és együtt megnézzük, milyen modellhez illik a legjobban."],
@@ -618,7 +625,7 @@ const privacyNote = `<p class="form-note">Az űrlap elküldésével elfogadod az
 function quoteSection({ id = "ajanlatkeres", subject = "", title = "Kérj ajánlatot", lead, simple = false } = {}) {
   const ctx = esc(subject || "Általános érdeklődés");
   const range = (key, label, min, max, val) => `<div class="range-row"><label for="r-${key}">${label}</label><output data-size-output="${key}" for="r-${key}">${val} cm</output><input id="r-${key}" type="range" name="${key}" min="${min}" max="${max}" value="${val}" data-size-input="${key}"></div>`;
-  const pills = ["Pamut popelin", "Selyem", "Vászon", "Szatén", "Gyapjú-keverék"];
+  const pills = ["Pamut poplin", "Selyem", "Vászon", "Szatén", "Gyapjú-keverék"];
   const colors = [["Fehér", "#ffffff"], ["Fekete", "#1f1f1f"], ["Sötétkék", "#1c2b45"], ["Bordó", "#7c1f2d"], ["Drapp", "#c8a96a"], ["Szürke", "#9aa9b0"], ["Púderrózsaszín", "#d88ea0"]];
   return `<section class="section bg-soft" id="${id}" aria-labelledby="${id}-cim">
   <div class="container">
@@ -685,9 +692,9 @@ const SERVICES = [
     lead: "A mindennapok is megérdemlik a személyre szabott tökéletességet: az alkatodra, a te ízlésed szerint készítjük el a kívánt darabot.",
     short: "Saját elképzelés vagy fotó alapján, hozott vagy általunk ajánlott anyagból, az alkatodra szabva.",
     body: ["Egyedi méretre, közös anyagválasztással, az alkatodnak megfelelően készítjük el a kívánt modellt — legyen szó egy tökéletes fehér ingről, egy szabott nadrágról, egy blézerről vagy egy alkalmi ruháról.", "Hozhatsz inspirációs fotót, saját anyagot vagy egy kedvenc darabot is: ezekből közösen alakítjuk ki a végleges modellt. A kész ruhát felpróbálod, és ha szükséges, finomítunk rajta."],
-    points: ["Díjmentes, körülbelül 30 perces első konzultáció", "Inspirációs fotó vagy hozott anyag alapján is", "Pontos méretvétel a szalonban", "Próbával és finomhangolással", "Jellemzően 1–2 hét alatt elkészül"],
+    points: ["Díjmentes, körülbelül 30 perces konzultáció", "Inspirációs fotó vagy hozott anyag alapján is", "Pontos méretvétel a szalonban", "Próbával és finomhangolással", "Jellemzően 1–2 hét alatt elkészül"],
     steps: [["Konzultáció", "Elmondod az elképzelésed, és megmutatod, ami inspirál."], ["Anyag és méret", "Közösen választunk anyagot és színt, majd pontos méretet veszünk."], ["Próba és átvétel", "Felpróbálod a kész darabot, és ha kell, finomhangoljuk."]],
-    faq: [["Mennyi idő alatt készül el egy egyedi ruha?", "Az egyedi darabok átfutási ideje jellemzően 1–2 hét, a modelltől és az anyagtól függően."], ["Mennyibe kerül egy egyedi ruha?", "Az ár a modelltől és az anyagtól függ, ezért a pontos árat a díjmentes első konzultáción adjuk meg."], ["Hozhatok saját anyagot?", "Igen, saját anyagból is szívesen dolgozunk. Hozd magaddal a konzultációra, és megnézzük, mire a legalkalmasabb."]],
+    faq: [["Mennyi idő alatt készül el egy egyedi ruha?", "Az egyedi darabok átfutási ideje jellemzően 1–2 hét, a modelltől és az anyagtól függően."], ["Mennyibe kerül egy egyedi ruha?", "Az ár a modelltől és az anyagtól függ, ezért a pontos árat a díjmentes konzultáción adjuk meg."], ["Hozhatok saját anyagot?", "Igen, saját anyagból is szívesen dolgozunk. Hozd magaddal a konzultációra, és megnézzük, mire a legalkalmasabb."]],
     cta: "Ajánlatot kérek", keys: ["egyedi", "meretre", "szabott", "ruhakeszites", "varratas", "varrat"] },
   { slug: "ruhaigazitas-javitas", name: "Igazítás és javítás", chip: "Igazítás és javítás", eyebrow: "Törődés", core: true,
     photo: "ZHXenMDNxDUohhIi2cLGZ0mYT4.jpg", alt: "Ruhaigazítás próbán az In My Style szalonban",
@@ -747,7 +754,7 @@ const SERVICES = [
     body: ["A jó stílus nem a trendekről szól, hanem arról, hogy a ruháid illenek hozzád: az alkatodhoz, a munkádhoz és az egyéniségedhez. Egy személyes beszélgetésen végigvesszük, mi áll jól neked, és mit érdemes elkerülnöd.", "Kérheted privát shoppingként is a szalonban, vagy stylisttal közös vásárlásként. Sportos elegancia, kényelem és nőiesség — valódi nőknek, valódi nőktől."],
     points: ["Személyes, kötetlen beszélgetés a szalonban", "Hozzád illő színek és fazonok", "Privát shopping és vásárlás stylisttal", "Ajándékkártyával is igénybe vehető"],
     steps: [["Időpontot foglalsz", "Online, telefonon vagy üzenetben."], ["Személyes tanácsadás", "Megnézzük, mely színek, fazonok és anyagok emelik ki az adottságaidat."], ["Kézzelfogható eredmény", "Tudni fogod, mit keress, és mit hagyj a boltban."]],
-    faq: [["Kinek ajánljátok?", "Mindenkinek, aki bizonytalan abban, mi áll jól neki, vagy megújítaná a megjelenését."], ["Mennyibe kerül?", "Az ár a kért szolgáltatástól függ, ezért egyeztetés után adunk személyre szabott ajánlatot. Az első, körülbelül 30 perces konzultáció díjmentes."], ["Adható ajándékba?", "Igen, a stílustanácsadás ajándékkártyával is igénybe vehető."]],
+    faq: [["Kinek ajánljátok?", "Mindenkinek, aki bizonytalan abban, mi áll jól neki, vagy megújítaná a megjelenését."], ["Mennyibe kerül?", "Az ár a kért szolgáltatástól függ, ezért egyeztetés után adunk személyre szabott ajánlatot. A körülbelül 30 perces konzultáció díjmentes."], ["Adható ajándékba?", "Igen, a stílustanácsadás ajándékkártyával is igénybe vehető."]],
     cta: "Érdeklődöm", keys: ["stilustanacsadas", "stilus", "tanacsadas", "coaching", "stiluscoaching", "stylist", "privat", "shopping"] },
   { slug: "workshop", name: "Workshopszervezés", chip: "Workshopszervezés", eyebrow: "Közösségi élmény",
     photo: "npAcJL2BvKL0vi51wMBNg1Ozks.png", alt: "Az In My Style szalon belső tere a II. kerületi Kapás utcában",
@@ -783,7 +790,7 @@ const SERVICES = [
     body: ["Hozd el a kedvenc ruhádat: a szabását alapul véve, a te méretedre készítjük el újra — akár más anyagból, más színben vagy apró változtatásokkal, például más ujjhosszal vagy gallérral.", "Az anyagot közösen választjuk ki, a kész darabot pedig felpróbálod, és ha szükséges, finomítunk rajta."],
     points: ["A hozott ruha szabása alapján", "Új anyagból, választott színben", "Kérésre apró változtatásokkal", "Próbával és finomhangolással", "Jellemzően 1–2 hét alatt elkészül"],
     steps: [["Elhozod a kedvencedet", "Megnézzük a szabását, és megbeszéljük, mit változtatnál rajta."], ["Anyagválasztás és méretvétel", "Közösen választunk anyagot, és pontos méretet veszünk."], ["Próba és átvétel", "Felpróbálod az elkészült darabot, és ha kell, finomhangoljuk."]],
-    faq: [["Bármilyen ruhát le tudtok másolni?", "A legtöbb darabot igen; a konzultáción megnézzük a ruhát, és megmondjuk, mi valósítható meg."], ["Megsérül közben az eredeti ruha?", "Nem, az eredeti darabot nem bontjuk szét: a szabását mintaként használjuk."], ["Mennyibe kerül?", "Az ár a modelltől és az anyagtól függ, ezért a pontos árat a díjmentes első konzultáción adjuk meg."]],
+    faq: [["Bármilyen ruhát le tudtok másolni?", "A legtöbb darabot igen; a konzultáción megnézzük a ruhát, és megmondjuk, mi valósítható meg."], ["Megsérül közben az eredeti ruha?", "Nem, az eredeti darabot nem bontjuk szét: a szabását mintaként használjuk."], ["Mennyibe kerül?", "Az ár a modelltől és az anyagtól függ, ezért a pontos árat a díjmentes konzultáción adjuk meg."]],
     cta: "Ajánlatot kérek", keys: ["utankeszites", "lemasolas", "lemasol", "masolat", "kedvenc", "hozott"] },
 ];
 const serviceUrl = (s) => `/szolgaltatasok/${s.slug}/`;
@@ -807,7 +814,7 @@ const HELP = [
   { id: "koszonet", q: "Köszönöm!", k: ["koszonom", "koszi", "koszke", "kosz", "thx", "koszonjuk", "szuper", "remek", "rendben", "oke"], small: true,
     a: "Szívesen! Ha bármi más kérdésed van, itt vagyok. Szilviát személyesen is elérheted Messengeren, WhatsAppon vagy telefonon." },
   { id: "arak", q: "Mennyibe kerül?", k: ["ar", "ara", "arak", "mennyibe", "kerul", "koltseg", "dij", "forint", "ft", "draga", "olcso", "arajanlat", "arlista"],
-    a: "Az egyedi darabok ára a modelltől és az anyagtól függ, ezért a pontos árat a díjmentes első konzultáción adjuk meg. Az igazítás 3 500 Ft-tól kérhető, a kész darabok árát pedig a termékoldalakon találod.",
+    a: "Az egyedi darabok ára a modelltől és az anyagtól függ, ezért a pontos árat a díjmentes konzultáción adjuk meg. Az igazítás 3 500 Ft-tól kérhető, a kész darabok árát pedig a termékoldalakon találod.",
     cta: ["Ajánlatot kérek", "/#ajanlatkeres"] },
   { id: "atfutas", q: "Mennyi idő alatt készül el?", k: ["ido", "idot", "meddig", "atfutas", "hatarido", "het", "hetet", "napot", "surgos", "gyors", "gyorsan", "elkeszul"],
     a: "Egy egyedi darab jellemzően 1–2 hét alatt készül el, egy igazítás 1–3 nap alatt. Sürgős esetben felár ellenében gyorsabban is vállaljuk; ennek mértéke a megrendeléstől függ." },
@@ -815,7 +822,7 @@ const HELP = [
     a: `Szalonunk a II. kerületben van: ${SITE.address}. Nyitvatartás: kedd–csütörtök 10–18, péntek 10–16, szombaton egyeztetés szerint, hétfőn zárva. Parkolni az utcán, a szalon előtt és a környéken lehet. A bejárat nem akadálymentes.`,
     cta: ["Útvonaltervezés", SITE.maps] },
   { id: "idopont", q: "Hogyan foglalhatok időpontot?", k: ["idopont", "idopontot", "foglal", "foglalas", "bejelentkez", "konzultacio", "talalkoz", "calendly", "bejon", "bemenni", "eljonni", "meretvetel"],
-    a: "Az első, körülbelül 30 perces konzultáció és a méretvétel díjmentes. Foglalhatsz online, hívhatsz minket, vagy írhatsz Messengeren. Nyitvatartási időben bejelentkezés nélkül is betérhetsz, de foglalással biztosan ráérünk.",
+    a: "A körülbelül 30 perces konzultáció és a méretvétel díjmentes. Foglalhatsz online, hívhatsz minket, vagy írhatsz Messengeren. Nyitvatartási időben bejelentkezés nélkül is betérhetsz, de foglalással biztosan ráérünk.",
     cta: ["Online időpontfoglalás", "/#idopont"] },
   { id: "igazitas", q: "Vállaltok igazítást, javítást?", k: ["igazit", "igazitas", "javit", "javitas", "felhajt", "cipzar", "szukit", "bovit", "rovidit", "atalakit", "atalakitas", "szakad", "gomb", "foltoz", "varrat"],
     a: "Igen. Méretre igazítjuk és megjavítjuk a kedvenc darabjaidat: az igazítás 3 500 Ft-tól kérhető, és jellemzően 1–3 nap alatt elkészül. Hozd be a ruhát a szalonba, és helyben megbeszéljük a teendőket.",
@@ -857,7 +864,7 @@ const CAT_SYN = {
   "ing": ["ing", "ingek", "inget", "ingem", "blúz", "blúzok", "blúzt", "felső"], "ing-ruha": ["ingruha", "ingruhák", "ingruhát", "ing ruha"],
   "blezer": ["blézer", "blézerek", "blézert", "zakó", "zakók", "kosztüm", "kiskabát"], "nadragok": ["nadrág", "nadrágok", "nadrágot", "pantalló", "szövetnadrág"],
   "szoknyak": ["szoknya", "szoknyák", "szoknyát", "ceruzaszoknya"], "mellenyek": ["mellény", "mellények", "mellényt"],
-  "alkalmi-ruhak": ["alkalmi", "ünnepi", "koktélruha", "overál"], "aktualis-ruhak": ["aktuális", "újdonság", "újdonságok", "friss", "készleten"],
+  "alkalmi-ruhak": ["alkalmi", "ünnepi", "koktélruha", "overál"], "ruhak": ["ruha", "ruhák", "ruhát", "aktuális", "újdonság", "újdonságok", "friss", "készleten"],
   "kabatok": ["kabát", "kabátok", "kabátot", "dzseki", "bőrdzseki", "trencs"], "ovek": ["öv", "övek", "övet", "bőröv"],
   "salak": ["sál", "sálak", "sálat"], "kendok": ["kendő", "kendők", "kendőt", "selyemkendő", "fejkendő"],
   "sajat-markas-taskak": ["vászontáska", "vászontáskák"], "taskak": ["táska", "táskák", "táskát", "kézitáska", "retikül"],
@@ -1000,7 +1007,7 @@ function homePage() {
       <div class="hero-proof">
         <div><b>100%</b><span>egyedi méretre</span></div>
         <div><b>1–2 hét</b><span>átfutási idő</span></div>
-        <div><b>Díjmentes</b><span>első konzultáció</span></div>
+        <div><b>Díjmentes</b><span>konzultáció</span></div>
       </div>
     </div>
   </div>
@@ -1171,7 +1178,7 @@ ${facebookSection()}
 
 <section class="section-sm" id="szulinap" aria-labelledby="szulinap-cim">
   <div class="container bday">
-    <div class="bday-media reveal">${pic(slot("fooldal-szulinap", "vendeg-lila-kopenyes-ruha-szalon.jpg", "Főoldal – Születésnapi élmény az In My Style-ban"), "Szilvia és vendége az In My Style szalonban")}</div>
+    <div class="bday-media reveal">${pic(slot("fooldal-szulinap", "s0kyJSUrJ3nebAMkxarE4o4a4.jpg", "Főoldal – Születésnapi élmény az In My Style-ban"), "Születésnapi ünneplés tortával az In My Style szalonban")}</div>
     <div class="bday-body">
       <div class="eyebrow">Szülinap az In My Style-ban</div>
       <h2 class="h2" id="szulinap-cim">Születésnapi élmény az In My Style-ban</h2>
@@ -1201,10 +1208,10 @@ ${facebookSection()}
       </div>
     </article>
     <article class="offer offer-dark reveal">
-      <div class="offer-media">${pic(slot("fooldal-konzultacio", "feher-megkotos-ingruha-szalon.jpg", "Főoldal – Díjmentes első konzultáció"), "Az In My Style szalon belső tere")}</div>
+      <div class="offer-media">${pic(slot("fooldal-konzultacio", "feher-megkotos-ingruha-szalon.jpg", "Főoldal – Díjmentes konzultáció"), "Az In My Style szalon belső tere")}</div>
       <div class="offer-body">
         <div class="eyebrow">Első lépés</div>
-        <h2 class="h3">Díjmentes első konzultáció</h2>
+        <h2 class="h3">Díjmentes konzultáció</h2>
         <p class="muted">Gyere el egy kötetlen, körülbelül 30 perces beszélgetésre: megismerjük az elképzelésedet, felvesszük a méreteidet, és együtt választunk anyagot.</p>
         <ul class="checklist checklist-light" style="margin-top:4px">
           <li>Kb. 30 perc, díjmentesen</li>
@@ -1222,7 +1229,7 @@ ${faqSection()}
 ${contactSection()}`;
   return page({
     title: "In My Style – méretre készülő női ruhák, Budapest II. kerület",
-    description: "Méretes szabóság 35 év feletti nőknek Budán: egyedi méretre készülő női ruhák, igazítás és válogatott kollekció. Díjmentes első konzultáció a II. kerületi szalonban.",
+    description: "Méretes szabóság 35 év feletti nőknek Budán: egyedi méretre készülő női ruhák, igazítás és válogatott kollekció. Díjmentes konzultáció a II. kerületi szalonban.",
     url: "/",
     image: "/assets/icons/og-image.jpg",
     jsonld: [businessLd, { "@context": "https://schema.org", "@type": "WebSite", name: "In My Style", url: SITE.url + "/", inLanguage: "hu-HU" }, faqLd],
@@ -1248,20 +1255,20 @@ function categoryPage(c) {
 <section class="section" aria-labelledby="darabok-cim">
   <div class="container">
     <div class="section-head-row">
-      <div class="section-head"><div class="eyebrow">Most elérhető</div><h2 class="h2" id="darabok-cim">${esc(c.name)} — jelenleg elérhető darabok</h2></div>
-      ${c.slug === LIMITED ? "" : '<a class="link-arrow" href="#ajanlatkeres">Egyedit szeretnék</a>'}
+      <div class="section-head"><div class="eyebrow">Most elérhető</div><h2 class="h2" id="darabok-cim">${c.slug === LIMITED ? "Most elérhető limitált darabok" : `${esc(c.name)} — jelenleg elérhető darabok`}</h2></div>
+      ${c.slug === LIMITED || ACCESSORY.has(c.slug) ? "" : '<a class="link-arrow" href="#ajanlatkeres">Egyedit szeretnék</a>'}
     </div>
-    <div class="product-grid">${items.length ? items.map((p) => productCard(p, { showCat: false })).join("") : c.slug === LIMITED ? `<div class="empty-state"><p>Jelenleg nincs limitált darab készleten. Nézz vissza hamarosan, vagy böngészd a teljes kollekciót!</p><a class="btn btn-dark" href="/kollekcio/">Kollekció</a></div>` : `<div class="empty-state"><p>Hamarosan új darabok érkeznek ebbe a kategóriába.</p><a class="btn btn-dark" href="#ajanlatkeres">Ajánlatot kérek</a></div>`}</div>
+    <div class="product-grid">${items.length ? items.map((p) => productCard(p, { showCat: false })).join("") : c.slug === LIMITED ? `<div class="empty-state"><p>Jelenleg nincs limitált darab készleten. Nézz vissza hamarosan, vagy böngészd a teljes kollekciót!</p><a class="btn btn-dark" href="/kollekcio/">Kollekció</a></div>` : ACCESSORY.has(c.slug) ? `<div class="empty-state"><p>Hamarosan új darabok érkeznek ebbe a kategóriába. Érdeklődj az elérhető készlet felől!</p><a class="btn btn-dark" href="#ajanlatkeres">Érdeklődöm</a></div>` : `<div class="empty-state"><p>Hamarosan új darabok érkeznek ebbe a kategóriába.</p><a class="btn btn-dark" href="#ajanlatkeres">Ajánlatot kérek</a></div>`}</div>
   </div>
 </section>
-${c.slug !== LIMITED && c.gallery && c.gallery.length ? `
+${c.slug !== LIMITED && !ACCESSORY.has(c.slug) && c.gallery && c.gallery.length ? `
 <section class="section bg-tint" aria-labelledby="ref-cim">
   <div class="container">
     <div class="section-head"><div class="eyebrow">Referenciák</div><h2 class="h2" id="ref-cim">Ilyeneket készítettünk már</h2><p class="lead">Néhány korábbi, egyedi méretre készült darabunk — inspirációnak.</p></div>
     <div class="product-grid scroll-row">${c.gallery.map((g, i) => `<figure class="product-card-media reveal" style="margin:0">${pic(slot(`kat-${c.slug}-ref-${i + 1}`, g, `${c.name} – kategóriaoldal, Referenciák ${i + 1}. kép`), `${c.name} – In My Style referencia`, { sizes: "(max-width: 700px) 50vw, 25vw" })}</figure>`).join("")}</div>
   </div>
 </section>` : ""}
-${c.slug === LIMITED ? quoteSection({ subject: `Kategória: ${c.name}`, title: "Érdeklődés a limitált darabokról", lead: "Kérj visszahívást, és amíg a készlet tart, félretesszük neked a kiválasztott darabot.", simple: true }) : quoteSection({ subject: `Kategória: ${c.name}`, title: `Kérj ajánlatot — ${c.name}`, lead: `Kérj visszahívást, vagy add meg előre a méreteidet és az elképzelésedet, és felkészülten várunk a konzultáción.` })}
+${c.slug === LIMITED ? quoteSection({ subject: `Kategória: ${c.name}`, title: "Érdeklődés a limitált darabokról", lead: "Kérj visszahívást, és amíg a készlet tart, félretesszük neked a kiválasztott darabot.", simple: true }) : ACCESSORY.has(c.slug) ? quoteSection({ subject: `Kategória: ${c.name}`, title: `Kérj ajánlatot — ${c.name}`, lead: "Kérj visszahívást, vagy érdeklődj írásban az elérhető készlet felől.", simple: true }) : quoteSection({ subject: `Kategória: ${c.name}`, title: `Kérj ajánlatot — ${c.name}`, lead: `Kérj visszahívást, vagy add meg előre a méreteidet és az elképzelésedet, és felkészülten várunk a konzultáción.` })}
 <section class="section-sm" aria-label="További kategóriák">
   <div class="container">
     <h2 class="h3" style="margin-bottom:18px">További ${c.group === "ruhazat" ? "ruházati" : "kiegészítő"} kategóriák</h2>
@@ -1297,8 +1304,8 @@ function productPage(p) {
   const specs = Object.entries(p.specs || {});
   const related = PRODUCTS.filter((x) => x.slug !== p.slug && x.category === p.category).concat(PRODUCTS.filter((x) => x.slug !== p.slug && x.category !== p.category && x.featured)).slice(0, 4);
   const badges = [];
-  const lim = isLimited(p);
-  badges.push(lim ? '<span class="tag tag-soft">Limitált darab</span>' : p.type === "egyedi" ? '<span class="tag tag-soft">Egyedi méretre készül</span>' : '<span class="tag tag-soft">Kész darab</span>');
+  const lim = isLimited(p), acc = isAccessory(p);
+  badges.push(lim ? '<span class="tag tag-soft">Limitált darab</span>' : acc ? '<span class="tag tag-soft">Kész darab</span>' : p.type === "egyedi" ? '<span class="tag tag-soft">Egyedi méretre készül</span>' : '<span class="tag tag-soft">Kész darab</span>');
   if (p.badge) badges.push(`<span class="tag ${/elfogy/i.test(p.badge) ? "tag-dark" : /kiárus|akci/i.test(p.badge) ? "tag-rose" : "tag-accent"}">${esc(p.badge)}</span>`);
   const num = priceNumber(p.price);
   const productLd = {
@@ -1324,7 +1331,7 @@ function productPage(p) {
         <div class="pd-price"><span>Ár</span>${p.price ? priceHtml(p.price, "b") : '<b class="is-quote">Egyeztetés alapján</b>'}</div>
         ${specs.length ? `<dl class="pd-specs">${specs.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}<div><dt>Átfutás</dt><dd>${p.type === "egyedi" ? "Jellemzően 1–2 hét" : "Azonnal elvihető"}</dd></div></dl>` : `<dl class="pd-specs"><div><dt>Kategória</dt><dd>${esc(c.name)}</dd></div><div><dt>Átfutás</dt><dd>${p.type === "egyedi" ? "Jellemzően 1–2 hét" : "Azonnal elvihető"}</dd></div></dl>`}
         <div class="pd-actions">
-          <a class="btn btn-dark" href="#ajanlatkeres">${lim ? "Érdeklődöm erről a darabról" : "Ajánlatot kérek erre a darabra"}</a>
+          <a class="btn btn-dark" href="#ajanlatkeres">${lim || acc ? "Érdeklődöm erről a darabról" : "Ajánlatot kérek erre a darabra"}</a>
           <a class="btn btn-outline" href="${SITE.phoneHref}">${I.phone}Hívás</a>
           <button type="button" class="btn btn-outline" data-fav="${p.slug}" aria-pressed="false">${I.heart}<span data-fav-label>Kedvencekhez</span></button>
           <a class="btn btn-outline" href="${SITE.messenger}" target="_blank" rel="noopener">${I.messenger}Messenger</a>
@@ -1332,14 +1339,15 @@ function productPage(p) {
         </div>
         <div class="pd-note">
           ${lim ? `<h2>Limitált darab</h2>
-          <p>Ebből a darabból csak az itt látható méretben, egyetlen példányban van készlet. Más méretben vagy színben nem rendelhető, és egyedileg sem készítjük el. Ha megtetszett, érdemes mielőbb jelentkezni, és amíg a készlet tart, félretesszük neked.</p>` : `<h2>Rád szabva</h2>
+          <p>Ebből a darabból csak az itt látható méretben, egyetlen példányban van készlet. Más méretben vagy színben nem rendelhető, és egyedileg sem készítjük el. Ha megtetszett, érdemes mielőbb jelentkezni, és amíg a készlet tart, félretesszük neked.</p>` : acc ? `<h2>Kész darab</h2>
+          <p>Ez a kiegészítő kész termék, a szalonban megtekinthető és azonnal elvihető. Kérj visszahívást, vagy érdeklődj írásban az elérhető készlet felől.</p>` : `<h2>Rád szabva</h2>
           <p>${p.type === "egyedi" ? "Ez a darab egyedi méretre készül: a konzultáción felvesszük a méreteidet, és közösen kiválasztjuk az anyagot és a színt." : "Ez a darab kész, fix méretű termék. Ha nem a te méreted, szívesen elkészítjük egyedi méretre is, vagy igazítunk rajta."}</p>`}
         </div>
       </div>
     </div>
   </div>
 </section>
-${lim ? quoteSection({ subject: `Limitált darab: ${p.name}`, title: `Érdeklődés — ${p.name}`, lead: "Kérj visszahívást, és amíg a készlet tart, félretesszük neked ezt a darabot.", simple: true }) : quoteSection({ subject: `Termék: ${p.name} (${c.name})`, title: `Ajánlatkérés — ${p.name}`, lead: "Kérj visszahívást, vagy add meg előre a méreteidet — a kért darabot egyeztetés után elkészítjük." })}
+${lim ? quoteSection({ subject: `Limitált darab: ${p.name}`, title: `Érdeklődés — ${p.name}`, lead: "Kérj visszahívást, és amíg a készlet tart, félretesszük neked ezt a darabot.", simple: true }) : acc ? quoteSection({ subject: `Termék: ${p.name} (${c.name})`, title: `Érdeklődés — ${p.name}`, lead: "Kérj visszahívást, vagy érdeklődj írásban az elérhető készlet felől.", simple: true }) : quoteSection({ subject: `Termék: ${p.name} (${c.name})`, title: `Ajánlatkérés — ${p.name}`, lead: "Kérj visszahívást, vagy add meg előre a méreteidet — a kért darabot egyeztetés után elkészítjük." })}
 ${related.length ? `<section class="section" aria-labelledby="hasonlo-cim">
   <div class="container">
     <div class="section-head-row"><div class="section-head"><div class="eyebrow">Neked ajánljuk</div><h2 class="h2" id="hasonlo-cim">Hasonló darabok</h2></div><a class="link-arrow" href="${catUrl(c)}">Összes: ${esc(c.name)}</a></div>
@@ -1570,7 +1578,7 @@ const DESIGNER = {
     alkalmi: ["Egyenes ruha", "Overál", "Kosztüm", "Ruha és blézer együttes"],
     kabat: ["Rövid", "Hosszú, egyenes", "Trencs", "Megkötős derekú"],
   },
-  fabrics: [["Pamut popelin", "Friss, könnyen kezelhető, ingekhez ideális"], ["Len és vászon", "Légies, nyári darabokhoz"], ["Krep és szövet", "Szép esésű, blézerhez, nadrághoz"], ["Gyapjú-keverék", "Melegebb, formatartó"], ["Selyem hatású", "Fényes, ünnepi hatás"], ["Még nem tudom", "A konzultáción segítünk választani"]],
+  fabrics: [["Pamut poplin", "Friss, könnyen kezelhető, ingekhez ideális"], ["Len és vászon", "Légies, nyári darabokhoz"], ["Krep és szövet", "Szép esésű, blézerhez, nadrághoz"], ["Gyapjú-keverék", "Melegebb, formatartó"], ["Selyem hatású", "Fényes, ünnepi hatás"], ["Még nem tudom", "A konzultáción segítünk választani"]],
   colors: [["Fehér", "#ffffff"], ["Ekrü", "#efe6d2"], ["Bézs és teve", "#c8a37a"], ["Sötétkék", "#1c2b45"], ["Világoskék", "#a9c6e2"], ["Piros", "#c0303a"], ["Rózsaszín", "#e58fb0"], ["Fekete", "#1f1f1f"], ["Csíkos vagy mintás", "repeating-linear-gradient(45deg,#fff 0 6px,#e58fb0 6px 12px)"], ["A konzultáción választok", "conic-gradient(#c0303a,#e8c547,#4d81b3,#e58fb0,#c0303a)"]],
   occasions: ["Iroda és tárgyalás", "Hétköznapok", "Ünnep és rendezvény", "Utazás és szabadidő"],
 };
@@ -1582,6 +1590,9 @@ function configuratorTeaser() {
 function designerPage() {
   const crumbs = [["Főoldal", "/"], ["Tervezd meg a ruhád", "/tervezd-meg/"]];
   const catPhoto = (slug) => (catBySlug[slug] ? catHero(catBySlug[slug]) : "");
+  /* A Nadrág és a Mellény csempe saját, viselt ruhát mutató fotót kap (az Oldalképek között külön cserélhető). */
+  const WORN = { nadrag: ["jahxr9wPPHcxK0AWCJ8AZaeHQnY.jpeg", "Nadrág"], melleny: ["ZHXenMDNxDUohhIi2cLGZ0mYT4.jpg", "Mellény"] };
+  const piecePhoto = (v, cat) => (WORN[v] ? slot(`tervezo-${v}`, WORN[v][0], `Tervezd meg a ruhád – „${WORN[v][1]}” csempe (viselt ruhát mutató fotó)`) : catPhoto(cat));
   const radio = (name, val, inner, cls = "dopt") => `<label class="${cls}"><input type="radio" name="${name}" value="${esc(val)}" required>${inner}</label>`;
   const step = (n, title, hint, inner) => `<fieldset class="dstep" data-step="${n}"><legend><span class="dnum">${n}/6</span>${title}</legend>${hint ? `<p class="muted">${hint}</p>` : ""}${inner}</fieldset>`;
   const body = `
@@ -1594,7 +1605,7 @@ function designerPage() {
     <div class="dprogress" aria-hidden="true"><span data-progress></span></div>
     <form name="ruhatervezo" method="POST" action="/koszonjuk/" data-netlify="true" netlify-honeypot="bot-field" data-ajax-form data-designer-form>
       ${hidden("ruhatervezo")}
-      ${step(1, "Milyen ruhadarabot szeretnél?", "", `<div class="dgrid dgrid-img">${DESIGNER.pieces.map(([v, n, cat]) => radio("darab", n, `${catPhoto(cat) ? pic(catPhoto(cat), "", { sizes: "200px" }) : ""}<span>${esc(n)}</span>`, "dopt dopt-img")).join("")}</div>`)}
+      ${step(1, "Milyen ruhadarabot szeretnél?", "", `<div class="dgrid dgrid-img">${DESIGNER.pieces.map(([v, n, cat]) => radio("darab", n, `${piecePhoto(v, cat) ? pic(piecePhoto(v, cat), "", { sizes: "200px" }) : ""}<span>${esc(n)}</span>`, "dopt dopt-img")).join("")}</div>`)}
       ${step(2, "Milyen fazont?", "A fazonokat a konzultáción a te alkatodhoz igazítjuk.", Object.entries(DESIGNER.cuts).map(([k, list]) => `<div class="dgrid" data-cuts="${k}">${list.map((c) => radio("fazon", c, `<span>${esc(c)}</span>`)).join("")}${radio("fazon", "Még nem tudom", "<span>Még nem tudom</span>")}</div>`).join(""))}
       ${step(3, "Milyen anyagból?", "A szalonban nagy anyagválasztékból választhatsz, és hozott anyaggal is dolgozunk.", `<div class="dgrid">${DESIGNER.fabrics.map(([n, d]) => radio("anyag", n, `<span><b>${esc(n)}</b><small>${esc(d)}</small></span>`)).join("")}</div>`)}
       ${step(4, "Milyen színben?", "", `<div class="dgrid dgrid-color">${DESIGNER.colors.map(([n, c]) => radio("szin", n, `<i style="background:${c}"></i><span>${esc(n)}</span>`, "dopt dopt-color")).join("")}</div>`)}
@@ -1786,6 +1797,7 @@ const redirects = [
   "/kategoria_ing/* /kategoria/ing/ 301",
   ...CATEGORIES.filter((c) => c.legacy && c.legacy !== c.slug).map((c) => `/kategoria/${c.legacy}/ /kategoria/${c.slug}/ 301`),
   ...CATEGORIES.filter((c) => c.legacy && c.legacy !== c.slug).map((c) => `/kategoria/${c.legacy} /kategoria/${c.slug}/ 301`),
+  ...CATEGORIES.flatMap((c) => (c.aliases || []).flatMap((a) => [`/kategoria/${a}/ /kategoria/${c.slug}/ 301`, `/kategoria/${a} /kategoria/${c.slug}/ 301`])),
 ];
 redirects.push("/kategoria/kituzok/ /#kollekcio 301", "/kategoria/kituzok /#kollekcio 301", "/kategoria/kituzo/ /#kollekcio 301", "/termek/estelyi-overal/ /termek/elegans-overal/ 301", "/termek/feher-ing-hasitott-ujjal/ /termek/klasszikus-ing-hasitott-ujjal/ 301", "/termek/unnepi-kollekcio-darab/ /kategoria/unnepi-kollekcio/ 301");
 write("_redirects", redirects.join("\n") + "\n");
