@@ -417,7 +417,7 @@ function footer() {
     <div class="footer-top">
       <div class="footer-brand">
         <img src="/assets/logo/in-my-style-logo.png" alt="In My Style" width="170" height="36" loading="lazy">
-        <p>Sportos elegancia a rád szabott ruha élményével. Budapesti szalonunkban egyedi méretre készülő darabokkal várunk.</p>
+        <p>Sportos elegancia, kényelem és nőiesség. Budapesti szalonunkban azonnal elvihető kész kollekcióval és egyedi méretre készülő ruhadarabokkal várunk.</p>
         <div class="footer-social">
           <a class="icon-link" href="${SITE.facebook}" target="_blank" rel="noopener" aria-label="In My Style a Facebookon">${I.facebook}</a>
           <a class="icon-link" href="${SITE.instagram}" target="_blank" rel="noopener" aria-label="In My Style az Instagramon">${I.instagram}</a>
@@ -999,7 +999,8 @@ function homePage() {
     <div class="hero-inner">
       <div class="eyebrow">Budapest II. kerület · Kapás utca 45/B</div>
       <h1 id="hero-cim">Egyedi méretre készülő női ruhák <span class="script">rád szabva</span></h1>
-      <p class="lead">Sportos elegancia, kényelem és nőiesség: minden darabot a te alkatodra, a te ízlésed szerint készítünk, a konzultációtól az utolsó próbáig.</p>
+      <p class="lead lead-first">Sportos elegancia, kényelem és nőiesség.</p>
+      <p class="lead">Kész kollekció és egyedi készítés egy helyen: minden darabot a te alkatodra, a te ízlésed szerint készítünk, a konzultációtól az utolsó próbáig.</p>
       <div class="hero-actions">
         <a class="btn btn-light" href="#idopont">${I.calendar}Időpontot foglalok</a>
         <a class="btn btn-outline-light" href="#kollekcio">Kollekció megtekintése</a>
@@ -1584,7 +1585,7 @@ const DESIGNER = {
 };
 function configuratorTeaser() {
   return `<section class="section-sm"><div class="container"><div class="designer-teaser">
-  <div><div class="eyebrow">Újdonság</div><h2 class="h3">Tervezd meg a ruhád hat lépésben</h2><p class="muted">Válaszd ki a ruhadarabot, a fazont, az anyagot és a színt, és mi a díjmentes konzultáción valóra váltjuk.</p></div>
+  <div><div class="eyebrow">Újdonság</div><h2 class="h3">Tervezd meg a ruhád hét lépésben</h2><p class="muted">Válaszd ki a ruhadarabot, a fazont, az anyagot és a színt, és mi a díjmentes konzultáción valóra váltjuk.</p></div>
   <a class="btn btn-dark" href="/tervezd-meg/">Tervezés indítása</a></div></div></section>`;
 }
 function designerPage() {
@@ -1594,11 +1595,12 @@ function designerPage() {
   const WORN = { nadrag: ["jahxr9wPPHcxK0AWCJ8AZaeHQnY.jpeg", "Nadrág"], melleny: ["ZHXenMDNxDUohhIi2cLGZ0mYT4.jpg", "Mellény"] };
   const piecePhoto = (v, cat) => (WORN[v] ? slot(`tervezo-${v}`, WORN[v][0], `Tervezd meg a ruhád – „${WORN[v][1]}” csempe (viselt ruhát mutató fotó)`) : catPhoto(cat));
   const radio = (name, val, inner, cls = "dopt") => `<label class="${cls}"><input type="radio" name="${name}" value="${esc(val)}" required>${inner}</label>`;
-  const step = (n, title, hint, inner) => `<fieldset class="dstep" data-step="${n}"><legend><span class="dnum">${n}/6</span>${title}</legend>${hint ? `<p class="muted">${hint}</p>` : ""}${inner}</fieldset>`;
+  const drange = (key, label, min, max, val) => `<div class="range-row"><label for="r-${key}">${label}</label><output data-size-output="${key}" for="r-${key}">${val} cm</output><input id="r-${key}" type="range" name="${key}" min="${min}" max="${max}" value="${val}" data-size-input="${key}"></div>`;
+  const step = (n, title, hint, inner) => `<fieldset class="dstep" data-step="${n}"><legend><span class="dnum">${n}/7</span>${title}</legend>${hint ? `<p class="muted">${hint}</p>` : ""}${inner}</fieldset>`;
   const body = `
 <section class="page-hero page-hero-plain" aria-labelledby="dz-cim">
   <div class="container">${breadcrumbHtml(crumbs)}<div class="eyebrow">Ruhatervező</div><h1 id="dz-cim">Tervezd meg a ruhád</h1>
-  <p class="lead">Hat egyszerű lépésben összeállíthatod, milyen darabot szeretnél. Az elképzelésedet elküldjük Szilviának, aki felhív, és a díjmentes konzultáción együtt véglegesítitek a részleteket.</p></div>
+  <p class="lead">Hét egyszerű lépésben összeállíthatod, milyen darabot szeretnél, és megadhatod a méreteidet. Az elképzelésedet elküldjük Szilviának, aki felhív, és a díjmentes konzultáción együtt véglegesítitek a részleteket.</p></div>
 </section>
 <section class="section designer" data-designer>
   <div class="container">
@@ -1610,7 +1612,16 @@ function designerPage() {
       ${step(3, "Milyen anyagból?", "A szalonban nagy anyagválasztékból választhatsz, és hozott anyaggal is dolgozunk.", `<div class="dgrid">${DESIGNER.fabrics.map(([n, d]) => radio("anyag", n, `<span><b>${esc(n)}</b><small>${esc(d)}</small></span>`)).join("")}</div>`)}
       ${step(4, "Milyen színben?", "", `<div class="dgrid dgrid-color">${DESIGNER.colors.map(([n, c]) => radio("szin", n, `<i style="background:${c}"></i><span>${esc(n)}</span>`, "dopt dopt-color")).join("")}</div>`)}
       ${step(5, "Milyen alkalomra?", "", `<div class="dgrid">${DESIGNER.occasions.map((o) => radio("alkalom", o, `<span>${esc(o)}</span>`)).join("")}</div>`)}
-      <fieldset class="dstep" data-step="6"><legend><span class="dnum">6/6</span>Az elképzelésed összefoglalója</legend>
+      ${step(6, "Add meg a méreteidet", "A csúszkák tájékoztató jellegűek — a pontos méretet mindig személyesen vesszük fel a szalonban.", `<div class="size-tool" data-size-tool>
+          ${sizeFigure()}
+          <div class="size-fields">
+            ${drange("magassag", "Magasság", 150, 190, 168)}
+            ${drange("mellboseg", "Mellbőség", 78, 130, 94)}
+            ${drange("derekboseg", "Derékbőség", 60, 120, 76)}
+            ${drange("csipoboseg", "Csípőbőség", 80, 135, 100)}
+          </div>
+        </div>`)}
+      <fieldset class="dstep" data-step="7"><legend><span class="dnum">7/7</span>Az elképzelésed összefoglalója</legend>
         <dl class="dsummary" data-summary></dl>
         <div class="form-grid">
           <div class="field"><label for="dz-nev">Neved</label><input id="dz-nev" type="text" name="nev" autocomplete="name" required></div>
@@ -1626,7 +1637,7 @@ function designerPage() {
 </section>`;
   return page({
     title: "Tervezd meg a ruhád – egyedi méretre | In My Style",
-    description: "Állítsd össze az álmaid ruháját hat lépésben: ruhadarab, fazon, anyag, szín és alkalom. Szilvia a díjmentes konzultáción valóra váltja.",
+    description: "Állítsd össze az álmaid ruháját hét lépésben: ruhadarab, fazon, anyag, szín, alkalom és méret. Szilvia a díjmentes konzultáción valóra váltja.",
     url: "/tervezd-meg/", active: "tervezd", jsonld: [breadcrumbLd(crumbs)], body,
   });
 }

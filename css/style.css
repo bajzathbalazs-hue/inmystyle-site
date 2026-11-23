@@ -881,8 +881,9 @@ a.chip:hover { filter: brightness(.95); }
 .bday-body { display: flex; flex-direction: column; gap: 14px; }
 .bday-body .h2, .bday-body .lead { margin: 0; }
 @media (max-width: 860px) { .gift-inner, .bday { grid-template-columns: 1fr; } }
-.topbar a.topbar-gift { background: #fff; color: var(--ink); border-radius: 999px; padding: 3px 12px; font-weight: 700; }
-.topbar a.topbar-gift:hover { text-decoration: none; background: var(--accent-tint); }
+.topbar a.topbar-gift { background: linear-gradient(180deg, #e3c77e, #c9a24b); color: #111; border-radius: 999px; padding: 3px 12px; font-weight: 700; }
+.topbar a.topbar-gift:hover { text-decoration: none; background: linear-gradient(180deg, #edd595, #d6b05c); color: #000; }
+.topbar a.topbar-gift:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
 /* Szolgáltatásoldalak */
 .process-3 { grid-template-columns: repeat(3, 1fr); max-width: 900px; margin-inline: auto !important; }
@@ -907,3 +908,5 @@ a.service-media { display: block; }
   /* Telefonon az oldalra lapozható sorok csak vízszintesen mozdulnak, függőlegesen nem csúsznak el. */
   .services, .testimonials, .scroll-row, .cat-grid, .lb-track, .h-scroll, .fchips, .help-chips { overflow-y: hidden; }
 }
+.hero .lead.lead-first { margin-bottom: 8px; font-weight: 600; }
+.dstep .size-tool { margin-top: 18px; }

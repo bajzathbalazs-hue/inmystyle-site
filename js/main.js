@@ -513,6 +513,7 @@
       if (i === 1) { const k = PIECE_KEYS[val("darab")]; $$("[data-cuts]", form).forEach((g) => { const on = g.dataset.cuts === k; g.hidden = !on; $$("input", g).forEach((r) => { r.disabled = !on; if (!on) r.checked = false; }); }); }
       if (i === steps.length - 1) {
         const rows = [["Ruhadarab", val("darab")], ["Fazon", val("fazon")], ["Anyag", val("anyag")], ["Szín", val("szin")], ["Alkalom", val("alkalom")]];
+        [["Magasság", "magassag"], ["Mellbőség", "mellboseg"], ["Derékbőség", "derekboseg"], ["Csípőbőség", "csipoboseg"]].forEach(([k, n]) => { const el = form.elements[n]; if (el && el.value) rows.push([k, el.value + " cm"]); });
         $("[data-summary]", form).innerHTML = rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v ? v.replace(/</g, "&lt;") : "–"}</dd></div>`).join("");
       }
       const top = dz.getBoundingClientRect().top + scrollY - 90; if (scrollY > top) scrollTo({ top, behavior: "smooth" });
